@@ -16,7 +16,7 @@ $nuGetExe = (Join-Path $PSScriptRoot nuget\nuget.exe)
 $nuGetCfg = (Join-Path $PSScriptRoot nuget\nuget.config)
 
 # NuGet (restored) packages root
-$nuGetPackageRoot = Join-Path $PSScriptRoot '..\.packages'
+$nuGetPackageRoot = Join-Path $PSScriptRoot '..\packages'
 
 if (-not (Test-Path $nuGetPackageRoot -PathType Container))
 {
@@ -47,7 +47,7 @@ function Install-NuGetVsoAuthProvider
 
 # Restore NuGet packages, listed in packages.config
 function Restore-NuGetPackages(
-    [string]$packageConfig = "$PSScriptRoot\packages.config"
+    [string]$packageConfig = "$PSScriptRoot\..\Vault..\Explorer\packages.config"
     )
 {
     # obtain package sources (for nuget.exe)
@@ -79,7 +79,7 @@ function Restore-NuGetPackages(
 
 # Obtains package config collection, based on NuGet 'packages.config'
 function Get-NuGetPackageConfig(
-    [string]$packageConfig = "$PSScriptRoot\packages.config"
+    [string]$packageConfig = "$PSScriptRoot\..\Vault\Explorer\packages.config"
     )
 {
     [xml]$root = (Get-Content -Raw $packageConfig)
@@ -118,7 +118,7 @@ function New-NuGetPackagePropertyFile(
         $xw.WriteStartElement("PropertyGroup", $ns);
         
         $xw.WriteComment(" Packages root ");
-        $xw.WriteElementString("PackagesRoot", $ns, '$(RepositoryRoot)\.packages');
+        $xw.WriteElementString("PackagesRoot", $ns, '$(RepositoryRoot)\packages');
         $xw.WriteComment(" Packages sorted by name and version ");
     }
 
@@ -185,7 +185,7 @@ function New-NuGetPackagePropertyFile(
 function Get-PackagesConfigFingerPrintIfChanged
 {
     # obtain the fingerprint of the packages.config
-    $fpPackagesConfig = (Get-FileHash "$PSScriptRoot\packages.config" -Algorithm MD5).Hash
+    $fpPackagesConfig = (Get-FileHash "$PSScriptRoot\..\Vault\Explorer\packages.config" -Algorithm MD5).Hash
     # return the fingerprint in case packages.props doesn't exist
     if (-not (Test-Path $nuGetPackagePropertyFile -PathType Leaf))
     {
