@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved. 
 // Licensed under the MIT License. See License.txt in the project root for license information. 
 
+using Microsoft.Azure.KeyVault;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -9,7 +10,7 @@ using System.Windows.Forms;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Linq;
-using Azure.Security.KeyVault.Secrets;
+using Microsoft.Azure.KeyVault.Models;
 
 namespace Microsoft.Vault.Explorer
 {
@@ -18,20 +19,22 @@ namespace Microsoft.Vault.Explorer
     /// </summary>
     public class ListViewItemSecret : ListViewItemBase
     {
-        public readonly SecretProperties Attributes;
+        public readonly SecretAttributes Attributes;
         public readonly string ContentTypeStr;
         public readonly ContentType ContentType;
 
-        public ListViewItemSecret(ISession session, SecretProperties attributes) :
-            base(session, ContentTypeEnumConverter.GetValue(attributes.ContentType).IsCertificate() ? CertificatesGroup : SecretsGroup,
-                attributes.Id, attributes.Name, attributes.Tags, attributes.Enabled, attributes.CreatedOn, attributes.UpdatedOn, attributes.NotBefore, attributes.ExpiresOn)
+        private ListViewItemSecret(ISession session, SecretIdentifier identifier, SecretAttributes attributes, string contentTypeStr, IDictionary<string, string> tags) :
+            base(session, ContentTypeEnumConverter.GetValue(contentTypeStr).IsCertificate() ? CertificatesGroup : SecretsGroup,
+                identifier, tags, attributes.Enabled, attributes.Created, attributes.Updated, attributes.NotBefore, attributes.Expires)
         {
             Attributes = attributes;
-            ContentTypeStr = attributes.ContentType;
-            ContentType = ContentTypeEnumConverter.GetValue(attributes.ContentType);
+            ContentTypeStr = contentTypeStr;
+            ContentType = ContentTypeEnumConverter.GetValue(contentTypeStr);
         }
 
-        public ListViewItemSecret(ISession session, KeyVaultSecret s) : this(session, s.Properties) { }
+        public ListViewItemSecret(ISession session, SecretItem si) : this(session, si.Identifier, si.Attributes, si.ContentType, si.Tags) { }
+
+        public ListViewItemSecret(ISession session, SecretBundle s) : this(session, s.SecretIdentifier, s.Attributes, s.ContentType, s.Tags) { }
 
         protected override IEnumerable<PropertyDescriptor> GetCustomProperties()
         {
@@ -48,20 +51,18 @@ namespace Microsoft.Vault.Explorer
 
         public override async Task<ListViewItemBase> ToggleAsync(CancellationToken cancellationToken)
         {
-            SecretProperties secretProperties = new SecretProperties(Name);
-            secretProperties.Enabled = !Attributes.Enabled;
-            SecretProperties s = await Session.CurrentVault.UpdateSecretAsync(secretProperties, cancellationToken); // Toggle only Enabled attribute
+            SecretBundle s = await Session.CurrentVault.UpdateSecretAsync(Name, null, new Dictionary<string, string>(Tags), null, new SecretAttributes() { Enabled = !Attributes.Enabled }, cancellationToken); // Toggle only Enabled attribute
             return new ListViewItemSecret(Session, s);
         }
 
         public override async Task<ListViewItemBase> ResetExpirationAsync(CancellationToken cancellationToken)
         {
-            var sa = new SecretProperties(Name)
+            var sa = new SecretAttributes()
             {
                 NotBefore = (this.NotBefore == null) ? (DateTime?)null : DateTime.UtcNow.AddHours(-1),
-                ExpiresOn = (this.Expires == null) ? (DateTime?)null : DateTime.UtcNow.AddYears(1)
+                Expires = (this.Expires == null) ? (DateTime?)null : DateTime.UtcNow.AddYears(1)
             };
-            SecretProperties s = await Session.CurrentVault.UpdateSecretAsync(sa, cancellationToken); // Reset only NotBefore and Expires attributes
+            SecretBundle s = await Session.CurrentVault.UpdateSecretAsync(Name, null, new Dictionary<string, string>(Tags), null, sa, cancellationToken); // Reset only NotBefore and Expires attributes
             return new ListViewItemSecret(Session, s);
         }
 
@@ -78,41 +79,29 @@ namespace Microsoft.Vault.Explorer
 
         public override Form GetEditDialog(string name, IEnumerable<object> versions)
         {
-            return new SecretDialog(Session, name, versions.Cast<SecretProperties>());
+            return new SecretDialog(Session, name, versions.Cast<SecretItem>());
         }
 
         private static async Task<ListViewItemSecret> NewOrUpdateAsync(ISession session, object originalObject, PropertyObject newObject, CancellationToken cancellationToken)
         {
-            KeyVaultSecret sOriginal = (KeyVaultSecret)originalObject;
+            SecretBundle sOriginal = (SecretBundle)originalObject;
             PropertyObjectSecret posNew = (PropertyObjectSecret)newObject;
-            KeyVaultSecret s = null;
-            SecretProperties sp = null;
-            SecretProperties properties = new SecretProperties(posNew.Name)
-            {
-                ContentType = ContentTypeEnumConverter.GetDescription(posNew.ContentType),
-                Enabled = posNew.Enabled,
-                ExpiresOn = posNew.Expires,
-                NotBefore = posNew.NotBefore
-            };
+            SecretBundle s = null;
             // New secret, secret rename or new value
-            if ((sOriginal == null) || (sOriginal.Name != posNew.Name) || (sOriginal.Value != posNew.RawValue))
+            if ((sOriginal == null) || (sOriginal.SecretIdentifier.Name != posNew.Name) || (sOriginal.Value != posNew.RawValue))
             {
-                s = await session.CurrentVault.SetSecretAsync(posNew.Name, posNew.RawValue, properties, cancellationToken);
+                s = await session.CurrentVault.SetSecretAsync(posNew.Name, posNew.RawValue, posNew.ToTagsDictionary(), ContentTypeEnumConverter.GetDescription(posNew.ContentType), posNew.ToSecretAttributes(), cancellationToken);
             }
             else // Same secret name and value
             {
-                sp = await session.CurrentVault.UpdateSecretAsync(properties, cancellationToken);
+                s = await session.CurrentVault.UpdateSecretAsync(posNew.Name, null, posNew.ToTagsDictionary(), ContentTypeEnumConverter.GetDescription(posNew.ContentType), posNew.ToSecretAttributes(), cancellationToken);
             }
-            string oldSecretName = sOriginal?.Name;
+            string oldSecretName = sOriginal?.SecretIdentifier.Name;
             if ((oldSecretName != null) && (oldSecretName != posNew.Name)) // Delete old secret
             {
                 await session.CurrentVault.DeleteSecretAsync(oldSecretName, cancellationToken);
             }
-            if (s != null)
-            {
-                return new ListViewItemSecret(session, s);
-            }
-            return new ListViewItemSecret(session, sp);
+            return new ListViewItemSecret(session, s);
         }
 
         public override async Task<ListViewItemBase> UpdateAsync(object originalObject, PropertyObject newObject, CancellationToken cancellationToken)

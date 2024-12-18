@@ -18,8 +18,6 @@
     <FileAlignment>512</FileAlignment>
     <AutoVersioning>true</AutoVersioning>
     <GenerateManifests>true</GenerateManifests>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
-    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <DebugSymbols>true</DebugSymbols>
