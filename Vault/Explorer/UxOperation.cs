@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information. 
 
 using Microsoft.ApplicationInsights.DataContracts;
+using Microsoft.Azure.KeyVault;
 using System;
 using System.Linq;
 using System.Collections.Generic;
@@ -11,6 +12,8 @@ using System.Runtime.Remoting.Messaging;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Microsoft.Azure.KeyVault.Models;
+using Microsoft.Rest.Azure;
 
 namespace Microsoft.Vault.Explorer
 {
@@ -98,9 +101,13 @@ namespace Microsoft.Vault.Explorer
                     {
                         await t();
                     }
-                    catch (Exception ce)
+                    catch (CloudException ce) when (ce.Response?.StatusCode == System.Net.HttpStatusCode.Forbidden)
                     {
                         exceptions.Enqueue(ce);
+                    }
+                    catch (KeyVaultErrorException kvce) when (kvce.Response?.StatusCode == System.Net.HttpStatusCode.Forbidden)
+                    {
+                        exceptions.Enqueue(kvce);
                     }
                 }));
             }

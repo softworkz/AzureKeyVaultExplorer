@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved. 
 // Licensed under the MIT License. See License.txt in the project root for license information. 
 
+using Microsoft.Azure.KeyVault;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -27,25 +28,23 @@ namespace Microsoft.Vault.Explorer
 
         public readonly ISession Session;
         public readonly int GroupIndex;
-        public readonly Uri Identifier;
-        public readonly string VaultName;
+        public readonly ObjectIdentifier Identifier;
         public readonly VaultHttpsUri VaultHttpsUri;
         public readonly IDictionary<string, string> Tags;
         public readonly bool Enabled;
-        public readonly DateTimeOffset? Created;
-        public readonly DateTimeOffset? Updated;
-        public readonly DateTimeOffset? NotBefore;
-        public readonly DateTimeOffset? Expires;
+        public readonly DateTime? Created;
+        public readonly DateTime? Updated;
+        public readonly DateTime? NotBefore;
+        public readonly DateTime? Expires;
 
         protected ListViewItemBase(ISession session, int groupIndex,
-            Uri identifier, string name, IDictionary<string, string> tags, bool? enabled,
-            DateTimeOffset? created, DateTimeOffset? updated, DateTimeOffset? notBefore, DateTimeOffset? expires) : base(name)
+            ObjectIdentifier identifier, IDictionary<string, string> tags, bool? enabled,
+            DateTime? created, DateTime? updated, DateTime? notBefore, DateTime? expires) : base(identifier.Name)
         {
             Session = session;
             GroupIndex = groupIndex;
             Identifier = identifier;
-            VaultName = name;
-            VaultHttpsUri = new VaultHttpsUri(identifier.ToString());
+            VaultHttpsUri = new VaultHttpsUri(identifier.Identifier);
             Tags = tags;
             Enabled = enabled ?? true;
             Created = created;
@@ -94,7 +93,7 @@ namespace Microsoft.Vault.Explorer
         public void RepopulateSubItems()
         {
             SubItems.Clear();
-            SubItems[0].Name = SubItems[0].Text = VaultName;
+            SubItems[0].Name = SubItems[0].Text = Identifier.Name;
             SubItems.Add(new ListViewSubItem(this, Utils.NullableDateTimeToString(Updated)) { Tag = Updated }); // Add Tag so ListViewItemSorter will sort DateTime correctly
             SubItems.Add(ChangedBy);
             SubItems.Add(new ListViewSubItem(this, Utils.ExpirationToString(Expires)) { Tag = Expires }); // Add Tag so ListViewItemSorter will sort TimeSpan correctly

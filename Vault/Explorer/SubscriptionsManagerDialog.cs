@@ -4,19 +4,24 @@
 using Microsoft.Azure;
 using Microsoft.Azure.Management.KeyVault;
 using Microsoft.Azure.Management.KeyVault.Models;
+using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Microsoft.Rest;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Data;
+using System.Drawing;
 using System.Drawing.Design;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Runtime.InteropServices;
+using System.Text;
 using System.Text.RegularExpressions;
-using Azure.Identity;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using Microsoft.Vault.Library;
-using Azure.Core;
 
 namespace Microsoft.Vault.Explorer
 {
@@ -25,7 +30,6 @@ namespace Microsoft.Vault.Explorer
         const string ApiVersion = "api-version=2016-07-01";
         const string ManagmentEndpoint = "https://management.azure.com/";
         const string AddAccountText = "Add New Account";
-        const string ClientId = "Set ClientId here...";
         const string AddDomainHintText = "How to add new domain hint here...";
         const string AddDomainHintInstructions = @"To add new domain hint, just follow below steps:
 1) In the main window open Settings dialog
@@ -34,7 +38,7 @@ namespace Microsoft.Vault.Explorer
 4) Open Subscriptions Manager dialog";
 
         private AccountItem _currentAccountItem;
-        private InteractiveBrowserCredential _credential;
+        private AuthenticationResult _currentAuthResult;
         private KeyVaultManagementClient _currentKeyVaultMgmtClient;
         private readonly HttpClient _httpClient;
 
@@ -79,7 +83,7 @@ namespace Microsoft.Vault.Explorer
                     // Authenticate into selected account
                     _currentAccountItem = account;
                     GetAuthenticationToken();
-                    _currentAccountItem.UserAlias = _credential.Authenticate().Username;
+                    _currentAccountItem.UserAlias = _currentAuthResult.UserInfo.DisplayableId.Split('@')[0];
                     break;
 
                 default:
@@ -88,7 +92,7 @@ namespace Microsoft.Vault.Explorer
 
             using (var op = NewUxOperationWithProgress(uxComboBoxAccounts))
             {
-                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(_credential.GetToken(new TokenRequestContext()).GetType().ToString(), _credential.GetToken(new TokenRequestContext()).Token);
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(_currentAuthResult.AccessTokenType, _currentAuthResult.AccessToken);
                 var hrm = await _httpClient.GetAsync($"{ManagmentEndpoint}subscriptions?{ApiVersion}", op.CancellationToken);
                 var json = await hrm.Content.ReadAsStringAsync();
                 var subs = JsonConvert.DeserializeObject<SubscriptionsResponse>(json);
@@ -109,7 +113,7 @@ namespace Microsoft.Vault.Explorer
             if (null == s) return;
             using (var op = NewUxOperationWithProgress(uxComboBoxAccounts))
             {
-                var tvcc = new TokenCredentials(_credential.GetToken(new TokenRequestContext()).Token);
+                var tvcc = new TokenCredentials(_currentAuthResult.AccessToken);
                 _currentKeyVaultMgmtClient = new KeyVaultManagementClient(tvcc) { SubscriptionId = s.Subscription.SubscriptionId.ToString() };
                 var vaults = await _currentKeyVaultMgmtClient.Vaults.ListAsync(null, op.CancellationToken);
                 uxListViewVaults.Items.Clear();
@@ -142,15 +146,14 @@ namespace Microsoft.Vault.Explorer
             GetAuthenticationToken();
 
             // Get new user account and add it to default settings
-            string userAccountName = _credential.Authenticate().Username;
-            AuthenticationRecord authentication = _credential.Authenticate();
+            string userAccountName = _currentAuthResult.UserInfo.DisplayableId;
             string[] userLogin = userAccountName.Split('@');
             _currentAccountItem.UserAlias = userLogin[0];
             _currentAccountItem.DomainHint = userLogin[1];
             Settings.Default.AddUserAccountName(userAccountName);
 
             // Rename cache to be associated with user login
-            (_currentAccountItem.cachePersistence).Rename(userAccountName, authentication);
+            ((FileTokenCache)_currentAccountItem.AuthContext.TokenCache).Rename(userAccountName);
             uxComboBoxAccounts.Items.Insert(0, userAccountName);
             uxComboBoxAccounts.SelectedIndex = 0;
         }
@@ -159,7 +162,7 @@ namespace Microsoft.Vault.Explorer
         private void GetAuthenticationToken()
         {
             VaultAccessUserInteractive vaui = new VaultAccessUserInteractive(_currentAccountItem.DomainHint, _currentAccountItem.UserAlias);
-            _credential = vaui.AcquireToken(_currentAccountItem.authRecord, _currentAccountItem.UserAlias);
+            _currentAuthResult = vaui.AcquireToken(_currentAccountItem.AuthContext, ManagmentEndpoint, _currentAccountItem.UserAlias);
         }
     }
 
@@ -167,19 +170,17 @@ namespace Microsoft.Vault.Explorer
 
     public class AccountItem
     {
-        public AuthenticationRecord authRecord;
-        public CachePersistence cachePersistence;
+        public AuthenticationContext AuthContext;
 
         public string DomainHint;
         public string UserAlias;
-        private static readonly object FileLock = new object();
-        public static string FileName = Environment.ExpandEnvironmentVariables(string.Format(Consts.VaultTokenCacheFileName, "microsoft.com"));
 
-        public AccountItem(string domainHint, string userAlias = null)
+        public AccountItem(string domainHint, string userAlias=null)
         {
             DomainHint = domainHint;
             UserAlias = userAlias ?? Environment.UserName;
-            cachePersistence = new CachePersistence(this.ToString(), authRecord);
+            string authority = domainHint.ToLower().Contains("gme") ? Settings.Default.GmeAuthority : Settings.Default.Authority;
+            AuthContext = new AuthenticationContext(authority, new FileTokenCache(this.ToString()));
         }
 
         public override string ToString() => $"{UserAlias}@{DomainHint}";

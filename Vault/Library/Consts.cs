@@ -69,6 +69,6 @@ namespace Microsoft.Vault.Library
 
         internal const string VaultTokenCacheDirectory = @"%AppData%\Microsoft\Vault";
 
-        public const string VaultTokenCacheFileName = VaultTokenCacheDirectory + @"\TokenCache_{0}_cc73e24a-63f3-4d9f-878c-53b85fecd872.dat"; // {0} - DomainHint
+        internal const string VaultTokenCacheFileName = VaultTokenCacheDirectory + @"\TokenCache_{0}_cc73e24a-63f3-4d9f-878c-53b85fecd872.dat"; // {0} - DomainHint
     }
 }

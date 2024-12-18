@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved. 
 // Licensed under the MIT License. See License.txt in the project root for license information. 
 
+using Microsoft.Azure.KeyVault;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -30,7 +31,7 @@ namespace Microsoft.Vault.Explorer
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public readonly Uri Identifier;
+        public readonly ObjectIdentifier Identifier;
 
         [DisplayName("Name")]
         [Browsable(false)]
@@ -56,11 +57,11 @@ namespace Microsoft.Vault.Explorer
             }
         }
 
-        private DateTimeOffset? _notBefore;
+        private DateTime? _notBefore;
         [Category("General")]
         [DisplayName("Valid from time (UTC)")]
         [Editor(typeof(NullableDateTimePickerEditor), typeof(UITypeEditor))]
-        public DateTimeOffset? NotBefore
+        public DateTime? NotBefore
         {
             get
             {
@@ -73,11 +74,11 @@ namespace Microsoft.Vault.Explorer
             }
         }
 
-        private DateTimeOffset? _expires;
+        private DateTime? _expires;
         [Category("General")]
         [DisplayName("Valid until time (UTC)")]
         [Editor(typeof(NullableDateTimePickerEditor), typeof(UITypeEditor))]
-        public DateTimeOffset? Expires
+        public DateTime? Expires
         {
             get
             {
@@ -142,12 +143,12 @@ namespace Microsoft.Vault.Explorer
         public bool IsExpirationValid => ((NotBefore ?? DateTime.MinValue) < (Expires ?? DateTime.MaxValue))
             && ((Expires ?? DateTime.MaxValue) <= (SecretKind.MaxExpiration == TimeSpan.MaxValue ? DateTime.MaxValue : DateTime.UtcNow + SecretKind.MaxExpiration));
 
-        protected PropertyObject(Uri identifier, string name, IDictionary<string, string> tags,
-            bool? enabled, DateTimeOffset? expires, DateTimeOffset? notBefore,
+        protected PropertyObject(ObjectIdentifier identifier, IDictionary<string, string> tags,
+            bool? enabled, DateTime? expires, DateTime? notBefore,
             PropertyChangedEventHandler propertyChanged)
         {
             Identifier = identifier;
-            Name = name;
+            Name = identifier?.Name;
 
             Tags = new ObservableTagItemsCollection();
             if (null != tags) foreach (var kvp in tags) Tags.Add(new TagItem(kvp));
@@ -223,6 +224,6 @@ namespace Microsoft.Vault.Explorer
             }
         }
 
-        public string GetLinkAsInternetShortcut() => $"[InternetShortcut]\nURL={new VaultHttpsUri(Identifier.ToString()).VaultLink}";
+        public string GetLinkAsInternetShortcut() => $"[InternetShortcut]\nURL={new VaultHttpsUri(Identifier.Identifier).VaultLink}";
     }
 }
