@@ -4,10 +4,10 @@
 
 Azure Key Vault Explorer - be productive when working with secrets!
 
-~~#### [Click here to install the latest version (https://aka.ms/ve)](https://aka.ms/ve)~~
+**[Click here to install the latest version (https://srnk.cc/ve)](https://srnk.cc/ve)**
 
 Authors: Eli Zeitlin, Gokhan Ozhan, Anna Zeitlin  
-Contact: ~~[Azure Key Vault Explorer Developers](mailto:Azure Key Vault Explorer Developers <vedev@microsoft.com>>)~~ Submit issues/PRs on this repo
+Contact: Submit issues/PRs on this repo
 
 ## Table of Contents
 
@@ -36,7 +36,7 @@ Contact: ~~[Azure Key Vault Explorer Developers](mailto:Azure Key Vault Explorer
 
 * Best user experience for authentication, you will be prompted at most *once* to enter your credentials
 * All types of authentications are supported: Certificate, Secret and User based with 2FA (including PHX or GME)
-* ~~One click activation, just run this: `https://aka.ms/ve?vault://[ENTER HERE YOUR VAULT NAME]`~~
+* One click activation, just run this: `https://srnk.cc/ve?vault://[ENTER HERE YOUR VAULT NAME]`
 * Support single or dual vaults
 * Upload and download certificate (.pfx, .p12 and .cer) files
 * Import and export certificates to user or machine stores in just few clicks
@@ -67,7 +67,7 @@ Contact: ~~[Azure Key Vault Explorer Developers](mailto:Azure Key Vault Explorer
 
 There are 4 ways how you can make Vault Explorer to work with your vaults:
 
-1. ~~In case Vault Explorer is not installed on the box, you may just run: `https://aka.ms/ve?vault://[ENTER HERE YOUR VAULT NAME]`~~
+1. In case Vault Explorer is not installed on the box, you may just run: `https://srnk.cc/ve?vault://[ENTER HERE YOUR VAULT NAME]`
 2. In case Vault Explorer already installed on the box, you can just hit Win+R type `vault://[ENTER HERE YOUR VAULT NAME]` and hit Enter
     * Note: The above two methods do **NOT** allow for alternative account login  
 3. Run Vault Explorer, open vault combo box, select last item "Pick vault from subscription..."  
@@ -94,7 +94,7 @@ Just complete the below fairly easy manual steps *once*:
 * Enter - edit item
 * Ctrl + A - select all items
 * Ctrl + C - copy item value to clipboard for some time (configurable)
-* Ctrl + Shift + C - copy link to the selected item in the following format: `https://aka.ms/ve?vault://vaultName/collection/itemName/version`
+* Ctrl + Shift + C - copy link to the selected item in the following format: `https://srnk.cc/ve?vault://vaultName/collection/itemName/version`
 * Ctrl + D - add item to favorites / remove item from favorites
 * Ctrl + E - edit item
 * Ctrl + F - find items
@@ -315,3 +315,6 @@ PRs are welcome!
   * Microsoft.IdentityModel.Clients.ActiveDirectory
   * Microsoft.Rest.ClientRuntime
   * Microsoft.Rest.ClientRuntime.Azure
+* Setup ClickOnce deployment
+  * Re-establish existing ClickOnce install with new URL - :white_check_mark:
+  * Configure ClickOnce deployments for future releases
