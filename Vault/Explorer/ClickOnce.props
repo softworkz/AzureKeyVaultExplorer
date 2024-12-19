@@ -16,8 +16,8 @@
     <UpdatePeriodically>false</UpdatePeriodically>
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>false</MapFileExtensions>
-    <SupportUrl>http://aka.ms/vaultexplorer</SupportUrl>
-    <ErrorReportUrl>http://aka.ms/vaultexplorer</ErrorReportUrl>
+    <SupportUrl>https://srnk.cc/vefeedback</SupportUrl>
+    <ErrorReportUrl>https://srnk.cc/vefeedback</ErrorReportUrl>
     <ProductName>VaultExplorer</ProductName>
     <PublisherName>Microsoft Corporation</PublisherName>
     <TrustUrlParameters>true</TrustUrlParameters>

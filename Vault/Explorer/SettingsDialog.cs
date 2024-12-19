@@ -43,15 +43,12 @@ namespace Microsoft.Vault.Explorer
 
         private void uxLinkLabelTitle_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            Process.Start("http://aka.ms/vaultexplorer");
+            Process.Start("https://srnk.cc/vehome");
         }
 
         private void uxLinkLabelSendFeedback_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            string body = uxTextBoxVersions.Text;
-            body = body.Replace("\n", "%0A").Replace(" ", "%20");
-            ProcessStartInfo sInfo = new ProcessStartInfo(string.Format("mailto://Azure Key Vault Explorer Developers <vedev@microsoft.com>?subject={0}&body={1}", Utils.AppName, body));
-            Process.Start(sInfo);
+            Process.Start("https://srnk.cc/vefeedback");
         }
 
         private void uxLinkLabelInstallLocation_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)

@@ -634,7 +634,7 @@ namespace Microsoft.Vault.Explorer
         {
             using (var op = NewUxOperation(uxButtonHelp))
             {
-                Process.Start("http://aka.ms/vaultexplorer");
+                Process.Start("https://srnk.cc/vefeedback");
             }
         }
 
