@@ -171,7 +171,7 @@
             this.uxLinkLabelSendFeedback.Size = new System.Drawing.Size(342, 17);
             this.uxLinkLabelSendFeedback.TabIndex = 2;
             this.uxLinkLabelSendFeedback.TabStop = true;
-            this.uxLinkLabelSendFeedback.Text = "Like it, Questions or Comments? Send us feedback...";
+            this.uxLinkLabelSendFeedback.Text = "Submit questions/comments via GitHub issue...";
             this.uxLinkLabelSendFeedback.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.uxLinkLabelSendFeedback_LinkClicked);
             // 
             // label2

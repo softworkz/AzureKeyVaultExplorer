@@ -234,7 +234,7 @@ namespace Microsoft.Vault.Explorer
         }
 
         [UserScopedSetting()]
-        [DefaultSettingValue("https://login.windows.net/72f988bf-86f1-41af-91ab-2d7cd011db47")]
+        [DefaultSettingValue("https://login.windows.net/[ENTER_YOUR_TENANT_ID_HERE]")]
         [DisplayName("Authority")]
         [Description("Address of the authority to issue access token in the subscriptions manager dialog.")]
         [Category("Subscriptions dialog")]
@@ -251,7 +251,7 @@ namespace Microsoft.Vault.Explorer
         }
 
         [UserScopedSetting()]
-        [DefaultSettingValue("https://sts.windows.net/124edf19-b350-4797-aefc-3206115ffdb3")]
+        [DefaultSettingValue("https://sts.windows.net/[ENTER_YOUR_TENANT_ID_HERE]")]
         [DisplayName("Authority")]
         [Description("Address of the GME authority to issue access token in the subscriptions manager dialog.")]
         [Category("Subscriptions dialog")]
@@ -268,6 +268,7 @@ namespace Microsoft.Vault.Explorer
         }
 
         [UserScopedSetting()]
+        [DefaultSettingValue("[ENTER_YOUR_USER_ACCOUNT_HERE]")]
         [DisplayName("User Account Names")]
         [Description("Multi-line string of user account names to use in the subscriptions manager dialog.")]
         [Category("Subscriptions dialog")]
