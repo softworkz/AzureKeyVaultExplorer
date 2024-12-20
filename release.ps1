@@ -1,11 +1,5 @@
 # Based on https://janjones.me/posts/clickonce-installer-build-publish-github/.
 
-# $gitOutput = $(git log -1 --pretty=format:"%h;%cd" --date=iso)
-# $commitIdDate = $gitOutput.Split(';')
-# $shortCommitId = $gitOutput[0]
-# $commitDateUTC = [datetime]::Parse($commitIdDate[1]).ToUniversalTime()
-# $versionString = $commitDateUTC.ToString("vyyyy.MMdd.HHmm.ss")
-
 [CmdletBinding(PositionalBinding=$false)]
 param (
     [switch]$OnlyBuild=$false
