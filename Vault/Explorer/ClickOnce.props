@@ -16,8 +16,8 @@
     <UpdatePeriodically>false</UpdatePeriodically>
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>false</MapFileExtensions>
-    <SupportUrl>https://srnk.cc/vefeedback</SupportUrl>
-    <ErrorReportUrl>https://srnk.cc/vefeedback</ErrorReportUrl>
+    <SupportUrl>https://github.com/reysic/AzureKeyVaultExplorer/issues</SupportUrl>
+    <ErrorReportUrl>https://github.com/reysic/AzureKeyVaultExplorer/issues</ErrorReportUrl>
     <ProductName>VaultExplorer</ProductName>
     <PublisherName>Microsoft Corporation</PublisherName>
     <TrustUrlParameters>true</TrustUrlParameters>

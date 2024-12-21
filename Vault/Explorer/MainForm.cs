@@ -634,7 +634,7 @@ namespace Microsoft.Vault.Explorer
         {
             using (var op = NewUxOperation(uxButtonHelp))
             {
-                Process.Start("https://srnk.cc/vefeedback");
+                Process.Start("https://github.com/reysic/AzureKeyVaultExplorer/issues");
             }
         }
 
