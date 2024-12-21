@@ -43,12 +43,12 @@ namespace Microsoft.Vault.Explorer
 
         private void uxLinkLabelTitle_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            Process.Start("https://srnk.cc/vehome");
+            Process.Start("https://github.com/reysic/AzureKeyVaultExplorer");
         }
 
         private void uxLinkLabelSendFeedback_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            Process.Start("https://srnk.cc/vefeedback");
+            Process.Start("https://github.com/reysic/AzureKeyVaultExplorer/issues");
         }
 
         private void uxLinkLabelInstallLocation_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)

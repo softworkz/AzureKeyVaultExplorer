@@ -38,9 +38,9 @@
     <UpdatePeriodically>false</UpdatePeriodically>
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
-    <InstallUrl>https://srnk.cc/ve/</InstallUrl>
-    <SupportUrl>https://srnk.cc/vefeedback</SupportUrl>
-    <ErrorReportUrl>https://srnk.cc/vefeedback</ErrorReportUrl>
+    <InstallUrl>https://reysic.github.io/AzureKeyVaultExplorer/</InstallUrl>
+    <SupportUrl>https://github.com/reysic/AzureKeyVaultExplorer/issues</SupportUrl>
+    <ErrorReportUrl>https://github.com/reysic/AzureKeyVaultExplorer/issues</ErrorReportUrl>
     <ProductName>VaultExplorer</ProductName>
     <PublisherName>VaultExplorer</PublisherName>
     <OpenBrowserOnPublish>false</OpenBrowserOnPublish>
