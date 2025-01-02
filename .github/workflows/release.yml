@@ -19,5 +19,5 @@ jobs:
           git config --global user.email github-actions@github.com          
 
       - name: Run release script
-        shell: pwsh
+        shell: PowerShell
         run: ./release.ps1
