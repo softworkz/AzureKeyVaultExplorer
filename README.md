@@ -317,4 +317,7 @@ PRs are welcome!
   * Microsoft.Rest.ClientRuntime.Azure
 * Setup ClickOnce deployment
   * Re-establish existing ClickOnce install with new URL - :white_check_mark:
+  * Document release process
   * Configure ClickOnce deployments for future releases
+* Improve onboarding
+  * Better error messaging if user hasn't configured subscription dialog values
