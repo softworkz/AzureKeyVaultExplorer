@@ -47,7 +47,7 @@ function Install-NuGetVsoAuthProvider
 
 # Restore NuGet packages, listed in packages.config
 function Restore-NuGetPackages(
-    [string]$packageConfig = "$PSScriptRoot\..\Vault..\Explorer\packages.config"
+    [string]$packageConfig = "$PSScriptRoot\..\Vault\Explorer\packages.config"
     )
 {
     # obtain package sources (for nuget.exe)
