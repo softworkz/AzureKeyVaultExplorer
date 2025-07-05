@@ -5,8 +5,6 @@ VisualStudioVersion = 17.14.36221.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Root", "Root", "{6E6E5E45-EDF7-4082-AC97-FB28DB1D5229}"
 	ProjectSection(SolutionItems) = preProject
-		Environment.props = Environment.props
-		init.cmd = init.cmd
 		License.txt = License.txt
 	EndProjectSection
 EndProject
