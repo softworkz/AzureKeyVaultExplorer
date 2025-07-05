@@ -623,7 +623,8 @@ namespace Microsoft.Vault.Explorer
         {
             using (var op = NewUxOperation(uxButtonHelp))
             {
-                Process.Start("https://github.com/reysic/AzureKeyVaultExplorer/issues");
+                ProcessStartInfo sInfo = new ProcessStartInfo() { FileName = "https://github.com/reysic/AzureKeyVaultExplorer/issues", UseShellExecute = true };
+                Process.Start(sInfo);
             }
         }
 

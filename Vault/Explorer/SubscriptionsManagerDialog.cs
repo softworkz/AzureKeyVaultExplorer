@@ -53,6 +53,11 @@ namespace Microsoft.Vault.Explorer
             foreach (string userAccountName in Settings.Default.UserAccountNamesList)
             {
                 string[] accounts = userAccountName.Split('@');
+                if (accounts.Length < 2)
+                {
+                    continue;
+                }
+
                 uxComboBoxAccounts.Items.Add(new AccountItem(accounts[1], accounts[0]));
             }
             uxComboBoxAccounts.Items.Add(AddAccountText);
@@ -91,6 +96,11 @@ namespace Microsoft.Vault.Explorer
 
                 default:
                     return;
+            }
+
+            if (_currentAuthResult == null)
+            {
+                return;
             }
 
             using (var op = NewUxOperationWithProgress(uxComboBoxAccounts))
