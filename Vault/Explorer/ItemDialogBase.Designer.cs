@@ -2,7 +2,7 @@
 {
     using System.Windows.Forms;
 
-    partial class ItemDialogBase<T, U> : Form where T : PropertyObject where U : class
+    partial class ItemDialogBase : Form
     {
         /// <summary>
         /// Required designer variable.

@@ -20,7 +20,7 @@ using Microsoft.Vault.Library;
 
 namespace Microsoft.Vault.Explorer
 {
-    public partial class SecretDialog : ItemDialogBase<PropertyObjectSecret, SecretBundle>
+    public partial class SecretDialog : ItemDialogBase // <PropertyObjectSecret, SecretBundle>
     {
         private CertificateValueObject _certificateObj;
         private Scintilla uxTextBoxValue;
@@ -66,10 +66,12 @@ namespace Microsoft.Vault.Explorer
         /// </summary>
         public SecretDialog(ISession session, FileInfo fi) : this(session)
         {
+            var obj = (PropertyObjectSecret)PropertyObject;
+
             uxTextBoxName.Text = Utils.ConvertToValidSecretName(Path.GetFileNameWithoutExtension(fi.Name));
-            PropertyObject.ContentType = ContentTypeUtils.FromExtension(fi.Extension);
+            obj.ContentType = ContentTypeUtils.FromExtension(fi.Extension);
             string password = null;
-            switch (PropertyObject.ContentType)
+            switch (obj.ContentType)
             {
                 case ContentType.Certificate:
                     break;
@@ -108,7 +110,8 @@ namespace Microsoft.Vault.Explorer
                 ((certificate.PrivateKey as RSACryptoServiceProvider)?.CspKeyContainerInfo.Exportable ?? false) ||
                 ((certificate.PrivateKey as DSACryptoServiceProvider)?.CspKeyContainerInfo.Exportable ?? false));
 
-            PropertyObject.ContentType = hasExportablePrivateKey ? ContentType.Pkcs12 : ContentType.Certificate;
+            var obj = (PropertyObjectSecret)PropertyObject;
+            obj.ContentType = hasExportablePrivateKey ? ContentType.Pkcs12 : ContentType.Certificate;
             uxTextBoxName.Text = Utils.ConvertToValidSecretName(certificate.GetNameInfo(X509NameType.SimpleName, false));
             string password = hasExportablePrivateKey ? Utils.NewSecurePassword() : null;
             byte[] data = hasExportablePrivateKey ? certificate.Export(X509ContentType.Pkcs12, password) : certificate.Export(X509ContentType.Cert);
@@ -183,7 +186,8 @@ namespace Microsoft.Vault.Explorer
                 uxTextBoxValue.Text = PropertyObject.Value;
             }
 
-            ToggleCertificateMode(PropertyObject.ContentType.IsCertificate());
+            var obj = (PropertyObjectSecret)PropertyObject;
+            ToggleCertificateMode(obj.ContentType.IsCertificate());
             uxTextBoxValue.Refresh();
         }
 
@@ -234,12 +238,13 @@ namespace Microsoft.Vault.Explorer
             }
 
             // Apply last found secret kind, only when both Content Type and SecretKind are certificate or both not, otherwise fallback to Custom (the first one)
-            if ((!PropertyObject.ContentType.IsCertificate() || !autoDetectSecretKind.IsCertificate) &&
-                (PropertyObject.ContentType.IsCertificate() || autoDetectSecretKind.IsCertificate))
+            var obj = (PropertyObjectSecret)PropertyObject;
+            if ((!obj.ContentType.IsCertificate() || !autoDetectSecretKind.IsCertificate) &&
+                (obj.ContentType.IsCertificate() || autoDetectSecretKind.IsCertificate))
             {
                 autoDetectSecretKind = TryGetDefaultSecretKind();
             }
-            _certificateObj = PropertyObject.ContentType.IsCertificate() ? CertificateValueObject.FromValue(uxTextBoxValue.Text) : null;
+            _certificateObj = obj.ContentType.IsCertificate() ? CertificateValueObject.FromValue(uxTextBoxValue.Text) : null;
             autoDetectSecretKind?.PerformClick();
         }
 
@@ -285,7 +290,8 @@ namespace Microsoft.Vault.Explorer
         private void SecretObject_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             _changed = true;
-            if (e.PropertyName == nameof(PropertyObject.ContentType)) // ContentType changed, refresh
+            var obj = (PropertyObjectSecret)PropertyObject;
+            if (e.PropertyName == nameof(obj.ContentType)) // ContentType changed, refresh
             {
                 AutoDetectSecretKind();
                 RefreshCertificate(_certificateObj);
@@ -342,7 +348,7 @@ namespace Microsoft.Vault.Explorer
             uxPropertyGridSecret.Refresh();
         }
 
-        protected override async Task<SecretBundle> OnVersionChangeAsync(CustomVersion cv)
+        protected override async Task<object> OnVersionChangeAsync(CustomVersion cv)
         {
             SecretVersion sv = (SecretVersion)cv;
             var s = await _session.CurrentVault.GetSecretAsync(sv.SecretItem.Identifier.Name, sv.SecretItem.Identifier.Version);            

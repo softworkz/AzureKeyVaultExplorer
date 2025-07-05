@@ -18,7 +18,7 @@ using System.Windows.Forms;
 
 namespace Microsoft.Vault.Explorer
 {
-    public partial class CertificateDialog : ItemDialogBase<PropertyObjectCertificate, CertificateBundle>
+    public partial class CertificateDialog : ItemDialogBase //<PropertyObjectCertificate, CertificateBundle>
     {
         private CertificatePolicy _certificatePolicy; // There is one policy and multiple versions of kv certificate. A policy is a recipe to create a next version of the kv certificate.
 
@@ -115,7 +115,8 @@ namespace Microsoft.Vault.Explorer
 
         protected override void uxLinkLabelSecretKind_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            X509Certificate2UI.DisplayCertificate(PropertyObject.Certificate);
+            var obj = (PropertyObjectCertificate)PropertyObject;
+            X509Certificate2UI.DisplayCertificate(obj.Certificate);
         }
 
         private void SecretObject_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -124,7 +125,7 @@ namespace Microsoft.Vault.Explorer
             InvalidateOkButton();
         }
 
-        protected override async Task<CertificateBundle> OnVersionChangeAsync(CustomVersion cv)
+        protected override async Task<object> OnVersionChangeAsync(CustomVersion cv)
         {
             var cb = await _session.CurrentVault.GetCertificateAsync(cv.Id.Name, (cv.Index == 0) ? null : cv.Id.Version); // Pass NULL as a version to fetch current CertificatePolicy
             var cert = await _session.CurrentVault.GetCertificateWithExportableKeysAsync(cv.Id.Name, cv.Id.Version);

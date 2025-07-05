@@ -19,13 +19,13 @@ namespace Microsoft.Vault.Explorer
         Edit
     };
 
-    public partial class ItemDialogBase<T, U> : Form where T : PropertyObject where U : class
+    public partial class ItemDialogBase : Form
     {
         protected readonly ISession _session;
         protected readonly ItemDialogBaseMode _mode;
         protected bool _changed;
-        public U OriginalObject; //  Will be NULL in New mode and current value in case of Edit mode
-        public T PropertyObject { get; protected set; }
+        public object OriginalObject; //  Will be NULL in New mode and current value in case of Edit mode
+        public PropertyObject PropertyObject { get; protected set; }
 
         public ItemDialogBase() { }
 
@@ -59,7 +59,7 @@ namespace Microsoft.Vault.Explorer
 
         protected virtual void uxMenuSecretKind_ItemClicked(object sender, ToolStripItemClickedEventArgs e) { }
 
-        protected virtual Task<U> OnVersionChangeAsync(CustomVersion cv) => null;
+        protected virtual Task<object> OnVersionChangeAsync(CustomVersion cv) => null;
 
         protected async void uxMenuVersions_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
         {
