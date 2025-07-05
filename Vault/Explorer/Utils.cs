@@ -252,18 +252,6 @@ namespace Microsoft.Vault.Explorer
             Process.Start(sInfo);
         }
 
-        public static void LaunchPowerShell(string vaultsJsonFile, string firstVaultName, string secondVaultName)
-        {
-            string vaultPs1 = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Vault.ps1");
-            ProcessStartInfo sInfo = new ProcessStartInfo("powershell.exe",
-                $"-NoExit -NoProfile -NoLogo -ExecutionPolicy Unrestricted -File \"{vaultPs1}\" \"{vaultsJsonFile}\" \"{firstVaultName}\" \"{secondVaultName}\"")
-            {
-                UseShellExecute = true,
-                LoadUserProfile = true
-            };
-            Process.Start(sInfo);
-        }
-
         public static void ShowToast(string body)
         {
             // Get a toast XML template
