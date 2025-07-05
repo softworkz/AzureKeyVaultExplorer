@@ -46,6 +46,8 @@ namespace Microsoft.Vault.Explorer
             InitializeComponent();
             ApplySettings();
 
+            ToolStripManager.RenderMode = ToolStripManagerRenderMode.System;
+            
             _moveSecretCursor = Utils.LoadCursorFromResource(Resources.move_secret);
             _moveValueCursor = Utils.LoadCursorFromResource(Resources.move_value);
             _moveLinkCursor = Utils.LoadCursorFromResource(Resources.move_link);
@@ -201,7 +203,7 @@ namespace Microsoft.Vault.Explorer
         {
             using (var op = NewUxOperationWithProgress(uxMenuItemRefresh, uxComboBoxVaultAlias, uxButtonAdd, uxMenuItemAdd, 
                 uxButtonEdit, uxMenuItemEdit, uxButtonToggle, uxMenuItemToggle, uxButtonDelete, uxMenuItemDelete, uxImageSearch, uxTextBoxSearch, 
-                uxButtonShare, uxMenuItemShare, uxButtonFavorite, uxMenuItemFavorite, uxButtonPowershell)) 
+                uxButtonShare, uxMenuItemShare, uxButtonFavorite, uxMenuItemFavorite)) 
             {
                 try
                 {
@@ -259,7 +261,7 @@ namespace Microsoft.Vault.Explorer
                     {
                         UxOperation.ToggleControls(false, uxButtonAdd, uxMenuItemAdd,
                             uxButtonEdit, uxMenuItemEdit, uxButtonToggle, uxMenuItemToggle, uxButtonDelete, uxMenuItemDelete, uxImageSearch, uxTextBoxSearch,
-                            uxButtonShare, uxMenuItemShare, uxButtonFavorite, uxMenuItemFavorite, uxButtonPowershell);
+                            uxButtonShare, uxMenuItemShare, uxButtonFavorite, uxMenuItemFavorite);
                     }
                     else // We were able to list from one or from both collections
                     {
@@ -602,19 +604,6 @@ namespace Microsoft.Vault.Explorer
                     SaveSettings();
                 }
                 uxListViewSecrets_SelectedIndexChanged(null, EventArgs.Empty);
-            }
-        }
-
-        private void uxButtonPowershell_Click(object sender, EventArgs e)
-        {
-            if (CurrentVault != null)
-            {
-                using (var op = NewUxOperation(uxButtonPowershell))
-                {
-                    string firstVaultName = (CurrentVault.VaultNames.Length > 0) ? CurrentVault.VaultNames[0] : "";
-                    string secondVaultName = (CurrentVault.VaultNames.Length > 1) ? CurrentVault.VaultNames[1] : "";
-                    Utils.LaunchPowerShell(CurrentVault.VaultsConfigFile, firstVaultName, secondVaultName);
-                }
             }
         }
 
