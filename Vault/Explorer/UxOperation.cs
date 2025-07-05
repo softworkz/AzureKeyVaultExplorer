@@ -1,14 +1,12 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved. 
 // Licensed under the MIT License. See License.txt in the project root for license information. 
 
-using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.Azure.KeyVault;
 using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Diagnostics;
-using System.Runtime.Remoting.Messaging;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -22,6 +20,8 @@ namespace Microsoft.Vault.Explorer
     /// </summary>
     public class UxOperation : IDisposable
     {
+        public static AsyncLocal<bool> WasUserCancelled = new AsyncLocal<bool>();
+
         public CancellationToken CancellationToken => _cancellationTokenSource.Token;
 
         private readonly DateTimeOffset _startTime;
@@ -131,7 +131,7 @@ namespace Microsoft.Vault.Explorer
 
         private void uxButtonCancel_Click(object sender, EventArgs e)
         {
-            CallContext.LogicalSetData($"{nameof(UxOperation) + nameof(CancellationToken)}", CancellationToken);
+            WasUserCancelled.Value = true;
             _cancellationTokenSource.Cancel();
         }
     }

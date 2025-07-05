@@ -7,7 +7,6 @@ using System.Drawing;
 using System.Linq;
 using System.Security.Permissions;
 using System.Reflection;
-using System.Runtime.Remoting.Messaging;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -114,8 +113,10 @@ namespace Microsoft.Vault.Explorer
         {
             if (e is OperationCanceledException)
             {
-                object o = CallContext.LogicalGetData($"{nameof(UxOperation) + nameof(CancellationToken)}");
-                if (o != null) return; // Do not show any dialog to user
+                if (UxOperation.WasUserCancelled.Value)
+                {
+                    return;
+                }
             }
             // Show error
             var ed = new ExceptionDialog(e);

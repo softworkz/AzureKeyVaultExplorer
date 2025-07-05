@@ -39,62 +39,6 @@
   <Import Project="$(RepositoryRoot)\Environment.Custom.props" 
     Condition="Exists('$(RepositoryRoot)\Environment.Custom.props')"/>
   
-  <!-- NuGet package restore verification task/target -->
-  <UsingTask TaskName="CheckNuGetPackagesUpToDateTask" 
-             TaskFactory="CodeTaskFactory" 
-             AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll"
-             >
-    
-    <ParameterGroup>
-      <RepositoryRoot ParameterType="System.String" Required="true" />
-      <NuGetPackagesUpToDate ParameterType="System.Boolean" Output="true" />
-    </ParameterGroup>
-    <Task>
-      <Using Namespace="System.Security.Cryptography" />
-      <Code Type="Method" Language="cs">
-        <![CDATA[
-          public override bool Execute()
-          {
-              // Load the current fingerprint, if any
-              var fpFileName = Path.Combine(RepositoryRoot, @"packages\.fingerprint");
-
-              var fpCurrent = string.Empty;
-
-              if (File.Exists(fpFileName))
-              {
-                  fpCurrent = File.ReadAllText(fpFileName);    
-              }
-
-              // Obtain the finderprint of packages.config and compare it with the current FP
-              var packageConfigFileName = Path.Combine(RepositoryRoot, @"Vault\Explorer\packages.config");
-
-              using (var md5 = MD5.Create())
-              {
-                  var fpPackageConfig = BitConverter.ToString(md5.ComputeHash(
-                      File.ReadAllBytes(packageConfigFileName))).Replace("-", "");
-
-                  if (fpPackageConfig == fpCurrent)
-                  {
-                      NuGetPackagesUpToDate = true;
-                  }
-              }
-
-              return true;
-          }
-        ]]>
-      </Code>
-    </Task>
-  </UsingTask>
-  
-  <Target Name="EnsureNuGetPackagesUpToDate" BeforeTargets="BeforeBuild">
-    <PropertyGroup>
-      <ErrorText>NuGet packages have not been restored or they are not up-to-date. Please run '$(RepositoryRoot)init.cmd' and reopen/rebuild your solution/projects. </ErrorText>
-    </PropertyGroup>
-    <CheckNuGetPackagesUpToDateTask RepositoryRoot="$(RepositoryRoot)">
-      <Output PropertyName="NuGetPackagesUpToDate" TaskParameter="NuGetPackagesUpToDate" />      
-    </CheckNuGetPackagesUpToDateTask>
-    <Error Condition="$(NuGetPackagesUpToDate) != 'true'" Text="$(ErrorText)" />
-  </Target>
 
   <!-- 
     Hook up a Release build target (in Debug configuration) in case 

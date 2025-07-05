@@ -6,7 +6,7 @@ namespace Microsoft.Vault.Explorer
     using Microsoft.Win32;
     using System;
     using System.Collections.Generic;
-    using System.Deployment.Application;
+    // TODO Although ClickOnce is supported on .NET 5+, apps do not have access to the System.Deployment.Application namespace. For more details see https://github.com/dotnet/deployment-tools/issues/27 and https://github.com/dotnet/deployment-tools/issues/53.
     using System.IO;
     using System.Linq;
     using System.Threading;
@@ -23,7 +23,7 @@ namespace Microsoft.Vault.Explorer
         public new static ActivationUri Parse()
         {
             string vaultUri = (ApplicationDeployment.IsNetworkDeployed) ?
-                AppDomain.CurrentDomain.SetupInformation?.ActivationArguments?.ActivationData?.FirstOrDefault() :
+                ApplicationDeployment.CurrentDeployment?.ActivationUri?.ToString() :
                 (Environment.GetCommandLineArgs().Length == 2) ? Environment.GetCommandLineArgs()[1] : null;
             // Arguments were not passed at all or activation happened via Application Reference (.appref-ms)
             if (string.IsNullOrEmpty(vaultUri)) return Empty;
