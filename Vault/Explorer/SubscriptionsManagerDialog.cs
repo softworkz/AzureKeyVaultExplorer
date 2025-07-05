@@ -4,7 +4,7 @@
 using Microsoft.Azure;
 using Microsoft.Azure.Management.KeyVault;
 using Microsoft.Azure.Management.KeyVault.Models;
-using Microsoft.IdentityModel.Clients.ActiveDirectory;
+using Microsoft.Identity.Client;
 using Microsoft.Rest;
 using Newtonsoft.Json;
 using System;
@@ -82,8 +82,11 @@ namespace Microsoft.Vault.Explorer
                 case AccountItem account:
                     // Authenticate into selected account
                     _currentAccountItem = account;
-                    GetAuthenticationToken();
-                    _currentAccountItem.UserAlias = _currentAuthResult.UserInfo.DisplayableId.Split('@')[0];
+                    await GetAuthenticationTokenAsync();
+                    if (_currentAuthResult.Account != null)
+                    {
+                        _currentAccountItem.UserAlias = _currentAuthResult.Account.Username.Split('@')[0];
+                    }
                     break;
 
                 default:
@@ -92,7 +95,7 @@ namespace Microsoft.Vault.Explorer
 
             using (var op = NewUxOperationWithProgress(uxComboBoxAccounts))
             {
-                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(_currentAuthResult.AccessTokenType, _currentAuthResult.AccessToken);
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _currentAuthResult.AccessToken);
                 var hrm = await _httpClient.GetAsync($"{ManagmentEndpoint}subscriptions?{ApiVersion}", op.CancellationToken);
                 var json = await hrm.Content.ReadAsStringAsync();
                 var subs = JsonConvert.DeserializeObject<SubscriptionsResponse>(json);
@@ -139,30 +142,29 @@ namespace Microsoft.Vault.Explorer
             }
         }
 
-        private void AddNewAccount()
+        private async void AddNewAccount()
         {
             // Create temp account item for new account
             _currentAccountItem = new AccountItem(Guid.NewGuid().ToString());
-            GetAuthenticationToken();
+            await GetAuthenticationTokenAsync();
 
             // Get new user account and add it to default settings
-            string userAccountName = _currentAuthResult.UserInfo.DisplayableId;
+            string userAccountName = _currentAuthResult.Account?.Username ?? "unknown@unknown.com";
             string[] userLogin = userAccountName.Split('@');
             _currentAccountItem.UserAlias = userLogin[0];
             _currentAccountItem.DomainHint = userLogin[1];
             Settings.Default.AddUserAccountName(userAccountName);
 
-            // Rename cache to be associated with user login
-            ((FileTokenCache)_currentAccountItem.AuthContext.TokenCache).Rename(userAccountName);
             uxComboBoxAccounts.Items.Insert(0, userAccountName);
             uxComboBoxAccounts.SelectedIndex = 0;
         }
 
         // Attempt to authenticate with current account.
-        private void GetAuthenticationToken()
+        private async Task GetAuthenticationTokenAsync()
         {
             VaultAccessUserInteractive vaui = new VaultAccessUserInteractive(_currentAccountItem.DomainHint, _currentAccountItem.UserAlias);
-            _currentAuthResult = vaui.AcquireToken(_currentAccountItem.AuthContext, ManagmentEndpoint, _currentAccountItem.UserAlias);
+            string[] scopes = VaultAccess.ConvertResourceToScopes(ManagmentEndpoint);
+            _currentAuthResult = await vaui.AcquireTokenAsync(scopes, _currentAccountItem.UserAlias);
         }
     }
 
@@ -170,8 +172,6 @@ namespace Microsoft.Vault.Explorer
 
     public class AccountItem
     {
-        public AuthenticationContext AuthContext;
-
         public string DomainHint;
         public string UserAlias;
 
@@ -179,8 +179,6 @@ namespace Microsoft.Vault.Explorer
         {
             DomainHint = domainHint;
             UserAlias = userAlias ?? Environment.UserName;
-            string authority = domainHint.ToLower().Contains("gme") ? Settings.Default.GmeAuthority : Settings.Default.Authority;
-            AuthContext = new AuthenticationContext(authority, new FileTokenCache(this.ToString()));
         }
 
         public override string ToString() => $"{UserAlias}@{DomainHint}";

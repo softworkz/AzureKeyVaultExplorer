@@ -13,6 +13,9 @@ using System.Windows.Forms;
 
 namespace Microsoft.Vault.Explorer
 {
+    using Microsoft.Identity.Client;
+    using Microsoft.Identity.Client.Desktop;
+
     public static class Program
     {
         private static readonly System.Windows.Forms.Timer IdleTimer = new System.Windows.Forms.Timer();

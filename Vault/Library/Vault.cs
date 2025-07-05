@@ -6,7 +6,7 @@ namespace Microsoft.Vault.Library
     using Core;
     using Microsoft.Azure.KeyVault;
     using Microsoft.Azure.KeyVault.Models;
-    using Microsoft.IdentityModel.Clients.ActiveDirectory;
+    using Microsoft.Identity.Client;
     using Newtonsoft.Json;
     using System;
     using System.Collections.Generic;
@@ -153,8 +153,12 @@ namespace Microsoft.Vault.Library
         }
 
         private KeyVaultClientEx CreateKeyVaultClientEx(VaultAccessTypeEnum accessType, string vaultName) =>
-            new KeyVaultClientEx(vaultName, (authority, resource, scope) =>
+            new KeyVaultClientEx(vaultName, async (authority, resource, scope) =>
         {
+            // Prepare data outside the lock
+            VaultAccess[] vas;
+            string userAliasType;
+            
             lock (Lock)
             { 
                 Utils.GuardVaultName(vaultName);
@@ -163,40 +167,47 @@ namespace Microsoft.Vault.Library
                     throw new KeyNotFoundException($"{vaultName} is not found in {VaultsConfigFile}");
                 }
                 VaultAccessType vat = VaultsConfig[vaultName];
-                VaultAccess[] vas = (accessType == VaultAccessTypeEnum.ReadOnly) ? vat.ReadOnly : vat.ReadWrite;
+                vas = (accessType == VaultAccessTypeEnum.ReadOnly) ? vat.ReadOnly : vat.ReadWrite;
 
                 // Order possible VaultAccess options by Order property
                 IEnumerable<VaultAccess> vaSorted = from va in vas orderby va.Order select va;
+                vas = vaSorted.ToArray();
 
-                // In case VaultAccessUserInteractive is in the list, we will use our FileTokenCache with provided domainHint, otherwise use MemoryTokenCache
-                string domainHint = (from va in vaSorted where va is VaultAccessUserInteractive select (VaultAccessUserInteractive)va).FirstOrDefault()?.DomainHint;
-                string userAliasType = (from va in vaSorted where va is VaultAccessUserInteractive select (VaultAccessUserInteractive)va).FirstOrDefault()?.UserAliasType;
-
-                // Token cache name is unique per login credentials as it uses alias type or env user name and domain hint.
-                string tokenCacheName = $"{(userAliasType ?? Environment.UserName)}@{domainHint ?? "microsoft.com"}";
-
-                // If either user alias or domain hint are empty, cache in memory instead.
-                var authenticationContext = new AuthenticationContext(authority, string.IsNullOrEmpty(domainHint) && string.IsNullOrEmpty(userAliasType) ? new MemoryTokenCache() : (TokenCache)new FileTokenCache(tokenCacheName));
-
-                Queue<Exception> exceptions = new Queue<Exception>();
-                string vaultAccessTypes = "";
-                foreach (VaultAccess va in vaSorted)
-                {
-                    try
-                    {
-                        // If user alias type is different from environment, force login prompt, otherwise silently login
-                        var authResult = va.AcquireToken(authenticationContext, resource, userAliasType == Environment.UserName ? Environment.UserName:"");
-                        AuthenticatedUserName = authResult.UserInfo?.DisplayableId ?? $"{Environment.UserDomainName}\\{Environment.UserName}";
-                        return Task.FromResult(authResult.AccessToken);
-                    }
-                    catch (Exception e)
-                    {
-                        vaultAccessTypes += $" {va}";
-                        exceptions.Enqueue(e);
-                    }
-                }
-                throw new VaultAccessException($"Failed to get access to {vaultName} with all possible vault access type(s){vaultAccessTypes}", exceptions.ToArray());
+                // Get user alias for interactive authentication
+                userAliasType = (from va in vaSorted where va is VaultAccessUserInteractive select (VaultAccessUserInteractive)va).FirstOrDefault()?.UserAliasType;
             }
+
+            // Convert resource URL to MSAL scopes
+            string[] scopes = VaultAccess.ConvertResourceToScopes(resource);
+
+            Queue<Exception> exceptions = new Queue<Exception>();
+            string vaultAccessTypes = "";
+            foreach (VaultAccess va in vas)
+            {
+                try
+                {
+                    // If user alias type is different from environment, force login prompt, otherwise silently login
+                    var authResult = await va.AcquireTokenAsync(scopes, userAliasType == Environment.UserName ? Environment.UserName : "");
+                    
+                    // Set authenticated user name based on auth result
+                    if (authResult.Account != null)
+                    {
+                        AuthenticatedUserName = authResult.Account.Username ?? $"{Environment.UserDomainName}\\{Environment.UserName}";
+                    }
+                    else
+                    {
+                        AuthenticatedUserName = $"{Environment.UserDomainName}\\{Environment.UserName}";
+                    }
+                    
+                    return authResult.AccessToken;
+                }
+                catch (Exception e)
+                {
+                    vaultAccessTypes += $" {va}";
+                    exceptions.Enqueue(e);
+                }
+            }
+            throw new VaultAccessException($"Failed to get access to {vaultName} with all possible vault access type(s){vaultAccessTypes}", exceptions.ToArray());
         });
 
         #endregion
