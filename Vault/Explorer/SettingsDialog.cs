@@ -60,7 +60,15 @@ namespace Microsoft.Vault.Explorer
         private void uxLinkLabelUserSettingsLocation_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             var config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.PerUserRoamingAndLocal);
-            ProcessStartInfo sInfo = new ProcessStartInfo() { FileName = Path.GetDirectoryName(config.FilePath), UseShellExecute = true };
+            var configFolder = Path.GetDirectoryName(config.FilePath);
+
+            // Ensure the user settings file exists before trying to open the folder.
+            if (!File.Exists(config.FilePath))
+            {
+                _currentSettings.Save();
+            }
+
+            ProcessStartInfo sInfo = new ProcessStartInfo() { FileName = configFolder, UseShellExecute = true };
             Process.Start(sInfo);
         }
 
