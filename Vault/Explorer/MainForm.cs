@@ -19,7 +19,7 @@ namespace Microsoft.Vault.Explorer
     using Microsoft.Vault.Library;
     using Core;
 
-    public partial class MainForm : FormTelemetry, ISession
+    public partial class MainForm : Form, ISession
     {
         private readonly ActivationUri _activationUri;
         private Cursor _moveSecretCursor;

@@ -19,7 +19,7 @@ namespace Microsoft.Vault.Explorer
         Edit
     };
 
-    public partial class ItemDialogBase<T, U> : FormTelemetry where T : PropertyObject where U : class
+    public partial class ItemDialogBase<T, U> : Form where T : PropertyObject where U : class
     {
         protected readonly ISession _session;
         protected readonly ItemDialogBaseMode _mode;

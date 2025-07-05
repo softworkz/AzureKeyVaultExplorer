@@ -1,6 +1,8 @@
 ﻿namespace Microsoft.Vault.Explorer
 {
-    partial class ItemDialogBase<T, U> : FormTelemetry where T : PropertyObject where U : class
+    using System.Windows.Forms;
+
+    partial class ItemDialogBase<T, U> : Form where T : PropertyObject where U : class
     {
         /// <summary>
         /// Required designer variable.

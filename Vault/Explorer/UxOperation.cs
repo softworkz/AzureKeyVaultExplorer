@@ -64,14 +64,6 @@ namespace Microsoft.Vault.Explorer
                 _cancelButton.Click -= uxButtonCancel_Click;
             }
 
-            var eventTelemetry = new EventTelemetry(_controlsToToggle[0].Name)
-            {
-                Timestamp = _startTime,
-            };
-            eventTelemetry.Metrics.Add("Duration", (DateTimeOffset.UtcNow - _startTime).TotalMilliseconds);
-            eventTelemetry.Metrics.Add("Cancelled", _cancellationTokenSource.IsCancellationRequested ? 1 : 0);
-            Telemetry.Default.TrackEvent(eventTelemetry);
-
             _cancellationTokenSource.Dispose();
             ToggleControls(true, _controlsToToggle);
             _statusLabel.Text = "Ready";
