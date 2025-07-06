@@ -34,11 +34,11 @@ namespace Microsoft.Vault.Explorer
     public partial class MainForm : Form, ISession
     {
         private readonly ActivationUri _activationUri;
-        private Cursor _moveSecretCursor;
-        private Cursor _moveValueCursor;
-        private Cursor _moveLinkCursor;
+        private readonly Cursor _moveSecretCursor;
+        private readonly Cursor _moveValueCursor;
+        private readonly Cursor _moveLinkCursor;
         private bool _keyDownOccured;
-        private ToolStripButton uxButtonCancel;
+        private readonly ToolStripButton uxButtonCancel;
         private readonly Dictionary<string, VaultAlias> _tempVaultAliases; // Temporary picked VaultAliases via SubscriptionsManager
         private const string AddNewVaultText = "How to add new vault here...";
         private const string PickVaultText = "Pick vault from subscription...";

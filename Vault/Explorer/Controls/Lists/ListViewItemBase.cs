@@ -93,7 +93,7 @@ namespace Microsoft.Vault.Explorer.Controls.Lists
         /// </summary>
         public bool Active => (DateTime.UtcNow >= (this.NotBefore ?? DateTime.MinValue)) && (DateTime.UtcNow <= (this.Expires ?? DateTime.MaxValue));
 
-        private static string[] GroupIndexToName = new string[] { "s", "f", "certificate", "key vault certificate", "secret" };
+        private static readonly string[] GroupIndexToName = new string[] { "s", "f", "certificate", "key vault certificate", "secret" };
         public string Kind => GroupIndexToName[this.GroupIndex];
 
         public void RepopulateSubItems()

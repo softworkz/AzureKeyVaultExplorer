@@ -13,8 +13,8 @@ namespace Microsoft.Vault.Explorer.Controls
     public class NullableDateTimePickerEditor : UITypeEditor
     {
         IWindowsFormsEditorService editorService;
-        ToolTip expirationToolTip = new ToolTip();
-        DateTimePicker picker = new DateTimePicker();
+        readonly ToolTip expirationToolTip = new ToolTip();
+        readonly DateTimePicker picker = new DateTimePicker();
 
         public NullableDateTimePickerEditor()
         {
