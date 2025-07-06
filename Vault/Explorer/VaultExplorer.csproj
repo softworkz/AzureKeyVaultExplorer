@@ -21,6 +21,7 @@
     <ApplicationManifest>Properties\app.manifest</ApplicationManifest>
     <SignAssembly>True</SignAssembly>
     <AssemblyOriginatorKeyFile>VeKey.snk</AssemblyOriginatorKeyFile>
+    <ValidateExecutableReferencesMatchSelfContained>false</ValidateExecutableReferencesMatchSelfContained>
   </PropertyGroup>
   <PropertyGroup Condition="Exists('$(DOWNLOADSECUREFILE_SECUREFILEPATH)')">
     <SignAssembly>true</SignAssembly>
@@ -78,7 +79,9 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ClearClipboard\ClearClipboard.csproj" />
+    <ProjectReference Include="..\ClearClipboard\ClearClipboard.csproj" ReferenceOutputAssembly="false"
+                      OutputItemType="Content"
+                      CopyToPublishDirectory="Always" />
     <ProjectReference Include="..\Library\VaultLibrary.csproj" />
   </ItemGroup>
   <ItemGroup>
