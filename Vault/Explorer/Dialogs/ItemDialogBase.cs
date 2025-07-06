@@ -13,12 +13,6 @@ using System.Windows.Forms;
 
 namespace Microsoft.Vault.Explorer
 {
-    public enum ItemDialogBaseMode
-    {
-        New,
-        Edit
-    };
-
     public partial class ItemDialogBase : Form
     {
         protected readonly ISession _session;

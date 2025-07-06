@@ -11,7 +11,6 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Collections;
 using System.Text.RegularExpressions;
 
 namespace Microsoft.Vault.Explorer
@@ -186,114 +185,5 @@ namespace Microsoft.Vault.Explorer
 
         private const int WM_CONTEXTMENU = 0x7B;
         private Dictionary<string, TagMenuItem> _tags;
-    }
-
-    /// <summary>
-    /// Simple ListViewItemSorter to sort by two columns (Strikeout and Column index)
-    /// </summary>
-    public class ListViewSecretsSorter : IComparer
-    {
-        private readonly ListViewSecrets _control;
-
-        public ListViewSecretsSorter(ListViewSecrets control)
-        {
-            _control = control;
-        }
-
-        public int Compare(object x, object y)
-        {
-            ListViewItemBase sx = (ListViewItemBase)x;
-            ListViewItemBase sy = (ListViewItemBase)y;
-
-            int col = Math.Min(_control.SortingColumn, _control.Columns.Count - 1);
-
-            ListViewItem.ListViewSubItem a = sx.SubItems[col];
-            ListViewItem.ListViewSubItem b = sy.SubItems[col];
-
-            int c = 0;
-            if ((a.Tag != null) && (b.Tag != null))
-            {
-                // Compare DateTime
-                if ((a.Tag is DateTime?) && (b.Tag is DateTime?) && (a.Tag as DateTime?).HasValue && (b.Tag as DateTime?).HasValue)
-                {
-                    var adt = (a.Tag as DateTime?).Value;
-                    var bdt = (b.Tag as DateTime?).Value;
-                    c = DateTime.Compare(adt, bdt);
-                }
-                // Compare TimeSpan
-                if ((a.Tag is TimeSpan?) && (b.Tag is TimeSpan?) && (a.Tag as TimeSpan?).HasValue && (b.Tag as TimeSpan?).HasValue)
-                {
-                    var ats = (a.Tag as TimeSpan?).Value;
-                    var bts = (b.Tag as TimeSpan?).Value;
-                    c = TimeSpan.Compare(ats, bts);
-                }
-            }
-            else
-            {
-                c = string.Compare(a.Text, b.Text);
-            }
-            return (_control.Sorting == SortOrder.Descending) ? -c : c;
-        }
-    }
-
-    public class TagMenuItem : ToolStripMenuItem, IComparable, IComparable<TagMenuItem>
-    {
-        public readonly ListViewSecrets ListView;
-        public int Count;
-
-        public TagMenuItem(string tag, ListViewSecrets listView) : base(tag)
-        {     
-            Name = tag;
-            Count = 0;
-            ListView = listView;
-        }
-
-        public override string Text
-        {
-            get
-            {
-                return $"{Name} ({Count})";
-            }
-            set
-            {
-                base.Text = value;
-            }
-        }
-
-        public override int GetHashCode() => Name.GetHashCode();
-
-        public override bool Equals(object obj) => Equals((TagMenuItem)obj);
-
-        public bool Equals(TagMenuItem tag)
-        {
-            if (null == tag) return false;
-            return (Name == tag.Name);
-        }
-
-        public int CompareTo(object obj) => CompareTo((TagMenuItem)obj);
-
-        public int CompareTo(TagMenuItem other)
-        {
-            if (null == other) return -1;
-            return string.Compare(Name, other.Name);
-        }
-
-        protected override void OnClick(EventArgs e)
-        {
-            Checked = !Checked;
-            base.OnClick(e);
-            if (Checked)
-            {
-                ListView.Columns.Add(new ColumnHeader() { Name = Name, Text = Name, Width = 200 });
-            }
-            else
-            {
-                ListView.Columns.RemoveByKey(Name);
-            }
-            foreach (var item in ListView.Items.Cast<ListViewItemBase>())
-            {
-                item.RepopulateSubItems();
-            }
-        }
     }
 }

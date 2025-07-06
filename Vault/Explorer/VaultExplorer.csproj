@@ -42,7 +42,7 @@
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="9.0.6" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Update="ListViewSecrets.cs">
+    <Compile Update="Controls\Lists\ListViewSecrets.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Update="Properties\Settings.Designer.cs">
@@ -50,10 +50,10 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
-    <Compile Update="SecretVersions.cs">
+    <Compile Update="Controls\MenuItems\CustomVersion.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Update="SecretKind.cs">
+    <Compile Update="Controls\MenuItems\SecretKind.cs">
       <SubType>Component</SubType>
     </Compile>
     <Content Include="$(AssemblyName).ico">
@@ -65,23 +65,21 @@
     <Content Include="License.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="CustomTags.json">
+    <Content Include="Config\Templates\CustomTags.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="VaultAliases.json">
+    <Content Include="Config\Templates\VaultAliases.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="SecretKinds.json">
+    <Content Include="Config\Templates\SecretKinds.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Vaults.json">
+    <Content Include="Config\Templates\Vaults.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ClearClipboard\ClearClipboard.csproj" ReferenceOutputAssembly="false"
-                      OutputItemType="Content"
-                      CopyToPublishDirectory="Always" />
+    <ProjectReference Include="..\ClearClipboard\ClearClipboard.csproj" ReferenceOutputAssembly="false" OutputItemType="Content" CopyToPublishDirectory="Always" />
     <ProjectReference Include="..\Library\VaultLibrary.csproj" />
   </ItemGroup>
   <ItemGroup>
@@ -91,6 +89,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Dialogs\Settings\" />
     <Folder Include="Properties\PublishProfiles\" />
   </ItemGroup>
   <Target Name="AfterCompile">

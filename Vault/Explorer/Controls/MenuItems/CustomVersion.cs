@@ -2,7 +2,6 @@
 // Licensed under the MIT License. See License.txt in the project root for license information. 
 
 using Microsoft.Azure.KeyVault;
-using Microsoft.Azure.KeyVault.Models;
 using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
@@ -32,25 +31,5 @@ namespace Microsoft.Vault.Explorer
         }
 
         public override string ToString() => ((0 == Index) ? "Current value" : $"Value from {Text}") + Utils.DropDownSuffix;
-    }
-
-    public class SecretVersion : CustomVersion
-    {
-        public readonly SecretItem SecretItem;
-
-        public SecretVersion(int index, SecretItem secretItem) : base(index, secretItem.Attributes.Created, secretItem.Attributes.Updated, Microsoft.Vault.Library.Utils.GetChangedBy(secretItem.Tags), secretItem.Identifier)
-        {
-            SecretItem = secretItem;
-        }
-    }
-
-    public class CertificateVersion : CustomVersion
-    {
-        public readonly CertificateItem CertificateItem;
-
-        public CertificateVersion(int index, CertificateItem certificateItem) : base(index, certificateItem.Attributes.Created, certificateItem.Attributes.Updated, Microsoft.Vault.Library.Utils.GetChangedBy(certificateItem.Tags), certificateItem.Identifier)
-        {
-            CertificateItem = certificateItem;
-        }
     }
 }

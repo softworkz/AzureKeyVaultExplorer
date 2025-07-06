@@ -13,6 +13,7 @@ using System.Windows.Forms;
 
 namespace Microsoft.Vault.Explorer
 {
+    using System.IO;
     using Microsoft.Identity.Client;
     using Microsoft.Identity.Client.Desktop;
 
@@ -98,6 +99,7 @@ namespace Microsoft.Vault.Explorer
                 // List of configuration files to copy
                 string[] configFiles = { "Vaults.json", "VaultAliases.json", "SecretKinds.json", "CustomTags.json" };
                 string appDir = System.IO.Path.GetDirectoryName(Application.ExecutablePath);
+                appDir = Path.Combine(appDir, "Config", "Templates");
 
                 bool anyFilesCopied = false;
 

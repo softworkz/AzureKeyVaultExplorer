@@ -179,15 +179,4 @@ namespace Microsoft.Vault.Explorer
         private IList<LifetimeAction> LifetimeActionsToList() =>
             (from lai in LifetimeActions select new LifetimeAction(new Trigger(lai.LifetimePercentage, lai.DaysBeforeExpiry), new Microsoft.Azure.KeyVault.Models.Action(lai.Type))).ToList();
     }
-
-    public class CertificateUIEditor : UITypeEditor
-    {
-        public override UITypeEditorEditStyle GetEditStyle(ITypeDescriptorContext context) => UITypeEditorEditStyle.Modal;
-
-        public override object EditValue(ITypeDescriptorContext context, IServiceProvider provider, object value)
-        {
-            X509Certificate2UI.DisplayCertificate((X509Certificate2)value);
-            return value;
-        }
-    }
 }
