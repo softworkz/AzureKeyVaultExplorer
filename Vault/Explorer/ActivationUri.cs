@@ -5,17 +5,13 @@ namespace Microsoft.Vault.Explorer
 {
     using Microsoft.Win32;
     using System;
-    using System.Collections.Generic;
-    // TODO Although ClickOnce is supported on .NET 5+, apps do not have access to the System.Deployment.Application namespace. For more details see https://github.com/dotnet/deployment-tools/issues/27 and https://github.com/dotnet/deployment-tools/issues/53.
     using System.IO;
-    using System.Linq;
     using System.Threading;
     using System.Windows.Forms;
     using Microsoft.Vault.Library;
 
     public class ActivationUri : VaultLinkUri
     {
-        private static readonly string OnlineActivationUri = $"https://elize.blob.core.windows.net/{Utils.ProductName}/{Utils.ProductName}.application";
         public static readonly ActivationUri Empty = new ActivationUri("vault:");
 
         public ActivationUri(string vaultUri) : base(vaultUri) { }
@@ -29,9 +25,9 @@ namespace Microsoft.Vault.Explorer
             if (string.IsNullOrEmpty(vaultUri)) return Empty;
             if (vaultUri.StartsWith("file:", StringComparison.CurrentCultureIgnoreCase)) return Empty;
             // Online activation
-            if (vaultUri.StartsWith(OnlineActivationUri, StringComparison.CurrentCultureIgnoreCase))
+            if (vaultUri.StartsWith(Globals.OnlineActivationUri, StringComparison.CurrentCultureIgnoreCase))
             {
-                vaultUri = vaultUri.Substring(OnlineActivationUri.Length).TrimStart('?');
+                vaultUri = vaultUri.Substring(Globals.OnlineActivationUri.Length).TrimStart('?');
             }
             if (string.IsNullOrEmpty(vaultUri)) return Empty;
             return new ActivationUri(vaultUri.TrimEnd('/', '\\'));
