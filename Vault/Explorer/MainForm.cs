@@ -18,6 +18,18 @@ namespace Microsoft.Vault.Explorer
     using Action = System.Action;
     using Microsoft.Vault.Library;
     using Core;
+    using Microsoft.Vault.Explorer.Common;
+    using Microsoft.Vault.Explorer.Config;
+    using Microsoft.Vault.Explorer.Controls.Lists;
+    using Microsoft.Vault.Explorer.Dialogs.Certificates;
+    using Microsoft.Vault.Explorer.Dialogs.Secrets;
+    using Microsoft.Vault.Explorer.Dialogs.Settings;
+    using Microsoft.Vault.Explorer.Dialogs.Subscriptions;
+    using Microsoft.Vault.Explorer.Model;
+    using Microsoft.Vault.Explorer.Model.ContentTypes;
+    using Microsoft.Vault.Explorer.Model.Files.Aliases;
+    using Microsoft.Vault.Explorer.Model.PropObjects;
+    using Utils = Microsoft.Vault.Explorer.Common.Utils;
 
     public partial class MainForm : Form, ISession
     {

@@ -1,15 +1,13 @@
 // Copyright (c) Microsoft Corporation. All rights reserved. 
 // Licensed under the MIT License. See License.txt in the project root for license information. 
 
-using Microsoft.Vault.Library;
-using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-
-namespace Microsoft.Vault.Explorer
+namespace Microsoft.Vault.Explorer.Config
 {
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using Newtonsoft.Json;
+
     /// <summary>
     /// Manages vault configuration persistence to Vaults.json
     /// </summary>

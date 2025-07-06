@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Vault.Explorer
+﻿namespace Microsoft.Vault.Explorer.Model.Files.Aliases
 {
     using System.Collections.Generic;
     using Newtonsoft.Json;

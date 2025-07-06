@@ -16,6 +16,7 @@ using Newtonsoft.Json;
 
 namespace Microsoft.Vault.Explorer
 {
+    using Microsoft.Vault.Explorer.Controls.Lists.Favorites;
     using UISettings = Properties.Settings;
 
     public class Settings : ApplicationSettingsBase

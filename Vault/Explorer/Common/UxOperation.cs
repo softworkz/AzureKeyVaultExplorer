@@ -1,20 +1,18 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved. 
 // Licensed under the MIT License. See License.txt in the project root for license information. 
 
-using Microsoft.Azure.KeyVault;
-using System;
-using System.Linq;
-using System.Collections.Generic;
-using System.Collections.Concurrent;
-using System.Diagnostics;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using Microsoft.Azure.KeyVault.Models;
-using Microsoft.Rest.Azure;
-
-namespace Microsoft.Vault.Explorer
+namespace Microsoft.Vault.Explorer.Common
 {
+    using System;
+    using System.Collections.Concurrent;
+    using System.Collections.Generic;
+    using System.Threading;
+    using System.Threading.Tasks;
+    using System.Windows.Forms;
+    using Microsoft.Azure.KeyVault.Models;
+    using Microsoft.Rest.Azure;
+    using Microsoft.Vault.Explorer.Model.Files.Aliases;
+
     /// <summary>
     /// User experience operation, to be used with using() keyword
     /// </summary>
@@ -22,7 +20,7 @@ namespace Microsoft.Vault.Explorer
     {
         public static AsyncLocal<bool> WasUserCancelled = new AsyncLocal<bool>();
 
-        public CancellationToken CancellationToken => _cancellationTokenSource.Token;
+        public CancellationToken CancellationToken => this._cancellationTokenSource.Token;
 
         private readonly DateTimeOffset _startTime;
         private readonly VaultAlias _currentVaultAlias;
@@ -36,21 +34,21 @@ namespace Microsoft.Vault.Explorer
 
         public UxOperation(VaultAlias currentVaultAlias, ToolStripItem statusLabel, ToolStripProgressBar statusProgress, ToolStripItem cancelButton, params ToolStripItem[] controlsToToggle)
         {
-            _startTime = DateTimeOffset.UtcNow;
-            _currentVaultAlias = currentVaultAlias;
-            _statusLabel = statusLabel;
-            _statusProgress = statusProgress;
-            _cancelButton = cancelButton;
-            _controlsToToggle = controlsToToggle;
+            this._startTime = DateTimeOffset.UtcNow;
+            this._currentVaultAlias = currentVaultAlias;
+            this._statusLabel = statusLabel;
+            this._statusProgress = statusProgress;
+            this._cancelButton = cancelButton;
+            this._controlsToToggle = controlsToToggle;
 
-            _cancellationTokenSource = new CancellationTokenSource();
+            this._cancellationTokenSource = new CancellationTokenSource();
 
-            ToggleControls(false, _controlsToToggle);
-            _statusLabel.Text = "Busy";
-            ProgressBarVisibility(true);
-            if (_cancelButton != null)
+            ToggleControls(false, this._controlsToToggle);
+            this._statusLabel.Text = "Busy";
+            this.ProgressBarVisibility(true);
+            if (this._cancelButton != null)
             {
-                _cancelButton.Click += uxButtonCancel_Click;
+                this._cancelButton.Click += this.uxButtonCancel_Click;
             }
 
             Cursor.Current = Cursors.WaitCursor;
@@ -58,19 +56,19 @@ namespace Microsoft.Vault.Explorer
 
         public void Dispose()
         {
-            if (_disposedValue) return;
-            if (_cancelButton != null)
+            if (this._disposedValue) return;
+            if (this._cancelButton != null)
             {
-                _cancelButton.Click -= uxButtonCancel_Click;
+                this._cancelButton.Click -= this.uxButtonCancel_Click;
             }
 
-            _cancellationTokenSource.Dispose();
-            ToggleControls(true, _controlsToToggle);
-            _statusLabel.Text = "Ready";
-            ProgressBarVisibility(false);
+            this._cancellationTokenSource.Dispose();
+            ToggleControls(true, this._controlsToToggle);
+            this._statusLabel.Text = "Ready";
+            this.ProgressBarVisibility(false);
 
             Cursor.Current = Cursors.Default;
-            _disposedValue = true;
+            this._disposedValue = true;
         }
 
         /// <summary>
@@ -104,10 +102,10 @@ namespace Microsoft.Vault.Explorer
                 }));
             }
             await Task.WhenAll(tasksList);
-            ProgressBarVisibility(false);
+            this.ProgressBarVisibility(false);
             if (exceptions.Count == tasks.Length) // In case all tasks failed with Forbidden, show message box to user
             {
-                MessageBox.Show($"Operation to {actionName} {_currentVaultAlias.Alias} ({string.Join(", ", _currentVaultAlias.VaultNames)}) denied.\n\nYou are probably missing a certificate in CurrentUser\\My or LocalMachine\\My stores, or you are not part of the appropriate security group.",
+                MessageBox.Show($"Operation to {actionName} {this._currentVaultAlias.Alias} ({string.Join(", ", this._currentVaultAlias.VaultNames)}) denied.\n\nYou are probably missing a certificate in CurrentUser\\My or LocalMachine\\My stores, or you are not part of the appropriate security group.",
                     Utils.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -119,20 +117,20 @@ namespace Microsoft.Vault.Explorer
 
         private void ProgressBarVisibility(bool visible)
         {
-            if (_statusProgress != null)
+            if (this._statusProgress != null)
             {
-                _statusProgress.Visible = visible;
+                this._statusProgress.Visible = visible;
             }
-            if (_cancelButton != null)
+            if (this._cancelButton != null)
             {
-                _cancelButton.Visible = visible;
+                this._cancelButton.Visible = visible;
             }
         }
 
         private void uxButtonCancel_Click(object sender, EventArgs e)
         {
             WasUserCancelled.Value = true;
-            _cancellationTokenSource.Cancel();
+            this._cancellationTokenSource.Cancel();
         }
     }
 }

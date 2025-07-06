@@ -1,14 +1,14 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved. 
 // Licensed under the MIT License. See License.txt in the project root for license information. 
 
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Linq;
-
-namespace Microsoft.Vault.Explorer
+namespace Microsoft.Vault.Explorer.Model.Collections
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Collections.ObjectModel;
+    using System.ComponentModel;
+    using System.Linq;
+
     #region ObservableCustomCollection, ExpandableCollectionObjectConverter and ExpandableCollectionEditor
     /// <summary>
     /// Simple wrapper on top of ObservableCollection, so we can enforce some validation logic plus register for:
@@ -27,27 +27,27 @@ namespace Microsoft.Vault.Explorer
 
         public void SetPropertyChangedEventHandler(PropertyChangedEventHandler propertyChanged)
         {
-            _propertyChanged = propertyChanged;
-            PropertyChanged += propertyChanged;
+            this._propertyChanged = propertyChanged;
+            this.PropertyChanged += propertyChanged;
         }
 
-        public PropertyChangedEventHandler GetLastPropertyChangedEventHandler() => _propertyChanged;
+        public PropertyChangedEventHandler GetLastPropertyChangedEventHandler() => this._propertyChanged;
 
         public void AddOrReplace(T item)
         {
-            int i = IndexOf(item);
-            if (i == -1) Add(item); else SetItem(i, item);
+            int i = this.IndexOf(item);
+            if (i == -1) this.Add(item); else this.SetItem(i, item);
         }
 
         public void AddOrKeep(T item)
         {
-            int i = IndexOf(item);
-            if (i == -1) Add(item);
+            int i = this.IndexOf(item);
+            if (i == -1) this.Add(item);
         }
 
         public T GetOrNull(T item)
         {
-            int i = IndexOf(item);
+            int i = this.IndexOf(item);
             return (i == -1) ? null : this[i];
         }
 
@@ -73,11 +73,11 @@ namespace Microsoft.Vault.Explorer
 
         public PropertyDescriptor GetDefaultProperty() => null;
 
-        public PropertyDescriptorCollection GetProperties() => GetProperties(new Attribute[0]);
+        public PropertyDescriptorCollection GetProperties() => this.GetProperties(new Attribute[0]);
 
         public PropertyDescriptorCollection GetProperties(Attribute[] attributes)
         {
-            return new PropertyDescriptorCollection((from item in this select GetPropertyDescriptor(item)).ToArray());
+            return new PropertyDescriptorCollection((from item in this select this.GetPropertyDescriptor(item)).ToArray());
         }
 
         #endregion

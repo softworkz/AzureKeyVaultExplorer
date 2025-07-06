@@ -1,11 +1,13 @@
-﻿namespace Microsoft.Vault.Explorer
+﻿namespace Microsoft.Vault.Explorer.Model.Collections
 {
     using System;
     using System.Collections.Generic;
     using System.ComponentModel;
     using System.Linq;
     using Microsoft.Vault.Core;
+    using Microsoft.Vault.Explorer.Model.Files.Tags;
     using Microsoft.Vault.Library;
+    using Utils = Microsoft.Vault.Explorer.Common.Utils;
 
     public partial class TagItem
     {

@@ -1,11 +1,11 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved. 
 // Licensed under the MIT License. See License.txt in the project root for license information. 
 
-using System;
-using System.Windows.Forms;
-
-namespace Microsoft.Vault.Explorer
+namespace Microsoft.Vault.Explorer.Controls.MessageBox
 {
+    using System;
+    using System.Windows.Forms;
+
     /// <summary>
     /// Implementation for closing the Message Box if no input from the user
     /// </summary>
@@ -21,7 +21,7 @@ namespace Microsoft.Vault.Explorer
             }
 
             this.timeoutTimer = new System.Threading.Timer(
-                OnTimerElapsed,
+                this.OnTimerElapsed,
                 null,
                 timeout,
                 System.Threading.Timeout.Infinite);
@@ -57,7 +57,7 @@ namespace Microsoft.Vault.Explorer
 
         public void Dispose()
         {
-            timeoutTimer.Dispose();
+            this.timeoutTimer.Dispose();
         }
 
         private void OnTimerElapsed(object state)

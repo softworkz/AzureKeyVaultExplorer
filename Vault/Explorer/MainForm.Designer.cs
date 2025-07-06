@@ -1,5 +1,7 @@
 ﻿namespace Microsoft.Vault.Explorer
 {
+    using Microsoft.Vault.Explorer.Controls.Lists;
+
     partial class MainForm
     {
         /// <summary>

@@ -1,18 +1,15 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved. 
 // Licensed under the MIT License. See License.txt in the project root for license information. 
 
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-
-namespace Microsoft.Vault.Explorer
+namespace Microsoft.Vault.Explorer.Dialogs
 {
+    using System;
+    using System.Threading.Tasks;
+    using System.Windows.Forms;
+    using Microsoft.Vault.Explorer.Controls.MenuItems;
+    using Microsoft.Vault.Explorer.Model;
+    using Microsoft.Vault.Explorer.Model.PropObjects;
+
     public partial class ItemDialogBase : Form
     {
         protected readonly ISession _session;
@@ -25,30 +22,30 @@ namespace Microsoft.Vault.Explorer
 
         public ItemDialogBase(ISession session, string title, ItemDialogBaseMode mode)
         {
-            InitializeComponent();
-            _session = session;
-            Text = title;
-            _mode = mode;
+            this.InitializeComponent();
+            this._session = session;
+            this.Text = title;
+            this._mode = mode;
         }
 
         protected virtual void InvalidateOkButton()
         {
-            string tagsError = PropertyObject.AreCustomTagsValid();
-            uxButtonOK.Enabled = _changed && PropertyObject.IsNameValid && PropertyObject.IsValueValid && 
-                PropertyObject.IsExpirationValid && string.IsNullOrEmpty(tagsError);
+            string tagsError = this.PropertyObject.AreCustomTagsValid();
+            this.uxButtonOK.Enabled = this._changed && this.PropertyObject.IsNameValid && this.PropertyObject.IsValueValid && 
+                                      this.PropertyObject.IsExpirationValid && string.IsNullOrEmpty(tagsError);
         }
 
         protected virtual void uxTextBoxName_TextChanged(object sender, EventArgs e)
         {
-            PropertyObject.Name = uxTextBoxName.Text;
-            _changed = true;
-            uxErrorProvider.SetError(uxTextBoxName, PropertyObject.IsNameValid ? null : $"Name must match the following regex:\n{PropertyObject.SecretKind.NameRegex}");
-            InvalidateOkButton();
+            this.PropertyObject.Name = this.uxTextBoxName.Text;
+            this._changed = true;
+            this.uxErrorProvider.SetError(this.uxTextBoxName, this.PropertyObject.IsNameValid ? null : $"Name must match the following regex:\n{this.PropertyObject.SecretKind.NameRegex}");
+            this.InvalidateOkButton();
         }
 
         protected virtual void uxLinkLabelSecretKind_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            uxMenuSecretKind.Show(uxLinkLabelSecretKind, 0, uxLinkLabelSecretKind.Height);
+            this.uxMenuSecretKind.Show(this.uxLinkLabelSecretKind, 0, this.uxLinkLabelSecretKind.Height);
         }
 
         protected virtual void uxMenuSecretKind_ItemClicked(object sender, ToolStripItemClickedEventArgs e) { }
@@ -59,29 +56,29 @@ namespace Microsoft.Vault.Explorer
         {
             var cv = (CustomVersion)e.ClickedItem;
             if (cv.Checked) return; // Same item was clicked
-            foreach (var item in uxMenuVersions.Items) ((CustomVersion)item).Checked = false;
+            foreach (var item in this.uxMenuVersions.Items) ((CustomVersion)item).Checked = false;
 
-            var u = await OnVersionChangeAsync(cv);
-            OriginalObject = (null == OriginalObject) ? u : OriginalObject;
+            var u = await this.OnVersionChangeAsync(cv);
+            this.OriginalObject = (null == this.OriginalObject) ? u : this.OriginalObject;
 
             cv.Checked = true;
-            uxLinkLabelValue.Text = cv.ToString();
-            uxToolTip.SetToolTip(uxLinkLabelValue, cv.ToolTipText);
-            _changed = (sender != null); // Sender will be NULL for the first time during Edit mode ctor
-            InvalidateOkButton();
+            this.uxLinkLabelValue.Text = cv.ToString();
+            this.uxToolTip.SetToolTip(this.uxLinkLabelValue, cv.ToolTipText);
+            this._changed = (sender != null); // Sender will be NULL for the first time during Edit mode ctor
+            this.InvalidateOkButton();
         }
 
         protected virtual ContextMenuStrip GetNewValueMenu() => null;
 
         private void uxLinkLabelValue_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            switch (_mode)
+            switch (this._mode)
             {
                 case ItemDialogBaseMode.New:
-                    GetNewValueMenu()?.Show(uxLinkLabelValue, 0, uxLinkLabelValue.Height);
+                    this.GetNewValueMenu()?.Show(this.uxLinkLabelValue, 0, this.uxLinkLabelValue.Height);
                     return;
                 case ItemDialogBaseMode.Edit:
-                    uxMenuVersions.Show(uxLinkLabelValue, 0, uxLinkLabelValue.Height);
+                    this.uxMenuVersions.Show(this.uxLinkLabelValue, 0, this.uxLinkLabelValue.Height);
                     return;
             }
         }

@@ -16,6 +16,9 @@ namespace Microsoft.Vault.Explorer
     using System.IO;
     using Microsoft.Identity.Client;
     using Microsoft.Identity.Client.Desktop;
+    using Microsoft.Vault.Explorer.Common;
+    using Microsoft.Vault.Explorer.Controls.MessageBox;
+    using Microsoft.Vault.Explorer.Dialogs.Exceptions;
 
     public static class Program
     {

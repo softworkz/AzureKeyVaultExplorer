@@ -1,8 +1,9 @@
-﻿namespace Microsoft.Vault.Explorer
+﻿namespace Microsoft.Vault.Explorer.Model.Files.Secrets
 {
     using System;
     using System.Security.Cryptography;
     using System.Text;
+    using Microsoft.Vault.Explorer.Common;
     using Newtonsoft.Json;
 
     [JsonObject]

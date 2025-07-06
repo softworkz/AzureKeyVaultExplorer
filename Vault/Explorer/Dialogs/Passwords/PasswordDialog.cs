@@ -1,30 +1,23 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved. 
 // Licensed under the MIT License. See License.txt in the project root for license information. 
 
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-
-namespace Microsoft.Vault.Explorer
+namespace Microsoft.Vault.Explorer.Dialogs.Passwords
 {
+    using System;
+    using System.Windows.Forms;
+
     public partial class PasswordDialog : Form
     {
         public PasswordDialog()
         {
-            InitializeComponent();
+            this.InitializeComponent();
         }
 
-        public string Password => uxTextBoxPassword.Text;
+        public string Password => this.uxTextBoxPassword.Text;
 
         private void uxCheckBoxDisplayPwd_CheckedChanged(object sender, EventArgs e)
         {
-            uxTextBoxPassword.UseSystemPasswordChar = !uxCheckBoxDisplayPwd.Checked;
+            this.uxTextBoxPassword.UseSystemPasswordChar = !this.uxCheckBoxDisplayPwd.Checked;
         }
     }
 }

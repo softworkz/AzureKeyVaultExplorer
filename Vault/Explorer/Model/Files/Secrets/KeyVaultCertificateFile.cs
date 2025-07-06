@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Vault.Explorer
+﻿namespace Microsoft.Vault.Explorer.Model.Files.Secrets
 {
     using Microsoft.Azure.KeyVault.Models;
     using Newtonsoft.Json;

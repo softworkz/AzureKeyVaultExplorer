@@ -1,25 +1,31 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved. 
 // Licensed under the MIT License. See License.txt in the project root for license information. 
-using ScintillaNET;
-using Microsoft.Azure.KeyVault;
-using Microsoft.Azure.KeyVault.Models;
-using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Drawing;
-using System.IO;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using Microsoft.Vault.Library;
 
-namespace Microsoft.Vault.Explorer
+namespace Microsoft.Vault.Explorer.Dialogs.Secrets
 {
+    using System;
+    using System.Collections.Generic;
+    using System.ComponentModel;
+    using System.IO;
+    using System.Linq;
+    using System.Security.Cryptography;
+    using System.Security.Cryptography.X509Certificates;
+    using System.Threading.Tasks;
+    using System.Windows.Forms;
+    using Microsoft.Azure.KeyVault.Models;
+    using Microsoft.Vault.Explorer.Controls.MenuItems;
+    using Microsoft.Vault.Explorer.Dialogs.Passwords;
+    using Microsoft.Vault.Explorer.Model;
+    using Microsoft.Vault.Explorer.Model.Collections;
+    using Microsoft.Vault.Explorer.Model.ContentTypes;
+    using Microsoft.Vault.Explorer.Model.Files.Aliases;
+    using Microsoft.Vault.Explorer.Model.Files.Secrets;
+    using Microsoft.Vault.Explorer.Model.PropObjects;
+    using Microsoft.Vault.Library;
+    using ScintillaNET;
+    using Settings = Microsoft.Vault.Explorer.Settings;
+    using Utils = Microsoft.Vault.Explorer.Common.Utils;
+
     public partial class SecretDialog : ItemDialogBase // <PropertyObjectSecret, SecretBundle>
     {
         private CertificateValueObject _certificateObj;
@@ -27,25 +33,25 @@ namespace Microsoft.Vault.Explorer
 
         private SecretDialog(ISession session, string title, ItemDialogBaseMode mode) : base(session, title, mode)
         {
-            InitializeComponent();
-            uxErrorProvider.SetIconAlignment(uxSplitContainer, ErrorIconAlignment.TopLeft);
-            uxErrorProvider.SetIconAlignment(uxPropertyGridSecret, ErrorIconAlignment.TopLeft);
-            uxErrorProvider.SetIconPadding(uxPropertyGridSecret, -16);
+            this.InitializeComponent();
+            this.uxErrorProvider.SetIconAlignment(this.uxSplitContainer, ErrorIconAlignment.TopLeft);
+            this.uxErrorProvider.SetIconAlignment(this.uxPropertyGridSecret, ErrorIconAlignment.TopLeft);
+            this.uxErrorProvider.SetIconPadding(this.uxPropertyGridSecret, -16);
 
-            SetUpTextBoxValue();
+            this.SetUpTextBoxValue();
             List<string> unknownSk;
-            List<SecretKind> secretKinds = LoadSecretKinds(_session.CurrentVaultAlias, out unknownSk);
+            List<SecretKind> secretKinds = LoadSecretKinds(this._session.CurrentVaultAlias, out unknownSk);
 
             if (unknownSk.Count > 0)
             {
                 MessageBox.Show(this,
-                    $"Secret kinds '{string.Join(",", unknownSk)}' in vault alias '{_session.CurrentVaultAlias.Alias}' are being ignored because they are not found in {Settings.Default.SecretKindsJsonFileLocation}",
+                    $"Secret kinds '{string.Join(",", unknownSk)}' in vault alias '{this._session.CurrentVaultAlias.Alias}' are being ignored because they are not found in {Settings.Default.SecretKindsJsonFileLocation}",
                     "Configuration Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
 
-            uxMenuSecretKind.Items.AddRange(secretKinds.ToArray());
-            uxSplitContainer_Panel1_SizeChanged(null, EventArgs.Empty);
-            ActiveControl = uxTextBoxName;
+            this.uxMenuSecretKind.Items.AddRange(secretKinds.ToArray());
+            this.uxSplitContainer_Panel1_SizeChanged(null, EventArgs.Empty);
+            this.ActiveControl = this.uxTextBoxName;
         }
 
         /// <summary>
@@ -53,12 +59,12 @@ namespace Microsoft.Vault.Explorer
         /// </summary>
         public SecretDialog(ISession session) : this(session, "New secret", ItemDialogBaseMode.New)
         {
-            _changed = true;
+            this._changed = true;
             var s = new SecretBundle() { Attributes = new SecretAttributes(), ContentType = ContentTypeEnumConverter.GetDescription(ContentType.Text) };
-            RefreshSecretObject(s);
-            SecretKind defaultSK = TryGetDefaultSecretKind();
-            int defaultIndex = uxMenuSecretKind.Items.IndexOf(defaultSK);
-            uxMenuSecretKind.Items[defaultIndex].PerformClick();            
+            this.RefreshSecretObject(s);
+            SecretKind defaultSK = this.TryGetDefaultSecretKind();
+            int defaultIndex = this.uxMenuSecretKind.Items.IndexOf(defaultSK);
+            this.uxMenuSecretKind.Items[defaultIndex].PerformClick();            
         }
 
         /// <summary>
@@ -66,9 +72,9 @@ namespace Microsoft.Vault.Explorer
         /// </summary>
         public SecretDialog(ISession session, FileInfo fi) : this(session)
         {
-            var obj = (PropertyObjectSecret)PropertyObject;
+            var obj = (PropertyObjectSecret)this.PropertyObject;
 
-            uxTextBoxName.Text = Utils.ConvertToValidSecretName(Path.GetFileNameWithoutExtension(fi.Name));
+            this.uxTextBoxName.Text = Utils.ConvertToValidSecretName(Path.GetFileNameWithoutExtension(fi.Name));
             obj.ContentType = ContentTypeUtils.FromExtension(fi.Extension);
             string password = null;
             switch (obj.ContentType)
@@ -80,7 +86,7 @@ namespace Microsoft.Vault.Explorer
                     var pwdDlg = new PasswordDialog();
                     if (pwdDlg.ShowDialog() != DialogResult.OK)
                     {
-                        DialogResult = DialogResult.Cancel;
+                        this.DialogResult = DialogResult.Cancel;
                         return;
                     }
                     password = pwdDlg.Password;
@@ -88,17 +94,17 @@ namespace Microsoft.Vault.Explorer
                 case ContentType.KeyVaultSecret:
                     var kvsf = Utils.LoadFromJsonFile<KeyVaultSecretFile>(fi.FullName);
                     SecretBundle s = kvsf.Deserialize();
-                    uxPropertyGridSecret.SelectedObject = PropertyObject = new PropertyObjectSecret(s, SecretObject_PropertyChanged);
-                    uxTextBoxName.Text = s.SecretIdentifier?.Name;
-                    uxTextBoxValue.Text = s.Value;
+                    this.uxPropertyGridSecret.SelectedObject = this.PropertyObject = new PropertyObjectSecret(s, this.SecretObject_PropertyChanged);
+                    this.uxTextBoxName.Text = s.SecretIdentifier?.Name;
+                    this.uxTextBoxValue.Text = s.Value;
                     return;
                 default:
-                    uxTextBoxValue.Text = File.ReadAllText(fi.FullName);
+                    this.uxTextBoxValue.Text = File.ReadAllText(fi.FullName);
                     return;
             }
             // Certificate flow
-            RefreshCertificate(new CertificateValueObject(fi, password));
-            AutoDetectSecretKind();
+            this.RefreshCertificate(new CertificateValueObject(fi, password));
+            this.AutoDetectSecretKind();
         }
 
         /// <summary>
@@ -110,13 +116,13 @@ namespace Microsoft.Vault.Explorer
                 ((certificate.PrivateKey as RSACryptoServiceProvider)?.CspKeyContainerInfo.Exportable ?? false) ||
                 ((certificate.PrivateKey as DSACryptoServiceProvider)?.CspKeyContainerInfo.Exportable ?? false));
 
-            var obj = (PropertyObjectSecret)PropertyObject;
+            var obj = (PropertyObjectSecret)this.PropertyObject;
             obj.ContentType = hasExportablePrivateKey ? ContentType.Pkcs12 : ContentType.Certificate;
-            uxTextBoxName.Text = Utils.ConvertToValidSecretName(certificate.GetNameInfo(X509NameType.SimpleName, false));
+            this.uxTextBoxName.Text = Utils.ConvertToValidSecretName(certificate.GetNameInfo(X509NameType.SimpleName, false));
             string password = hasExportablePrivateKey ? Utils.NewSecurePassword() : null;
             byte[] data = hasExportablePrivateKey ? certificate.Export(X509ContentType.Pkcs12, password) : certificate.Export(X509ContentType.Cert);
-            RefreshCertificate(new CertificateValueObject(Convert.ToBase64String(data), password));
-            AutoDetectSecretKind();
+            this.RefreshCertificate(new CertificateValueObject(Convert.ToBase64String(data), password));
+            this.AutoDetectSecretKind();
         }
 
         /// <summary>
@@ -124,10 +130,10 @@ namespace Microsoft.Vault.Explorer
         /// </summary>
         public SecretDialog(ISession session, string name, IEnumerable<SecretItem> versions) : this(session, "Edit secret", ItemDialogBaseMode.Edit)
         {
-            Text += $" {name}";
+            this.Text += $" {name}";
             int i = 0;
-            uxMenuVersions.Items.AddRange((from v in versions orderby v.Attributes.Created descending select new SecretVersion(i++, v)).ToArray());
-            uxMenuVersions_ItemClicked(null, new ToolStripItemClickedEventArgs(uxMenuVersions.Items[0])); // Pass sender as NULL so _changed will be set to false
+            this.uxMenuVersions.Items.AddRange((from v in versions orderby v.Attributes.Created descending select new SecretVersion(i++, v)).ToArray());
+            this.uxMenuVersions_ItemClicked(null, new ToolStripItemClickedEventArgs(this.uxMenuVersions.Items[0])); // Pass sender as NULL so _changed will be set to false
         }
 
         private static List<SecretKind> LoadSecretKinds(VaultAlias vaultAlias, out List<string> unknownSk)
@@ -172,48 +178,48 @@ namespace Microsoft.Vault.Explorer
 
         private void RefreshSecretObject(SecretBundle s)
         {
-            PropertyObject = new PropertyObjectSecret(s, SecretObject_PropertyChanged);
-            uxPropertyGridSecret.SelectedObject = PropertyObject;
-            uxTextBoxName.Text = PropertyObject.Name;
-            uxTextBoxValue.Text = PropertyObject.Value;
+            this.PropertyObject = new PropertyObjectSecret(s, this.SecretObject_PropertyChanged);
+            this.uxPropertyGridSecret.SelectedObject = this.PropertyObject;
+            this.uxTextBoxName.Text = this.PropertyObject.Name;
+            this.uxTextBoxValue.Text = this.PropertyObject.Value;
 
             // Handle Scintilla framework bug where text is not updated.
-            if(uxTextBoxValue.Text != PropertyObject.Value)
+            if(this.uxTextBoxValue.Text != this.PropertyObject.Value)
             {
                 // Remove and create new textbox with value
-                uxSplitContainer.Panel1.Controls.Remove(uxTextBoxValue);
-                SetUpTextBoxValue();
-                uxTextBoxValue.Text = PropertyObject.Value;
+                this.uxSplitContainer.Panel1.Controls.Remove(this.uxTextBoxValue);
+                this.SetUpTextBoxValue();
+                this.uxTextBoxValue.Text = this.PropertyObject.Value;
             }
 
-            var obj = (PropertyObjectSecret)PropertyObject;
-            ToggleCertificateMode(obj.ContentType.IsCertificate());
-            uxTextBoxValue.Refresh();
+            var obj = (PropertyObjectSecret)this.PropertyObject;
+            this.ToggleCertificateMode(obj.ContentType.IsCertificate());
+            this.uxTextBoxValue.Refresh();
         }
 
         private void SetUpTextBoxValue()
         {
-            uxTextBoxValue = new Scintilla();
-            uxSplitContainer.Panel1.Controls.Add(uxTextBoxValue);
+            this.uxTextBoxValue = new Scintilla();
+            this.uxSplitContainer.Panel1.Controls.Add(this.uxTextBoxValue);
 
             // basic config
-            uxTextBoxValue.Dock = System.Windows.Forms.DockStyle.Fill;
-            uxTextBoxValue.TextChanged += uxTextBoxValue_TextChanged;
+            this.uxTextBoxValue.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.uxTextBoxValue.TextChanged += this.uxTextBoxValue_TextChanged;
 
             //initial view config
-            uxTextBoxValue.WrapMode = WrapMode.None;
-            uxTextBoxValue.IndentationGuides = IndentView.LookBoth;
+            this.uxTextBoxValue.WrapMode = WrapMode.None;
+            this.uxTextBoxValue.IndentationGuides = IndentView.LookBoth;
         }
 
         private void AutoDetectSecretKind()
         {
-            SecretKind defaultSecretKind = TryGetDefaultSecretKind(); // Default is the first one which is always Custom
+            SecretKind defaultSecretKind = this.TryGetDefaultSecretKind(); // Default is the first one which is always Custom
             SecretKind autoDetectSecretKind = new SecretKind(defaultSecretKind.Alias); 
-            TagItem currentSKTag = PropertyObject.Tags.GetOrNull(new TagItem(Consts.SecretKindKey, ""));
+            TagItem currentSKTag = this.PropertyObject.Tags.GetOrNull(new TagItem(Consts.SecretKindKey, ""));
             bool shouldAddNew = true;
 
             // Read the CustomTags and determine the SecretKind
-            foreach (SecretKind sk in uxMenuSecretKind.Items) // Auto detect 'last' secret kind based on the name only
+            foreach (SecretKind sk in this.uxMenuSecretKind.Items) // Auto detect 'last' secret kind based on the name only
             {
 
                 if (currentSKTag == null)
@@ -234,161 +240,161 @@ namespace Microsoft.Vault.Explorer
             if (shouldAddNew)
             {
                 autoDetectSecretKind = new SecretKind(currentSKTag.Value);
-                uxMenuSecretKind.Items.Add(autoDetectSecretKind);
+                this.uxMenuSecretKind.Items.Add(autoDetectSecretKind);
             }
 
             // Apply last found secret kind, only when both Content Type and SecretKind are certificate or both not, otherwise fallback to Custom (the first one)
-            var obj = (PropertyObjectSecret)PropertyObject;
+            var obj = (PropertyObjectSecret)this.PropertyObject;
             if ((!obj.ContentType.IsCertificate() || !autoDetectSecretKind.IsCertificate) &&
                 (obj.ContentType.IsCertificate() || autoDetectSecretKind.IsCertificate))
             {
-                autoDetectSecretKind = TryGetDefaultSecretKind();
+                autoDetectSecretKind = this.TryGetDefaultSecretKind();
             }
-            _certificateObj = obj.ContentType.IsCertificate() ? CertificateValueObject.FromValue(uxTextBoxValue.Text) : null;
+            this._certificateObj = obj.ContentType.IsCertificate() ? CertificateValueObject.FromValue(this.uxTextBoxValue.Text) : null;
             autoDetectSecretKind?.PerformClick();
         }
 
         private SecretKind TryGetDefaultSecretKind(string alias = "Custom")
         {
-            foreach (SecretKind sk in uxMenuSecretKind.Items)
+            foreach (SecretKind sk in this.uxMenuSecretKind.Items)
             {
                 if (sk.Alias == alias)
                 {
                     return sk;
                 }
             }
-            return (SecretKind)uxMenuSecretKind.Items[0];
+            return (SecretKind)this.uxMenuSecretKind.Items[0];
         }
 
         private void ToggleCertificateMode(bool enable)
         {
-            uxTextBoxValue.ReadOnly = enable;
-            uxLinkLabelViewCertificate.Visible = enable;
+            this.uxTextBoxValue.ReadOnly = enable;
+            this.uxLinkLabelViewCertificate.Visible = enable;
         }
 
         private void RefreshCertificate(CertificateValueObject cvo)
         {
-            _certificateObj = cvo;
-            if (_certificateObj != null)
+            this._certificateObj = cvo;
+            if (this._certificateObj != null)
             {
-                uxTextBoxValue.ReadOnly = false;
-                _certificateObj.FillTagsAndExpiration(PropertyObject);
-                uxTextBoxValue.Text = _certificateObj.ToValue(PropertyObject.SecretKind.CertificateFormat);
-                uxTextBoxValue.Refresh();
+                this.uxTextBoxValue.ReadOnly = false;
+                this._certificateObj.FillTagsAndExpiration(this.PropertyObject);
+                this.uxTextBoxValue.Text = this._certificateObj.ToValue(this.PropertyObject.SecretKind.CertificateFormat);
+                this.uxTextBoxValue.Refresh();
             }
-            ToggleCertificateMode(_certificateObj != null);
+            this.ToggleCertificateMode(this._certificateObj != null);
         }
 
         private void uxTextBoxValue_TextChanged(object sender, EventArgs e)
         {
-            _changed = true;
-            PropertyObject.Value = uxTextBoxValue.Text;
-            uxTimerValueTypingCompleted.Stop(); // Wait for user to finish the typing in a text box
-            uxTimerValueTypingCompleted.Start();
+            this._changed = true;
+            this.PropertyObject.Value = this.uxTextBoxValue.Text;
+            this.uxTimerValueTypingCompleted.Stop(); // Wait for user to finish the typing in a text box
+            this.uxTimerValueTypingCompleted.Start();
         }
 
         private void SecretObject_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            _changed = true;
-            var obj = (PropertyObjectSecret)PropertyObject;
+            this._changed = true;
+            var obj = (PropertyObjectSecret)this.PropertyObject;
             if (e.PropertyName == nameof(obj.ContentType)) // ContentType changed, refresh
             {
-                AutoDetectSecretKind();
-                RefreshCertificate(_certificateObj);
-                uxTextBoxValue_TextChanged(sender, null);
+                this.AutoDetectSecretKind();
+                this.RefreshCertificate(this._certificateObj);
+                this.uxTextBoxValue_TextChanged(sender, null);
             }
 
-            string tagsExpirationError = PropertyObject.AreCustomTagsValid();
-            if (false == PropertyObject.IsExpirationValid)
+            string tagsExpirationError = this.PropertyObject.AreCustomTagsValid();
+            if (false == this.PropertyObject.IsExpirationValid)
             {
-                tagsExpirationError += $"Expiration values are invalid: 'Valid from time' must be less then 'Valid until time' and expiration period must be less or equal to {Utils.ExpirationToString(PropertyObject.SecretKind.MaxExpiration)}";
+                tagsExpirationError += $"Expiration values are invalid: 'Valid from time' must be less then 'Valid until time' and expiration period must be less or equal to {Utils.ExpirationToString(this.PropertyObject.SecretKind.MaxExpiration)}";
             }
-            uxErrorProvider.SetError(uxPropertyGridSecret, string.IsNullOrEmpty(tagsExpirationError) ? null : tagsExpirationError);
+            this.uxErrorProvider.SetError(this.uxPropertyGridSecret, string.IsNullOrEmpty(tagsExpirationError) ? null : tagsExpirationError);
 
-            InvalidateOkButton();
+            this.InvalidateOkButton();
         }
 
         private void uxTimerValueTypingCompleted_Tick(object sender, EventArgs e)
         {
-            uxTimerValueTypingCompleted.Stop();
-            bool valueValid = PropertyObject.IsValueValid;
-            uxErrorProvider.SetError(uxSplitContainer, valueValid ? null : $"Secret value must match the following regex:\n{PropertyObject.SecretKind.ValueRegex}");
+            this.uxTimerValueTypingCompleted.Stop();
+            bool valueValid = this.PropertyObject.IsValueValid;
+            this.uxErrorProvider.SetError(this.uxSplitContainer, valueValid ? null : $"Secret value must match the following regex:\n{this.PropertyObject.SecretKind.ValueRegex}");
 
-            int rawValueLength = PropertyObject.RawValue.Length;
-            uxLabelBytesLeft.Text = $"{rawValueLength:N0} bytes / {Consts.MaxSecretValueLength - rawValueLength:N0} bytes left";
+            int rawValueLength = this.PropertyObject.RawValue.Length;
+            this.uxLabelBytesLeft.Text = $"{rawValueLength:N0} bytes / {Consts.MaxSecretValueLength - rawValueLength:N0} bytes left";
             if (valueValid) // Make sure that we are in the 25KB limit
             {
                 valueValid = (rawValueLength >= 1) && (rawValueLength <= Consts.MaxSecretValueLength);
-                uxErrorProvider.SetError(uxSplitContainer, valueValid ? null : $"Secret value length must be in the following range [1..{Consts.MaxSecretValueLength}]");
+                this.uxErrorProvider.SetError(this.uxSplitContainer, valueValid ? null : $"Secret value length must be in the following range [1..{Consts.MaxSecretValueLength}]");
             }
-            InvalidateOkButton();
+            this.InvalidateOkButton();
         }
 
         protected override void uxMenuSecretKind_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
         {
             var sk = (SecretKind)e.ClickedItem;
             if (sk.Checked) return; // Same item was clicked
-            foreach (var item in uxMenuSecretKind.Items) ((SecretKind)item).Checked = false;
+            foreach (var item in this.uxMenuSecretKind.Items) ((SecretKind)item).Checked = false;
 
-            PropertyObject.AddOrUpdateSecretKind(sk);
-            PropertyObject.SecretKind = sk;
-            PropertyObject.PopulateCustomTags();
+            this.PropertyObject.AddOrUpdateSecretKind(sk);
+            this.PropertyObject.SecretKind = sk;
+            this.PropertyObject.PopulateCustomTags();
             // Populate default expiration and value template in case this is a new secret
-            if (_mode == ItemDialogBaseMode.New)
+            if (this._mode == ItemDialogBaseMode.New)
             {
-                PropertyObject.PopulateExpiration();
-                uxTextBoxValue.Text = sk.ValueTemplate;
+                this.PropertyObject.PopulateExpiration();
+                this.uxTextBoxValue.Text = sk.ValueTemplate;
             }
             sk.Checked = true;
-            uxLinkLabelSecretKind.Text = sk.ToString();
-            uxToolTip.SetToolTip(uxLinkLabelSecretKind, sk.Description);
-            RefreshCertificate(_certificateObj);
-            uxTextBoxName_TextChanged(sender, null);
-            uxTextBoxValue_TextChanged(sender, null);
-            uxPropertyGridSecret.Refresh();
+            this.uxLinkLabelSecretKind.Text = sk.ToString();
+            this.uxToolTip.SetToolTip(this.uxLinkLabelSecretKind, sk.Description);
+            this.RefreshCertificate(this._certificateObj);
+            this.uxTextBoxName_TextChanged(sender, null);
+            this.uxTextBoxValue_TextChanged(sender, null);
+            this.uxPropertyGridSecret.Refresh();
         }
 
         protected override async Task<object> OnVersionChangeAsync(CustomVersion cv)
         {
             SecretVersion sv = (SecretVersion)cv;
-            var s = await _session.CurrentVault.GetSecretAsync(sv.SecretItem.Identifier.Name, sv.SecretItem.Identifier.Version);            
-            RefreshSecretObject(s);
-            AutoDetectSecretKind();
+            var s = await this._session.CurrentVault.GetSecretAsync(sv.SecretItem.Identifier.Name, sv.SecretItem.Identifier.Version);            
+            this.RefreshSecretObject(s);
+            this.AutoDetectSecretKind();
             return s;
         }
 
-        protected override ContextMenuStrip GetNewValueMenu() => uxMenuNewValue;
+        protected override ContextMenuStrip GetNewValueMenu() => this.uxMenuNewValue;
 
         private void uxMenuItemNewPassword_Click(object sender, EventArgs e)
         {
-            if (uxTextBoxValue.ReadOnly) return;
-            uxTextBoxValue.Text = Utils.NewSecurePassword();
-            uxTextBoxValue.Refresh();
+            if (this.uxTextBoxValue.ReadOnly) return;
+            this.uxTextBoxValue.Text = Utils.NewSecurePassword();
+            this.uxTextBoxValue.Refresh();
         }
 
         private void uxMenuItemNewGuid_Click(object sender, EventArgs e)
         {
-            if (uxTextBoxValue.ReadOnly) return;
-            uxTextBoxValue.Text = Guid.NewGuid().ToString("D");
-            uxTextBoxValue.Refresh();
+            if (this.uxTextBoxValue.ReadOnly) return;
+            this.uxTextBoxValue.Text = Guid.NewGuid().ToString("D");
+            this.uxTextBoxValue.Refresh();
         }
 
         private void uxMenuItemNewApiKey_Click(object sender, EventArgs e)
         {
-            if (uxTextBoxValue.ReadOnly) return;
-            uxTextBoxValue.Text = Utils.NewApiKey();
-            uxTextBoxValue.Refresh();
+            if (this.uxTextBoxValue.ReadOnly) return;
+            this.uxTextBoxValue.Text = Utils.NewApiKey();
+            this.uxTextBoxValue.Refresh();
         }
 
         private void uxSplitContainer_Panel1_SizeChanged(object sender, EventArgs e)
         {
-            uxLinkLabelViewCertificate.Left = (uxSplitContainer.Panel1.Width - uxLinkLabelViewCertificate.Width) / 2;
-            uxLinkLabelViewCertificate.Top = (uxSplitContainer.Panel1.Height - uxLinkLabelViewCertificate.Height) / 2;
+            this.uxLinkLabelViewCertificate.Left = (this.uxSplitContainer.Panel1.Width - this.uxLinkLabelViewCertificate.Width) / 2;
+            this.uxLinkLabelViewCertificate.Top = (this.uxSplitContainer.Panel1.Height - this.uxLinkLabelViewCertificate.Height) / 2;
         }
 
         private void uxLinkLabelViewCertificate_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            X509Certificate2UI.DisplayCertificate(_certificateObj.Certificate, Handle);
+            X509Certificate2UI.DisplayCertificate(this._certificateObj.Certificate, this.Handle);
         }
     }
 }

@@ -1,17 +1,15 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved. 
 // Licensed under the MIT License. See License.txt in the project root for license information. 
 
-using Newtonsoft.Json;
-using System;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using Microsoft.Vault.Library;
-
-namespace Microsoft.Vault.Explorer
+namespace Microsoft.Vault.Explorer.Controls.MenuItems
 {
+    using System;
+    using System.Text.RegularExpressions;
+    using System.Windows.Forms;
+    using Microsoft.Vault.Library;
+    using Newtonsoft.Json;
+    using Utils = Microsoft.Vault.Explorer.Common.Utils;
+
     [JsonObject]
     public class SecretKind : ToolStripMenuItem
     {
@@ -34,7 +32,7 @@ namespace Microsoft.Vault.Explorer
         public readonly string CertificateFormat;
 
         [JsonIgnore]
-        public bool IsCertificate => !string.IsNullOrEmpty(CertificateFormat);
+        public bool IsCertificate => !string.IsNullOrEmpty(this.CertificateFormat);
 
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
         public readonly string[] RequiredCustomTags;
@@ -50,28 +48,28 @@ namespace Microsoft.Vault.Explorer
 
         public SecretKind() : base("Custom")
         {
-            Alias = "Custom";
-            ToolTipText = Description = "The name must be a string 1-127 characters in length containing only 0-9, a-z, A-Z, and -.";
-            NameRegex = Consts.ValidSecretNameRegex;
-            ValueRegex = new Regex("^.{0,1048576}$", RegexOptions.Singleline | RegexOptions.Compiled);
-            ValueTemplate = "";
-            CertificateFormat = null;
-            RequiredCustomTags = new string[0];
-            OptionalCustomTags = new string[0];
-            MaxExpiration = TimeSpan.MaxValue;
+            this.Alias = "Custom";
+            this.ToolTipText = this.Description = "The name must be a string 1-127 characters in length containing only 0-9, a-z, A-Z, and -.";
+            this.NameRegex = Consts.ValidSecretNameRegex;
+            this.ValueRegex = new Regex("^.{0,1048576}$", RegexOptions.Singleline | RegexOptions.Compiled);
+            this.ValueTemplate = "";
+            this.CertificateFormat = null;
+            this.RequiredCustomTags = new string[0];
+            this.OptionalCustomTags = new string[0];
+            this.MaxExpiration = TimeSpan.MaxValue;
         }
 
         public SecretKind(string alias) : base(alias)
         {
-            Alias = alias;
-            ToolTipText = Description = "The name must be a string 1-127 characters in length containing only 0-9, a-z, A-Z, and -.";
-            NameRegex = Consts.ValidSecretNameRegex;
-            ValueRegex = new Regex("^.{0,1048576}$", RegexOptions.Singleline | RegexOptions.Compiled);
-            ValueTemplate = "";
-            CertificateFormat = null;
-            RequiredCustomTags = new string[0];
-            OptionalCustomTags = new string[0];
-            MaxExpiration = TimeSpan.MaxValue;
+            this.Alias = alias;
+            this.ToolTipText = this.Description = "The name must be a string 1-127 characters in length containing only 0-9, a-z, A-Z, and -.";
+            this.NameRegex = Consts.ValidSecretNameRegex;
+            this.ValueRegex = new Regex("^.{0,1048576}$", RegexOptions.Singleline | RegexOptions.Compiled);
+            this.ValueTemplate = "";
+            this.CertificateFormat = null;
+            this.RequiredCustomTags = new string[0];
+            this.OptionalCustomTags = new string[0];
+            this.MaxExpiration = TimeSpan.MaxValue;
         }
 
         [JsonConstructor]
@@ -79,26 +77,26 @@ namespace Microsoft.Vault.Explorer
             string certificateFormat, string[] requiredCustomTags, string[] optionalCustomTags,
             TimeSpan defaultExpiration, TimeSpan maxExpiration) : base(alias)
         {
-            Alias = alias;
-            ToolTipText = Description = description;
-            NameRegex = new Regex(nameRegex, RegexOptions.Singleline | RegexOptions.Compiled);
-            ValueRegex = new Regex(valueRegex, RegexOptions.Singleline | RegexOptions.Compiled);
-            ValueTemplate = valueTemplate;
-            CertificateFormat = certificateFormat;
-            RequiredCustomTags = requiredCustomTags ?? new string[0];
-            OptionalCustomTags = optionalCustomTags ?? new string[0];
-            DefaultExpiration = defaultExpiration;
-            MaxExpiration = default(TimeSpan) == maxExpiration ? TimeSpan.MaxValue : maxExpiration;
-            if (DefaultExpiration > MaxExpiration)
+            this.Alias = alias;
+            this.ToolTipText = this.Description = description;
+            this.NameRegex = new Regex(nameRegex, RegexOptions.Singleline | RegexOptions.Compiled);
+            this.ValueRegex = new Regex(valueRegex, RegexOptions.Singleline | RegexOptions.Compiled);
+            this.ValueTemplate = valueTemplate;
+            this.CertificateFormat = certificateFormat;
+            this.RequiredCustomTags = requiredCustomTags ?? new string[0];
+            this.OptionalCustomTags = optionalCustomTags ?? new string[0];
+            this.DefaultExpiration = defaultExpiration;
+            this.MaxExpiration = default(TimeSpan) == maxExpiration ? TimeSpan.MaxValue : maxExpiration;
+            if (this.DefaultExpiration > this.MaxExpiration)
             {
                 throw new ArgumentOutOfRangeException("DefaultExpiration or MaxExpiration", $"DefaultExpiration value must be less than MaxExpiration in secret kind {alias}");
             }
-            if (RequiredCustomTags.Length + OptionalCustomTags.Length > Consts.MaxNumberOfTags)
+            if (this.RequiredCustomTags.Length + this.OptionalCustomTags.Length > Consts.MaxNumberOfTags)
             {
                 throw new ArgumentOutOfRangeException("Total CustomTags.Length", $"Too many custom tags for secret kind {alias}, maximum number of tags for secret is only {Consts.MaxNumberOfTags}");
             }
         }
 
-        public override string ToString() => Text + " secret name" + Utils.DropDownSuffix;
+        public override string ToString() => this.Text + " secret name" + Utils.DropDownSuffix;
     }
 }
