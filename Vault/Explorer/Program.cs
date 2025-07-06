@@ -36,6 +36,9 @@ namespace Microsoft.Vault.Explorer
             Application.ThreadException += (s, e) => TrackExceptionAndShowError(e.Exception);
             AppDomain.CurrentDomain.UnhandledException += (s, e) => TrackExceptionAndShowError(e.ExceptionObject as Exception);
             AppDomain.CurrentDomain.AssemblyResolve += (s, args) => ResolveMissingAssembly(args);
+
+            CheckUpdateSettings();
+
             // First run install steps
             Utils.ClickOnce_SetAddRemoveProgramsIcon();
             ActivationUri.RegisterVaultProtocol();
@@ -50,6 +53,19 @@ namespace Microsoft.Vault.Explorer
             if (!form.IsDisposed)
             {
                 Application.Run(form);
+            }
+        }
+
+        private static void CheckUpdateSettings()
+        {
+            if (Settings.Default.UpgradeRequired)
+            {
+                Settings.Default.Upgrade();
+                Settings.Default.UpgradeRequired = false;
+                Settings.Default.Save();
+
+                Properties.Settings.Default.Upgrade();
+                Properties.Settings.Default.Save();
             }
         }
 

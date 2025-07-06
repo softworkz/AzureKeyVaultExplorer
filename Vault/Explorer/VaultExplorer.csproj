@@ -19,6 +19,8 @@
     <GenerateManifests>true</GenerateManifests>
     <TargetZone>LocalIntranet</TargetZone>
     <ApplicationManifest>Properties\app.manifest</ApplicationManifest>
+    <SignAssembly>True</SignAssembly>
+    <AssemblyOriginatorKeyFile>VeKey.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <PropertyGroup Condition="Exists('$(DOWNLOADSECUREFILE_SECUREFILEPATH)')">
     <SignAssembly>true</SignAssembly>
@@ -76,6 +78,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\ClearClipboard\ClearClipboard.csproj" />
     <ProjectReference Include="..\Library\VaultLibrary.csproj" />
   </ItemGroup>
   <ItemGroup>

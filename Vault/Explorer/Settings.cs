@@ -234,6 +234,21 @@ namespace Microsoft.Vault.Explorer
             }
         }
 
+        [UserScopedSetting()]
+        [DefaultSettingValue("True")]
+        [Browsable(false)]
+        public bool UpgradeRequired
+        {
+            get
+            {
+                return ((bool)(this[nameof(UpgradeRequired)]));
+            }
+            set
+            {
+                this[nameof(UpgradeRequired)] = value;
+            }
+        }
+
         [Browsable(false)]
         public IEnumerable<string> UserAccountNamesList
         {
