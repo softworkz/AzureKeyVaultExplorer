@@ -1,5 +1,5 @@
-// Copyright (c) Microsoft Corporation. All rights reserved. 
-// Licensed under the MIT License. See License.txt in the project root for license information. 
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
 
 namespace Microsoft.Vault.Explorer.Controls.Lists
 {
@@ -88,8 +88,8 @@ namespace Microsoft.Vault.Explorer.Controls.Lists
 
         /// <summary>
         /// True only if current time is within the below range, or range is NULL
-        /// [NotBefore] Valid from time (UTC) 
-        /// [Expires] Valid until time (UTC) 
+        /// [NotBefore] Valid from time (UTC)
+        /// [Expires] Valid until time (UTC)
         /// </summary>
         public bool Active => (DateTime.UtcNow >= (this.NotBefore ?? DateTime.MinValue)) && (DateTime.UtcNow <= (this.Expires ?? DateTime.MaxValue));
 

@@ -1,5 +1,5 @@
-// Copyright (c) Microsoft Corporation. All rights reserved. 
-// Licensed under the MIT License. See License.txt in the project root for license information. 
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
 
 namespace ClearClipboard
 {
@@ -25,7 +25,7 @@ namespace ClearClipboard
 
         [STAThread]
         static int Main(string[] args)
-        {           
+        {
             Regex validMd5 = new Regex("^[0-9a-fA-F]{32}$", RegexOptions.Compiled | RegexOptions.Singleline);
             if (args.Length != 2)
             {

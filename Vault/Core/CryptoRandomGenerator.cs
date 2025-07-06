@@ -1,5 +1,5 @@
-// Copyright (c) Microsoft Corporation. All rights reserved. 
-// Licensed under the MIT License. See License.txt in the project root for license information. 
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
 using System;
 using System.Security.Cryptography;
 
@@ -12,7 +12,7 @@ namespace Microsoft.Vault.Core
     public sealed class CryptoRandomGenerator : IDisposable
     {
         private readonly RNGCryptoServiceProvider rngCsp;
-  
+
         public CryptoRandomGenerator()
         {
             rngCsp = new RNGCryptoServiceProvider();
@@ -33,7 +33,7 @@ namespace Microsoft.Vault.Core
         /// <param name="maxValue"></param>
         /// <returns></returns>
         public int Next(int minValue, int maxValue)
-        {          
+        {
             if (minValue >= maxValue)
             {
                 throw new ArgumentOutOfRangeException("minValue");

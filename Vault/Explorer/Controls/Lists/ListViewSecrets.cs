@@ -1,5 +1,5 @@
-// Copyright (c) Microsoft Corporation. All rights reserved. 
-// Licensed under the MIT License. See License.txt in the project root for license information. 
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
 
 namespace Microsoft.Vault.Explorer.Controls.Lists
 {
@@ -70,7 +70,7 @@ namespace Microsoft.Vault.Explorer.Controls.Lists
             {
                 var lvi = this.Items[item.Name] as ListViewItemBase;
                 this.RemoveTags(lvi.Tags);
-                this.Items.RemoveByKey(item.Name); 
+                this.Items.RemoveByKey(item.Name);
             }
             this.Items.Add(item);
             this.AddTags(item.Tags);

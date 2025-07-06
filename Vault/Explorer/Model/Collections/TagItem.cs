@@ -16,7 +16,7 @@ namespace Microsoft.Vault.Explorer.Model.Collections
         private List<TagValueListItems> _valueList = new List<TagValueListItems>();
         private static Dictionary<string, List<TagValueListItems>> _valueListDictionary = new Dictionary<string, List<TagValueListItems>>();
         private bool _isList = false;
-        
+
         [Category("Tag")]
         public string Name
         {
@@ -54,7 +54,7 @@ namespace Microsoft.Vault.Explorer.Model.Collections
             }
         }
 
-       
+
         [Category("ValueList")]
         [Browsable(false)]
         public List<TagValueListItems> ValueList
@@ -97,8 +97,8 @@ namespace Microsoft.Vault.Explorer.Model.Collections
             }
 
         }
-        
-        
+
+
 
         public TagItem() : this("name", "") { }
 
@@ -110,7 +110,7 @@ namespace Microsoft.Vault.Explorer.Model.Collections
         {
             this.Name = name;
             this.Value = Utils.ConvertToValidTagValue(value);
-            
+
             //return _valueArray;
             if (valueList.Count > 0)
             {
@@ -146,7 +146,7 @@ namespace Microsoft.Vault.Explorer.Model.Collections
 
             //ValueList = valueList;
 
-            
+
         }
 
 
@@ -188,7 +188,7 @@ namespace Microsoft.Vault.Explorer.Model.Collections
             {
                 return new StandardValuesCollection(_valueListDictionary[context.Instance.ToString()]);
             }
-            
+
             public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
             {
                 if (sourceType == typeof(string))
@@ -203,7 +203,7 @@ namespace Microsoft.Vault.Explorer.Model.Collections
                 if (value is string)
                 {
                     //List<TagValueListItems> tvli; = _valueListDictionary[context.Instance.ToString()];
-                    List<TagValueListItems> tvli; 
+                    List<TagValueListItems> tvli;
                     _valueListDictionary.TryGetValue(context.Instance.ToString(), out tvli);
 
                     // If the value is not in the list dictionary, just return the string value
@@ -217,10 +217,10 @@ namespace Microsoft.Vault.Explorer.Model.Collections
                             return tv.Value;
                         }
                     }
-                    
+
                     // If the value was not in the dictionary, return the value anyway.
                     return value;
-                    
+
                 }
                 return base.ConvertFrom(context, culture, value);
             }

@@ -1,5 +1,5 @@
-// Copyright (c) Microsoft Corporation. All rights reserved. 
-// Licensed under the MIT License. See License.txt in the project root for license information. 
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
 
 namespace Microsoft.Vault.Explorer.Model.PropObjects
 {
@@ -158,7 +158,7 @@ namespace Microsoft.Vault.Explorer.Model.PropObjects
                     password = pwdDlg.Password;
                     File.WriteAllBytes(fullName, this.Certificate.Export(X509ContentType.Pkcs12, password));
                     break;
-                default:                    
+                default:
                     File.WriteAllText(fullName, this.Certificate.ToString());
                     break;
             }

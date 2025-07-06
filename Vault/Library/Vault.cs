@@ -1,5 +1,5 @@
-// Copyright (c) Microsoft Corporation. All rights reserved. 
-// Licensed under the MIT License. See License.txt in the project root for license information. 
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
 
 namespace Microsoft.Vault.Library
 {
@@ -19,7 +19,7 @@ namespace Microsoft.Vault.Library
 
     /// <summary>
     /// Single or dual Vault class to manage secrets
-    /// For HA and DR story this supports up to two Azure Key Vaults, one in each region in the specified geo 
+    /// For HA and DR story this supports up to two Azure Key Vaults, one in each region in the specified geo
     /// </summary>
     /// <remarks>
     /// Based on vault name and <see cref="Vault.VaultsConfig"/> appropriate access will be picked in the following order:
@@ -158,9 +158,9 @@ namespace Microsoft.Vault.Library
             // Prepare data outside the lock
             VaultAccess[] vas;
             string userAliasType;
-            
+
             lock (Lock)
-            { 
+            {
                 Utils.GuardVaultName(vaultName);
                 if (false == VaultsConfig.ContainsKey(vaultName))
                 {
@@ -188,7 +188,7 @@ namespace Microsoft.Vault.Library
                 {
                     // If user alias type is different from environment, force login prompt, otherwise silently login
                     var authResult = await va.AcquireTokenAsync(scopes, userAliasType == Environment.UserName ? Environment.UserName : "");
-                    
+
                     // Set authenticated user name based on auth result
                     if (authResult.Account != null)
                     {
@@ -198,7 +198,7 @@ namespace Microsoft.Vault.Library
                     {
                         AuthenticatedUserName = $"{Environment.UserDomainName}\\{Environment.UserName}";
                     }
-                    
+
                     return authResult.AccessToken;
                 }
                 catch (Exception e)

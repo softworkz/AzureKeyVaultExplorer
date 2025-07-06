@@ -1,5 +1,5 @@
-// Copyright (c) Microsoft Corporation. All rights reserved. 
-// Licensed under the MIT License. See License.txt in the project root for license information. 
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
 
 namespace Microsoft.Vault.Core
 {
@@ -36,7 +36,7 @@ namespace Microsoft.Vault.Core
         /// Checks a string argument to ensure it isn't null or empty.
         /// </summary>
         /// <param name="argumentValue">The argument value to check.</param>
-        /// <param name="argumentName">The name of the argument.</param>    
+        /// <param name="argumentName">The name of the argument.</param>
         public static void ArgumentNotNullOrEmptyString([ValidatedNotNull] string argumentValue, string argumentName)
         {
             ArgumentNotNull(argumentValue, argumentName);
@@ -51,7 +51,7 @@ namespace Microsoft.Vault.Core
         /// Checks a string argument to ensure it isn't null or empty.
         /// </summary>
         /// <param name="argumentValue">The argument value to check.</param>
-        /// <param name="argumentName">The name of the argument.</param>    
+        /// <param name="argumentName">The name of the argument.</param>
         public static void ArgumentNotNullOrWhitespace([ValidatedNotNull] string argumentValue, string argumentName)
         {
             ArgumentNotNull(argumentValue, argumentName);
