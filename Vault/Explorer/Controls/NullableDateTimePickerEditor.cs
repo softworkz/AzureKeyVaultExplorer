@@ -12,9 +12,9 @@ namespace Microsoft.Vault.Explorer.Controls
 
     public class NullableDateTimePickerEditor : UITypeEditor
     {
-        IWindowsFormsEditorService editorService;
-        readonly ToolTip expirationToolTip = new ToolTip();
-        readonly DateTimePicker picker = new DateTimePicker();
+        private IWindowsFormsEditorService editorService;
+        private readonly ToolTip expirationToolTip = new ToolTip();
+        private readonly DateTimePicker picker = new DateTimePicker();
 
         public NullableDateTimePickerEditor()
         {
@@ -44,8 +44,9 @@ namespace Microsoft.Vault.Explorer.Controls
                 {
                     this.picker.Value = Convert.ToDateTime(value);
                 }
+
                 this.editorService.DropDownControl(this.picker);
-                value = new DateTime?(this.picker.Value);
+                value = this.picker.Value;
             }
 
             return value;

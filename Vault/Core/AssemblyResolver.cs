@@ -10,7 +10,7 @@ namespace Microsoft.Vault.Core
     using System.Reflection;
 
     /// <summary>
-    /// Assembly resolver used in Powershell modules to resolve assmblies locations
+    ///     Assembly resolver used in Powershell modules to resolve assmblies locations
     /// </summary>
     public static class AssemblyResolver
     {

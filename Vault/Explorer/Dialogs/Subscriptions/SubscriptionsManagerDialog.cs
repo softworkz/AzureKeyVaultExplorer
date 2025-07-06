@@ -20,11 +20,12 @@ namespace Microsoft.Vault.Explorer.Dialogs.Subscriptions
 
     public partial class SubscriptionsManagerDialog : Form
     {
-        const string ApiVersion = "api-version=2016-07-01";
-        const string ManagmentEndpoint = "https://management.azure.com/";
-        const string AddAccountText = "Add New Account";
-        const string AddDomainHintText = "How to add new domain hint here...";
-        const string AddDomainHintInstructions = @"To add new domain hint, just follow below steps:
+        private const string ApiVersion = "api-version=2016-07-01";
+        private const string ManagmentEndpoint = "https://management.azure.com/";
+        private const string AddAccountText = "Add New Account";
+        private const string AddDomainHintText = "How to add new domain hint here...";
+
+        private const string AddDomainHintInstructions = @"To add new domain hint, just follow below steps:
 1) In the main window open Settings dialog
 2) Add domain hint line to 'Domain hints' property
 3) Click on 'OK' button to save and close Settings dialog
@@ -56,10 +57,10 @@ namespace Microsoft.Vault.Explorer.Dialogs.Subscriptions
                 this.uxComboBoxAccounts.Items.Add(new AccountItem(accounts[1], accounts[0]));
                 hasPreConfiguredAccounts = true;
             }
-            
+
             this.uxComboBoxAccounts.Items.Add(AddAccountText);
             this.uxComboBoxAccounts.Items.Add(AddDomainHintText);
-            
+
             // Only auto-select if we have pre-configured accounts, otherwise let user choose
             if (hasPreConfiguredAccounts)
             {
@@ -77,7 +78,7 @@ namespace Microsoft.Vault.Explorer.Dialogs.Subscriptions
 
         private async void uxComboBoxAccounts_SelectedIndexChanged(object sender, EventArgs e)
         {
-            switch(this.uxComboBoxAccounts.SelectedItem)
+            switch (this.uxComboBoxAccounts.SelectedItem)
             {
                 case null:
                     return;
@@ -100,6 +101,7 @@ namespace Microsoft.Vault.Explorer.Dialogs.Subscriptions
                     {
                         this._currentAccountItem.UserAlias = this._currentAuthResult.Account.Username.Split('@')[0];
                     }
+
                     break;
 
                 default:
@@ -131,7 +133,11 @@ namespace Microsoft.Vault.Explorer.Dialogs.Subscriptions
         private async void uxListViewSubscriptions_SelectedIndexChanged(object sender, EventArgs e)
         {
             ListViewItemSubscription s = this.uxListViewSubscriptions.SelectedItems.Count > 0 ? (ListViewItemSubscription)this.uxListViewSubscriptions.SelectedItems[0] : null;
-            if (null == s) return;
+            if (null == s)
+            {
+                return;
+            }
+
             using (var op = this.NewUxOperationWithProgress(this.uxComboBoxAccounts))
             {
                 var tvcc = new TokenCredentials(this._currentAuthResult.AccessToken);
@@ -150,18 +156,22 @@ namespace Microsoft.Vault.Explorer.Dialogs.Subscriptions
             ListViewItemSubscription s = this.uxListViewSubscriptions.SelectedItems.Count > 0 ? (ListViewItemSubscription)this.uxListViewSubscriptions.SelectedItems[0] : null;
             ListViewItemVault v = this.uxListViewVaults.SelectedItems.Count > 0 ? (ListViewItemVault)this.uxListViewVaults.SelectedItems[0] : null;
             this.uxButtonOK.Enabled = false;
-            if ((null == s) || (null == v)) return;
+            if (null == s || null == v)
+            {
+                return;
+            }
+
             using (var op = this.NewUxOperationWithProgress(this.uxComboBoxAccounts))
             {
                 var vault = await this._currentKeyVaultMgmtClient.Vaults.GetAsync(v.GroupName, v.Name);
                 this.uxPropertyGridVault.SelectedObject = new PropertyObjectVault(s.Subscription, v.GroupName, vault);
                 this.uxButtonOK.Enabled = true;
 
-                this.CurrentVaultAlias = new VaultAlias(v.Name, new string[] { v.Name }, new string[] { "Custom" })
+                this.CurrentVaultAlias = new VaultAlias(v.Name, new[] { v.Name }, new[] { "Custom" })
                 {
                     DomainHint = this._currentAccountItem.DomainHint,
                     UserAlias = this._currentAccountItem.UserAlias,
-                    IsNew = true  // Mark as new since it's being added from SubscriptionsManagerDialog
+                    IsNew = true, // Mark as new since it's being added from SubscriptionsManagerDialog
                 };
             }
         }
@@ -172,7 +182,7 @@ namespace Microsoft.Vault.Explorer.Dialogs.Subscriptions
             try
             {
                 // For new account, use "common" as domain hint to let Azure AD determine the tenant
-                this._currentAccountItem = new AccountItem("common", null);
+                this._currentAccountItem = new AccountItem("common");
                 await this.GetAuthenticationTokenAsync();
 
                 // Get new user account and add it to default settings
@@ -204,12 +214,4 @@ namespace Microsoft.Vault.Explorer.Dialogs.Subscriptions
             this._currentAuthResult = await vaui.AcquireTokenAsync(scopes, this._currentAccountItem.UserAlias);
         }
     }
-
-    #region Aux UI related classes
-
-    #endregion
-
-    #region Managment endpoint JSON response classes
-
-    #endregion
 }

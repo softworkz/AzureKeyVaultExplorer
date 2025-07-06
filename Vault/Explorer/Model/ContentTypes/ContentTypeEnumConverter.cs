@@ -1,4 +1,6 @@
 namespace Microsoft.Vault.Explorer.Model.ContentTypes
 {
-    public class ContentTypeEnumConverter : CustomEnumTypeConverter<ContentType> { }
+    public class ContentTypeEnumConverter : CustomEnumTypeConverter<ContentType>
+    {
+    }
 }

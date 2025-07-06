@@ -10,9 +10,13 @@ namespace Microsoft.Vault.Explorer.Model.Collections
     [Editor(typeof(ExpandableCollectionEditor<ObservableTagItemsCollection, TagItem>), typeof(UITypeEditor))]
     public class ObservableTagItemsCollection : ObservableCustomCollection<TagItem>
     {
-        public ObservableTagItemsCollection() : base() { }
+        public ObservableTagItemsCollection()
+        {
+        }
 
-        public ObservableTagItemsCollection(IEnumerable<TagItem> collection) : base(collection) { }
+        public ObservableTagItemsCollection(IEnumerable<TagItem> collection) : base(collection)
+        {
+        }
 
         protected override PropertyDescriptor GetPropertyDescriptor(TagItem item) => new ReadOnlyPropertyDescriptor(item.Name, item.Value);
 
@@ -22,6 +26,7 @@ namespace Microsoft.Vault.Explorer.Model.Collections
             {
                 throw new ArgumentOutOfRangeException("Tags.Count", $"Too many tags, maximum number of tags for secret is only {Consts.MaxNumberOfTags}");
             }
+
             base.InsertItem(index, item);
         }
     }

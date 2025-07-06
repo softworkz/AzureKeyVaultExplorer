@@ -55,20 +55,20 @@ namespace Microsoft.Vault.Explorer.Dialogs.Secrets
         }
 
         /// <summary>
-        /// New empty secret
+        ///     New empty secret
         /// </summary>
         public SecretDialog(ISession session) : this(session, "New secret", ItemDialogBaseMode.New)
         {
             this._changed = true;
-            var s = new SecretBundle() { Attributes = new SecretAttributes(), ContentType = ContentTypeEnumConverter.GetDescription(ContentType.Text) };
+            var s = new SecretBundle { Attributes = new SecretAttributes(), ContentType = ContentTypeEnumConverter.GetDescription(ContentType.Text) };
             this.RefreshSecretObject(s);
             SecretKind defaultSK = this.TryGetDefaultSecretKind();
             int defaultIndex = this.uxMenuSecretKind.Items.IndexOf(defaultSK);
-            this.uxMenuSecretKind.Items[defaultIndex].PerformClick();            
+            this.uxMenuSecretKind.Items[defaultIndex].PerformClick();
         }
 
         /// <summary>
-        /// New secret from file
+        ///     New secret from file
         /// </summary>
         public SecretDialog(ISession session, FileInfo fi) : this(session)
         {
@@ -89,6 +89,7 @@ namespace Microsoft.Vault.Explorer.Dialogs.Secrets
                         this.DialogResult = DialogResult.Cancel;
                         return;
                     }
+
                     password = pwdDlg.Password;
                     break;
                 case ContentType.KeyVaultSecret:
@@ -102,13 +103,14 @@ namespace Microsoft.Vault.Explorer.Dialogs.Secrets
                     this.uxTextBoxValue.Text = File.ReadAllText(fi.FullName);
                     return;
             }
+
             // Certificate flow
             this.RefreshCertificate(new CertificateValueObject(fi, password));
             this.AutoDetectSecretKind();
         }
 
         /// <summary>
-        /// New secret from certificate
+        ///     New secret from certificate
         /// </summary>
         public SecretDialog(ISession session, X509Certificate2 certificate) : this(session)
         {
@@ -126,7 +128,7 @@ namespace Microsoft.Vault.Explorer.Dialogs.Secrets
         }
 
         /// <summary>
-        /// Edit or Copy secret
+        ///     Edit or Copy secret
         /// </summary>
         public SecretDialog(ISession session, string name, IEnumerable<SecretItem> versions) : this(session, "Edit secret", ItemDialogBaseMode.Edit)
         {
@@ -157,7 +159,6 @@ namespace Microsoft.Vault.Explorer.Dialogs.Secrets
             {
                 foreach (var secretKind in vaultAlias.SecretKinds)
                 {
-
                     SecretKind sk;
                     if (allSecretKinds.TryGetValue(secretKind, out sk))
                     {
@@ -184,7 +185,7 @@ namespace Microsoft.Vault.Explorer.Dialogs.Secrets
             this.uxTextBoxValue.Text = this.PropertyObject.Value;
 
             // Handle Scintilla framework bug where text is not updated.
-            if(this.uxTextBoxValue.Text != this.PropertyObject.Value)
+            if (this.uxTextBoxValue.Text != this.PropertyObject.Value)
             {
                 // Remove and create new textbox with value
                 this.uxSplitContainer.Panel1.Controls.Remove(this.uxTextBoxValue);
@@ -203,7 +204,7 @@ namespace Microsoft.Vault.Explorer.Dialogs.Secrets
             this.uxSplitContainer.Panel1.Controls.Add(this.uxTextBoxValue);
 
             // basic config
-            this.uxTextBoxValue.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.uxTextBoxValue.Dock = DockStyle.Fill;
             this.uxTextBoxValue.TextChanged += this.uxTextBoxValue_TextChanged;
 
             //initial view config
@@ -214,14 +215,13 @@ namespace Microsoft.Vault.Explorer.Dialogs.Secrets
         private void AutoDetectSecretKind()
         {
             SecretKind defaultSecretKind = this.TryGetDefaultSecretKind(); // Default is the first one which is always Custom
-            SecretKind autoDetectSecretKind = new SecretKind(defaultSecretKind.Alias); 
+            SecretKind autoDetectSecretKind = new SecretKind(defaultSecretKind.Alias);
             TagItem currentSKTag = this.PropertyObject.Tags.GetOrNull(new TagItem(Consts.SecretKindKey, ""));
             bool shouldAddNew = true;
 
             // Read the CustomTags and determine the SecretKind
             foreach (SecretKind sk in this.uxMenuSecretKind.Items) // Auto detect 'last' secret kind based on the name only
             {
-
                 if (currentSKTag == null)
                 {
                     autoDetectSecretKind = defaultSecretKind;
@@ -237,6 +237,7 @@ namespace Microsoft.Vault.Explorer.Dialogs.Secrets
                     break;
                 }
             }
+
             if (shouldAddNew)
             {
                 autoDetectSecretKind = new SecretKind(currentSKTag.Value);
@@ -250,6 +251,7 @@ namespace Microsoft.Vault.Explorer.Dialogs.Secrets
             {
                 autoDetectSecretKind = this.TryGetDefaultSecretKind();
             }
+
             this._certificateObj = obj.ContentType.IsCertificate() ? CertificateValueObject.FromValue(this.uxTextBoxValue.Text) : null;
             autoDetectSecretKind?.PerformClick();
         }
@@ -263,6 +265,7 @@ namespace Microsoft.Vault.Explorer.Dialogs.Secrets
                     return sk;
                 }
             }
+
             return (SecretKind)this.uxMenuSecretKind.Items[0];
         }
 
@@ -282,6 +285,7 @@ namespace Microsoft.Vault.Explorer.Dialogs.Secrets
                 this.uxTextBoxValue.Text = this._certificateObj.ToValue(this.PropertyObject.SecretKind.CertificateFormat);
                 this.uxTextBoxValue.Refresh();
             }
+
             this.ToggleCertificateMode(this._certificateObj != null);
         }
 
@@ -309,6 +313,7 @@ namespace Microsoft.Vault.Explorer.Dialogs.Secrets
             {
                 tagsExpirationError += $"Expiration values are invalid: 'Valid from time' must be less then 'Valid until time' and expiration period must be less or equal to {Utils.ExpirationToString(this.PropertyObject.SecretKind.MaxExpiration)}";
             }
+
             this.uxErrorProvider.SetError(this.uxPropertyGridSecret, string.IsNullOrEmpty(tagsExpirationError) ? null : tagsExpirationError);
 
             this.InvalidateOkButton();
@@ -324,17 +329,25 @@ namespace Microsoft.Vault.Explorer.Dialogs.Secrets
             this.uxLabelBytesLeft.Text = $"{rawValueLength:N0} bytes / {Consts.MaxSecretValueLength - rawValueLength:N0} bytes left";
             if (valueValid) // Make sure that we are in the 25KB limit
             {
-                valueValid = (rawValueLength >= 1) && (rawValueLength <= Consts.MaxSecretValueLength);
+                valueValid = rawValueLength >= 1 && rawValueLength <= Consts.MaxSecretValueLength;
                 this.uxErrorProvider.SetError(this.uxSplitContainer, valueValid ? null : $"Secret value length must be in the following range [1..{Consts.MaxSecretValueLength}]");
             }
+
             this.InvalidateOkButton();
         }
 
         protected override void uxMenuSecretKind_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
         {
             var sk = (SecretKind)e.ClickedItem;
-            if (sk.Checked) return; // Same item was clicked
-            foreach (var item in this.uxMenuSecretKind.Items) ((SecretKind)item).Checked = false;
+            if (sk.Checked)
+            {
+                return; // Same item was clicked
+            }
+
+            foreach (var item in this.uxMenuSecretKind.Items)
+            {
+                ((SecretKind)item).Checked = false;
+            }
 
             this.PropertyObject.AddOrUpdateSecretKind(sk);
             this.PropertyObject.SecretKind = sk;
@@ -345,6 +358,7 @@ namespace Microsoft.Vault.Explorer.Dialogs.Secrets
                 this.PropertyObject.PopulateExpiration();
                 this.uxTextBoxValue.Text = sk.ValueTemplate;
             }
+
             sk.Checked = true;
             this.uxLinkLabelSecretKind.Text = sk.ToString();
             this.uxToolTip.SetToolTip(this.uxLinkLabelSecretKind, sk.Description);
@@ -357,7 +371,7 @@ namespace Microsoft.Vault.Explorer.Dialogs.Secrets
         protected override async Task<object> OnVersionChangeAsync(CustomVersion cv)
         {
             SecretVersion sv = (SecretVersion)cv;
-            var s = await this._session.CurrentVault.GetSecretAsync(sv.SecretItem.Identifier.Name, sv.SecretItem.Identifier.Version);            
+            var s = await this._session.CurrentVault.GetSecretAsync(sv.SecretItem.Identifier.Name, sv.SecretItem.Identifier.Version);
             this.RefreshSecretObject(s);
             this.AutoDetectSecretKind();
             return s;
@@ -367,21 +381,33 @@ namespace Microsoft.Vault.Explorer.Dialogs.Secrets
 
         private void uxMenuItemNewPassword_Click(object sender, EventArgs e)
         {
-            if (this.uxTextBoxValue.ReadOnly) return;
+            if (this.uxTextBoxValue.ReadOnly)
+            {
+                return;
+            }
+
             this.uxTextBoxValue.Text = Utils.NewSecurePassword();
             this.uxTextBoxValue.Refresh();
         }
 
         private void uxMenuItemNewGuid_Click(object sender, EventArgs e)
         {
-            if (this.uxTextBoxValue.ReadOnly) return;
+            if (this.uxTextBoxValue.ReadOnly)
+            {
+                return;
+            }
+
             this.uxTextBoxValue.Text = Guid.NewGuid().ToString("D");
             this.uxTextBoxValue.Refresh();
         }
 
         private void uxMenuItemNewApiKey_Click(object sender, EventArgs e)
         {
-            if (this.uxTextBoxValue.ReadOnly) return;
+            if (this.uxTextBoxValue.ReadOnly)
+            {
+                return;
+            }
+
             this.uxTextBoxValue.Text = Utils.NewApiKey();
             this.uxTextBoxValue.Refresh();
         }

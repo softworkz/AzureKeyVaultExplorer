@@ -20,7 +20,7 @@ namespace Microsoft.Vault.Explorer.Model.PropObjects
     using Utils = Microsoft.Vault.Explorer.Common.Utils;
 
     /// <summary>
-    /// Base class to edit an object via PropertyGrid
+    ///     Base class to edit an object via PropertyGrid
     /// </summary>
     [DefaultProperty("Tags")]
     public abstract class PropertyObject : INotifyPropertyChanged
@@ -44,14 +44,12 @@ namespace Microsoft.Vault.Explorer.Model.PropObjects
         public ObservableTagItemsCollection Tags { get; set; }
 
         private bool? _enabled;
+
         [Category("General")]
         [DisplayName("Enabled")]
         public bool? Enabled
         {
-            get
-            {
-                return this._enabled;
-            }
+            get { return this._enabled; }
             set
             {
                 this._enabled = value;
@@ -60,15 +58,13 @@ namespace Microsoft.Vault.Explorer.Model.PropObjects
         }
 
         private DateTime? _notBefore;
+
         [Category("General")]
         [DisplayName("Valid from time (UTC)")]
         [Editor(typeof(NullableDateTimePickerEditor), typeof(UITypeEditor))]
         public DateTime? NotBefore
         {
-            get
-            {
-                return this._notBefore;
-            }
+            get { return this._notBefore; }
             set
             {
                 this._notBefore = value;
@@ -77,15 +73,13 @@ namespace Microsoft.Vault.Explorer.Model.PropObjects
         }
 
         private DateTime? _expires;
+
         [Category("General")]
         [DisplayName("Valid until time (UTC)")]
         [Editor(typeof(NullableDateTimePickerEditor), typeof(UITypeEditor))]
         public DateTime? Expires
         {
-            get
-            {
-                return this._expires;
-            }
+            get { return this._expires; }
             set
             {
                 this._expires = value;
@@ -94,18 +88,16 @@ namespace Microsoft.Vault.Explorer.Model.PropObjects
         }
 
         /// <summary>
-        /// Human readable value of the secret
+        ///     Human readable value of the secret
         /// </summary>
         protected string _value;
+
         [DisplayName("Value")]
         [Editor(typeof(MultilineStringEditor), typeof(UITypeEditor))]
         [Browsable(false)]
         public string Value
         {
-            get
-            {
-                return this._value;
-            }
+            get { return this._value; }
             set
             {
                 if (this._value != value)
@@ -117,33 +109,33 @@ namespace Microsoft.Vault.Explorer.Model.PropObjects
         }
 
         /// <summary>
-        /// Raw value to store in the vault
+        ///     Raw value to store in the vault
         /// </summary>
         [Browsable(false)]
         public string RawValue => this._contentType.ToRawValue(this._value);
 
         /// <summary>
-        /// Md5 of the raw value
+        ///     Md5 of the raw value
         /// </summary>
         [Browsable(false)]
         public string Md5 => Microsoft.Vault.Library.Utils.CalculateMd5(this.RawValue);
 
         /// <summary>
-        /// Current SecretKind for this secret object
-        /// Note: NotifyPropertyChanged is NOT called upon set
+        ///     Current SecretKind for this secret object
+        ///     Note: NotifyPropertyChanged is NOT called upon set
         /// </summary>
         [Browsable(false)]
         public SecretKind SecretKind { get; set; }
 
         [Browsable(false)]
-        public bool IsNameValid => (this.Name == null) ? false : this.SecretKind.NameRegex.IsMatch(this.Name);
+        public bool IsNameValid => this.Name == null ? false : this.SecretKind.NameRegex.IsMatch(this.Name);
 
         [Browsable(false)]
-        public bool IsValueValid => (this.Value == null) ? false : this.SecretKind.ValueRegex.IsMatch(this.Value);
+        public bool IsValueValid => this.Value == null ? false : this.SecretKind.ValueRegex.IsMatch(this.Value);
 
         [Browsable(false)]
-        public bool IsExpirationValid => ((this.NotBefore ?? DateTime.MinValue) < (this.Expires ?? DateTime.MaxValue))
-            && ((this.Expires ?? DateTime.MaxValue) <= (this.SecretKind.MaxExpiration == TimeSpan.MaxValue ? DateTime.MaxValue : DateTime.UtcNow + this.SecretKind.MaxExpiration));
+        public bool IsExpirationValid => (this.NotBefore ?? DateTime.MinValue) < (this.Expires ?? DateTime.MaxValue)
+                                         && (this.Expires ?? DateTime.MaxValue) <= (this.SecretKind.MaxExpiration == TimeSpan.MaxValue ? DateTime.MaxValue : DateTime.UtcNow + this.SecretKind.MaxExpiration);
 
         protected PropertyObject(ObjectIdentifier identifier, IDictionary<string, string> tags,
             bool? enabled, DateTime? expires, DateTime? notBefore,
@@ -153,7 +145,14 @@ namespace Microsoft.Vault.Explorer.Model.PropObjects
             this.Name = identifier?.Name;
 
             this.Tags = new ObservableTagItemsCollection();
-            if (null != tags) foreach (var kvp in tags) this.Tags.Add(new TagItem(kvp));
+            if (null != tags)
+            {
+                foreach (var kvp in tags)
+                {
+                    this.Tags.Add(new TagItem(kvp));
+                }
+            }
+
             this.Tags.SetPropertyChangedEventHandler(propertyChanged);
 
             this._enabled = enabled;
@@ -178,6 +177,7 @@ namespace Microsoft.Vault.Explorer.Model.PropObjects
                 sc.Add(tempPath);
                 dataObj.SetFileDropList(sc);
             }
+
             return dataObj;
         }
 
@@ -201,11 +201,13 @@ namespace Microsoft.Vault.Explorer.Model.PropObjects
             {
                 result[tagItem.Name] = tagItem.Value;
             }
+
             // Add all custom tags which are based on the secret value
             foreach (var tagItem in this.GetValueBasedCustomTags())
             {
                 result[tagItem.Name] = tagItem.Value;
             }
+
             // Note: Md5 and ChangeBy tags are taken care in the Microsoft.Vault.Library
             return result;
         }

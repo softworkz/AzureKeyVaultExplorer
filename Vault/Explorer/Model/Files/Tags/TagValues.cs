@@ -1,15 +1,21 @@
 namespace Microsoft.Vault.Explorer.Model.Files.Tags
 {
-    using System;
-
     public class TagValues
     {
-        public String tagvalue;
-        public override String ToString()
+        public string tagvalue;
+
+        public override string ToString()
         {
             return this.tagvalue;
         }
-        public TagValues(string tag) { this.tagvalue = tag; }
-        public TagValues() : base() { }
+
+        public TagValues(string tag)
+        {
+            this.tagvalue = tag;
+        }
+
+        public TagValues()
+        {
+        }
     }
 }

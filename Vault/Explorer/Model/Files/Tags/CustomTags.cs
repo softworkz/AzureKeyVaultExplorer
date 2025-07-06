@@ -8,7 +8,9 @@ namespace Microsoft.Vault.Explorer.Model.Files.Tags
     [JsonDictionary]
     public class CustomTags : Dictionary<string, CustomTag>
     {
-        public CustomTags() : base() { }
+        public CustomTags()
+        {
+        }
 
         [JsonConstructor]
         public CustomTags(IDictionary<string, CustomTag> customTags) : base(customTags, StringComparer.CurrentCultureIgnoreCase)

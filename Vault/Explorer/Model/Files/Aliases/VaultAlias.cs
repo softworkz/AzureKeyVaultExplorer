@@ -44,7 +44,7 @@ namespace Microsoft.Vault.Explorer.Model.Files.Aliases
 
         public override bool Equals(object obj) => obj is VaultAlias va && this.Equals(va);
 
-        public bool Equals(VaultAlias va) => (this.Alias == va?.Alias);
+        public bool Equals(VaultAlias va) => this.Alias == va?.Alias;
 
         public override int GetHashCode() => this.Alias?.GetHashCode() ?? 0;
     }

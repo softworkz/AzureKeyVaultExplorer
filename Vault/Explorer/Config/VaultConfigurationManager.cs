@@ -9,12 +9,12 @@ namespace Microsoft.Vault.Explorer.Config
     using Newtonsoft.Json;
 
     /// <summary>
-    /// Manages vault configuration persistence to Vaults.json
+    ///     Manages vault configuration persistence to Vaults.json
     /// </summary>
     public static class VaultConfigurationManager
     {
         /// <summary>
-        /// Adds a vault configuration to both Vaults.json and VaultAliases.json files
+        ///     Adds a vault configuration to both Vaults.json and VaultAliases.json files
         /// </summary>
         /// <param name="vaultName">Name of the vault</param>
         /// <param name="vaultAlias">User-friendly alias for the vault</param>
@@ -46,7 +46,7 @@ namespace Microsoft.Vault.Explorer.Config
                 var vaultConfig = new Dictionary<string, object>
                 {
                     ["ReadOnly"] = new[] { vaultAccess },
-                    ["ReadWrite"] = new[] { vaultAccess }
+                    ["ReadWrite"] = new[] { vaultAccess },
                 };
 
                 string configKey = vaultName.ToLowerInvariant();
@@ -95,7 +95,8 @@ namespace Microsoft.Vault.Explorer.Config
                     {
                         Alias = vaultAlias,
                         VaultNames = new[] { vaultName.ToLowerInvariant() }, // Use lowercase vault name to match Azure convention
-                        SecretKinds = new[] {
+                        SecretKinds = new[]
+                        {
                             "Generic",
                             "WD.Certificate",
                             "WD.ServiceFabricService.Configuration.Secret",
@@ -109,8 +110,8 @@ namespace Microsoft.Vault.Explorer.Config
                             "WCD.ApiKey",
                             "WCD.RedisCache",
                             "WCD.AppKey",
-                            "Custom"
-                        }
+                            "Custom",
+                        },
                     };
 
                     vaultAliases.Add(newVaultAlias);
@@ -127,7 +128,7 @@ namespace Microsoft.Vault.Explorer.Config
         }
 
         /// <summary>
-        /// Gets the full path to the Vaults.json file
+        ///     Gets the full path to the Vaults.json file
         /// </summary>
         private static string GetVaultsFilePath()
         {
@@ -136,7 +137,7 @@ namespace Microsoft.Vault.Explorer.Config
         }
 
         /// <summary>
-        /// Loads existing vaults configuration from file
+        ///     Loads existing vaults configuration from file
         /// </summary>
         private static Dictionary<string, object> LoadVaultsConfiguration(string filePath)
         {
@@ -168,7 +169,7 @@ namespace Microsoft.Vault.Explorer.Config
         }
 
         /// <summary>
-        /// Saves vaults configuration to file
+        ///     Saves vaults configuration to file
         /// </summary>
         private static void SaveVaultsConfiguration(string filePath, Dictionary<string, object> config)
         {
@@ -185,7 +186,7 @@ namespace Microsoft.Vault.Explorer.Config
         }
 
         /// <summary>
-        /// Creates vault access configuration object based on authentication method
+        ///     Creates vault access configuration object based on authentication method
         /// </summary>
         private static object CreateVaultAccessConfiguration(
             int authMethod,
@@ -201,7 +202,7 @@ namespace Microsoft.Vault.Explorer.Config
                     return new Dictionary<string, object>
                     {
                         ["$type"] = "Microsoft.Vault.Library.VaultAccessUserInteractive, Microsoft.Vault.Library",
-                        ["DomainHint"] = domainHint
+                        ["DomainHint"] = domainHint,
                     };
 
                 case 1: // Client Credential
@@ -210,7 +211,7 @@ namespace Microsoft.Vault.Explorer.Config
                         ["$type"] = "Microsoft.Vault.Library.VaultAccessClientCredential, Microsoft.Vault.Library",
                         ["ClientId"] = clientId,
                         ["ClientSecret"] = clientSecret,
-                        ["DomainHint"] = domainHint
+                        ["DomainHint"] = domainHint,
                     };
 
                 case 2: // Certificate
@@ -219,7 +220,7 @@ namespace Microsoft.Vault.Explorer.Config
                         ["$type"] = "Microsoft.Vault.Library.VaultAccessClientCertificate, Microsoft.Vault.Library",
                         ["ClientId"] = clientId,
                         ["CertificateThumbprint"] = certificateThumbprint,
-                        ["DomainHint"] = domainHint
+                        ["DomainHint"] = domainHint,
                     };
 
                 default:
@@ -229,7 +230,7 @@ namespace Microsoft.Vault.Explorer.Config
 
 
         /// <summary>
-        /// Gets the full path to the VaultAliases.json file
+        ///     Gets the full path to the VaultAliases.json file
         /// </summary>
         private static string GetVaultAliasesFilePath()
         {
@@ -238,7 +239,7 @@ namespace Microsoft.Vault.Explorer.Config
         }
 
         /// <summary>
-        /// Loads existing vault aliases from file
+        ///     Loads existing vault aliases from file
         /// </summary>
         private static List<dynamic> LoadVaultAliases(string filePath)
         {
@@ -270,7 +271,7 @@ namespace Microsoft.Vault.Explorer.Config
         }
 
         /// <summary>
-        /// Saves vault aliases to file
+        ///     Saves vault aliases to file
         /// </summary>
         private static void SaveVaultAliases(string filePath, List<dynamic> vaultAliases)
         {
@@ -287,8 +288,8 @@ namespace Microsoft.Vault.Explorer.Config
         }
 
         /// <summary>
-        /// Extracts JSON from template files that contain comments and examples, or returns pure JSON as-is
-        /// Uses modern Newtonsoft.Json comment handling for better reliability
+        ///     Extracts JSON from template files that contain comments and examples, or returns pure JSON as-is
+        ///     Uses modern Newtonsoft.Json comment handling for better reliability
         /// </summary>
         private static string ExtractJsonFromTemplate(string content, string defaultJson)
         {
@@ -359,7 +360,8 @@ namespace Microsoft.Vault.Explorer.Config
                         var result = JsonConvert.DeserializeObject<Dictionary<string, object>>(jsonCandidate, settings);
                         return JsonConvert.SerializeObject(result);
                     }
-                    else if (jsonCandidate.StartsWith("["))
+
+                    if (jsonCandidate.StartsWith("["))
                     {
                         var result = JsonConvert.DeserializeObject<List<object>>(jsonCandidate, settings);
                         return JsonConvert.SerializeObject(result);

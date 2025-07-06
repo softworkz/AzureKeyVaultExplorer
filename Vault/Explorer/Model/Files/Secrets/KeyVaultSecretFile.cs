@@ -7,12 +7,17 @@ namespace Microsoft.Vault.Explorer.Model.Files.Secrets
     using Newtonsoft.Json;
 
     /// <summary>
-    /// Represents .kv-secret file
+    ///     Represents .kv-secret file
     /// </summary>
     [JsonObject]
     public class KeyVaultSecretFile : KeyVaultFile<SecretBundle>
     {
-        public KeyVaultSecretFile() : base() { }
-        public KeyVaultSecretFile(SecretBundle secret) : base(secret) { }
+        public KeyVaultSecretFile()
+        {
+        }
+
+        public KeyVaultSecretFile(SecretBundle secret) : base(secret)
+        {
+        }
     }
 }

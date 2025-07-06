@@ -20,7 +20,7 @@ namespace Microsoft.Vault.Explorer.Controls.Lists
     using Microsoft.Vault.Explorer.Model.PropObjects;
 
     /// <summary>
-    /// Key Vault Certificate list view item which also presents itself nicely to PropertyGrid
+    ///     Key Vault Certificate list view item which also presents itself nicely to PropertyGrid
     /// </summary>
     public class ListViewItemCertificate : ListViewItemBase
     {
@@ -34,9 +34,13 @@ namespace Microsoft.Vault.Explorer.Controls.Lists
             this.Thumbprint = thumbprint?.ToLowerInvariant();
         }
 
-        public ListViewItemCertificate(ISession session, CertificateItem c) : this(session, c.Identifier, c.Attributes, Utils.ByteArrayToHex(c.X509Thumbprint), c.Tags) { }
+        public ListViewItemCertificate(ISession session, CertificateItem c) : this(session, c.Identifier, c.Attributes, Utils.ByteArrayToHex(c.X509Thumbprint), c.Tags)
+        {
+        }
 
-        public ListViewItemCertificate(ISession session, CertificateBundle cb) : this(session, cb.CertificateIdentifier, cb.Attributes, Utils.ByteArrayToHex(cb.X509Thumbprint), cb.Tags) { }
+        public ListViewItemCertificate(ISession session, CertificateBundle cb) : this(session, cb.CertificateIdentifier, cb.Attributes, Utils.ByteArrayToHex(cb.X509Thumbprint), cb.Tags)
+        {
+        }
 
         protected override IEnumerable<PropertyDescriptor> GetCustomProperties()
         {
@@ -55,16 +59,16 @@ namespace Microsoft.Vault.Explorer.Controls.Lists
 
         public override async Task<ListViewItemBase> ToggleAsync(CancellationToken cancellationToken)
         {
-            CertificateBundle cb = await this.Session.CurrentVault.UpdateCertificateAsync(this.Name, null, null, new CertificateAttributes() { Enabled = !this.Attributes.Enabled }, this.Tags, cancellationToken); // Toggle only Enabled attribute
+            CertificateBundle cb = await this.Session.CurrentVault.UpdateCertificateAsync(this.Name, null, null, new CertificateAttributes { Enabled = !this.Attributes.Enabled }, this.Tags, cancellationToken); // Toggle only Enabled attribute
             return new ListViewItemCertificate(this.Session, cb);
         }
 
         public override async Task<ListViewItemBase> ResetExpirationAsync(CancellationToken cancellationToken)
         {
-            var ca = new CertificateAttributes()
+            var ca = new CertificateAttributes
             {
-                NotBefore = (this.NotBefore == null) ? (DateTime?)null : DateTime.UtcNow.AddHours(-1),
-                Expires = (this.Expires == null) ? (DateTime?)null : DateTime.UtcNow.AddYears(1)
+                NotBefore = this.NotBefore == null ? null : DateTime.UtcNow.AddHours(-1),
+                Expires = this.Expires == null ? null : DateTime.UtcNow.AddYears(1),
             };
             CertificateBundle cb = await this.Session.CurrentVault.UpdateCertificateAsync(this.Name, null, null, ca, this.Tags, cancellationToken); // Reset only NotBefore and Expires attributes
             return new ListViewItemCertificate(this.Session, cb);

@@ -9,7 +9,7 @@ namespace Microsoft.Vault.Library
     public enum VaultAccessTypeEnum
     {
         ReadOnly,
-        ReadWrite
+        ReadWrite,
     }
 
     [JsonObject(IsReference = true)]
@@ -26,8 +26,8 @@ namespace Microsoft.Vault.Library
         {
             Guard.ArgumentNotNull(readOnly, nameof(readOnly));
             Guard.ArgumentNotNull(readWrite, nameof(readWrite));
-            ReadOnly = readOnly;
-            ReadWrite = readWrite;
+            this.ReadOnly = readOnly;
+            this.ReadWrite = readWrite;
         }
     }
 }

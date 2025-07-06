@@ -30,7 +30,7 @@ namespace Microsoft.Vault.Explorer.Dialogs.Certificates
         }
 
         /// <summary>
-        /// New certificate from file
+        ///     New certificate from file
         /// </summary>
         public CertificateDialog(ISession session, FileInfo fi) : this(session, "New certificate", ItemDialogBaseMode.New)
         {
@@ -50,6 +50,7 @@ namespace Microsoft.Vault.Explorer.Dialogs.Certificates
                         this.DialogResult = DialogResult.Cancel;
                         return;
                     }
+
                     password = pwdDlg.Password;
                     cert = new X509Certificate2(fi.FullName, password, X509KeyStorageFlags.UserKeySet | X509KeyStorageFlags.Exportable);
                     break;
@@ -61,11 +62,12 @@ namespace Microsoft.Vault.Explorer.Dialogs.Certificates
                 default:
                     throw new ArgumentException($"Unsupported ContentType {contentType}");
             }
+
             this.NewCertificate(cb, cert);
         }
 
         /// <summary>
-        /// New certificate from X509Certificate2
+        ///     New certificate from X509Certificate2
         /// </summary>
         public CertificateDialog(ISession session, X509Certificate2 cert) : this(session, "New certificate", ItemDialogBaseMode.New)
         {
@@ -73,7 +75,7 @@ namespace Microsoft.Vault.Explorer.Dialogs.Certificates
         }
 
         /// <summary>
-        /// Edit certificate
+        ///     Edit certificate
         /// </summary>
         public CertificateDialog(ISession session, string name, IEnumerable<CertificateItem> versions) : this(session, $"Edit certificate {name}", ItemDialogBaseMode.Edit)
         {
@@ -86,23 +88,23 @@ namespace Microsoft.Vault.Explorer.Dialogs.Certificates
         private void NewCertificate(CertificateBundle cb, X509Certificate2 cert)
         {
             this._certificatePolicy = cb?.Policy;
-            this._certificatePolicy = this._certificatePolicy ?? new CertificatePolicy()
+            this._certificatePolicy = this._certificatePolicy ?? new CertificatePolicy
             {
-                KeyProperties = new KeyProperties()
+                KeyProperties = new KeyProperties
                 {
                     Exportable = true,
                     KeySize = 2048,
                     KeyType = "RSA",
-                    ReuseKey = false
+                    ReuseKey = false,
                 },
-                SecretProperties = new SecretProperties()
+                SecretProperties = new SecretProperties
                 {
-                    ContentType = CertificateContentType.Pfx
-                }
+                    ContentType = CertificateContentType.Pfx,
+                },
             };
-            cb = cb ?? new CertificateBundle()
+            cb = cb ?? new CertificateBundle
             {
-                Attributes = new CertificateAttributes()
+                Attributes = new CertificateAttributes(),
             };
             this.RefreshCertificateObject(cb, this._certificatePolicy, cert);
             this.uxTextBoxName.Text = Utils.ConvertToValidSecretName(cert.GetNameInfo(X509NameType.SimpleName, false));
@@ -129,12 +131,13 @@ namespace Microsoft.Vault.Explorer.Dialogs.Certificates
 
         protected override async Task<object> OnVersionChangeAsync(CustomVersion cv)
         {
-            var cb = await this._session.CurrentVault.GetCertificateAsync(cv.Id.Name, (cv.Index == 0) ? null : cv.Id.Version); // Pass NULL as a version to fetch current CertificatePolicy
+            var cb = await this._session.CurrentVault.GetCertificateAsync(cv.Id.Name, cv.Index == 0 ? null : cv.Id.Version); // Pass NULL as a version to fetch current CertificatePolicy
             var cert = await this._session.CurrentVault.GetCertificateWithExportableKeysAsync(cv.Id.Name, cv.Id.Version);
-            if ((this._certificatePolicy == null) && (cb.Policy != null)) // cb.Policy will be NULL when version is not current
+            if (this._certificatePolicy == null && cb.Policy != null) // cb.Policy will be NULL when version is not current
             {
                 this._certificatePolicy = cb.Policy;
             }
+
             this.RefreshCertificateObject(cb, this._certificatePolicy, cert);
             return cb;
         }

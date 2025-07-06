@@ -9,18 +9,28 @@ namespace Microsoft.Vault.Explorer.Dialogs.Subscriptions
     {
         private readonly Subscription _subscription;
         private readonly string _resourceGroupName;
-        private readonly Microsoft.Azure.Management.KeyVault.Models.Vault _vault;
+        private readonly Vault _vault;
 
-        public PropertyObjectVault(Subscription s, string resourceGroupName, Microsoft.Azure.Management.KeyVault.Models.Vault vault)
+        public PropertyObjectVault(Subscription s, string resourceGroupName, Vault vault)
         {
             this._subscription = s;
             this._resourceGroupName = resourceGroupName;
             this._vault = vault;
             this.Tags = new ObservableTagItemsCollection();
-            if (null != this._vault.Tags) foreach (var kvp in this._vault.Tags) this.Tags.Add(new TagItem(kvp));
+            if (null != this._vault.Tags)
+            {
+                foreach (var kvp in this._vault.Tags)
+                {
+                    this.Tags.Add(new TagItem(kvp));
+                }
+            }
+
             this.AccessPolicies = new ObservableAccessPoliciesCollection();
             int i = -1;
-            foreach (var ape in this._vault.Properties.AccessPolicies) this.AccessPolicies.Add(new AccessPolicyEntryItem(++i, ape));
+            foreach (var ape in this._vault.Properties.AccessPolicies)
+            {
+                this.AccessPolicies.Add(new AccessPolicyEntryItem(++i, ape));
+            }
         }
 
         [DisplayName("Name")]

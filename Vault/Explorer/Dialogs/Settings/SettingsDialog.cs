@@ -4,7 +4,6 @@
 namespace Microsoft.Vault.Explorer.Dialogs.Settings
 {
     using System;
-    using System.ComponentModel;
     using System.Configuration;
     using System.Diagnostics;
     using System.IO;
@@ -22,7 +21,7 @@ namespace Microsoft.Vault.Explorer.Dialogs.Settings
         {
             this.InitializeComponent();
             this.uxPropertyGrid.SelectedObject = this._currentSettings = new Settings();
-            this._currentSettings.PropertyChanged += (object sender, PropertyChangedEventArgs e) => { this.uxButtonOK.Enabled = true; };
+            this._currentSettings.PropertyChanged += (sender, e) => { this.uxButtonOK.Enabled = true; };
             this.uxTextBoxVersions.Text = this.FetchVersions();
 
             string licenseTxt = Path.Combine(Path.GetDirectoryName(Application.ExecutablePath), "License.txt");
@@ -40,19 +39,19 @@ namespace Microsoft.Vault.Explorer.Dialogs.Settings
 
         private void uxLinkLabelTitle_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            ProcessStartInfo sInfo = new ProcessStartInfo() { FileName = Globals.GitHubUrl, UseShellExecute = true };
+            ProcessStartInfo sInfo = new ProcessStartInfo { FileName = Globals.GitHubUrl, UseShellExecute = true };
             Process.Start(sInfo);
         }
 
         private void uxLinkLabelSendFeedback_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            ProcessStartInfo sInfo = new ProcessStartInfo() { FileName = Globals.GitHubIssuesUrl, UseShellExecute = true };
+            ProcessStartInfo sInfo = new ProcessStartInfo { FileName = Globals.GitHubIssuesUrl, UseShellExecute = true };
             Process.Start(sInfo);
         }
 
         private void uxLinkLabelInstallLocation_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            ProcessStartInfo sInfo = new ProcessStartInfo() { FileName = Path.GetDirectoryName(Application.ExecutablePath), UseShellExecute = true };
+            ProcessStartInfo sInfo = new ProcessStartInfo { FileName = Path.GetDirectoryName(Application.ExecutablePath), UseShellExecute = true };
             Process.Start(sInfo);
         }
 
@@ -67,7 +66,7 @@ namespace Microsoft.Vault.Explorer.Dialogs.Settings
                 this._currentSettings.Save();
             }
 
-            ProcessStartInfo sInfo = new ProcessStartInfo() { FileName = configFolder, UseShellExecute = true };
+            ProcessStartInfo sInfo = new ProcessStartInfo { FileName = configFolder, UseShellExecute = true };
             Process.Start(sInfo);
         }
 

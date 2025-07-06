@@ -40,10 +40,18 @@ namespace Microsoft.Vault.Explorer.Controls.Lists
 
         private void RemoveTags(IDictionary<string, string> tags)
         {
-            if (null == tags) return;
+            if (null == tags)
+            {
+                return;
+            }
+
             foreach (string t in tags.Keys)
             {
-                if (false == this._tags.ContainsKey(t)) continue;
+                if (false == this._tags.ContainsKey(t))
+                {
+                    continue;
+                }
+
                 this._tags[t].Count--;
                 if (this._tags[t].Count < 0)
                 {
@@ -54,7 +62,11 @@ namespace Microsoft.Vault.Explorer.Controls.Lists
 
         private void AddTags(IDictionary<string, string> tags)
         {
-            if (null == tags) return;
+            if (null == tags)
+            {
+                return;
+            }
+
             foreach (string t in tags.Keys)
             {
                 var tag = this._tags.ContainsKey(t) ? this._tags[t] : new TagMenuItem(t, this);
@@ -65,13 +77,18 @@ namespace Microsoft.Vault.Explorer.Controls.Lists
 
         public void AddOrReplaceItem(ListViewItemBase item)
         {
-            if (null == item) return;
+            if (null == item)
+            {
+                return;
+            }
+
             if (this.Items.ContainsKey(item.Name)) // Overwrite flow
             {
                 var lvi = this.Items[item.Name] as ListViewItemBase;
                 this.RemoveTags(lvi.Tags);
                 this.Items.RemoveByKey(item.Name);
             }
+
             this.Items.Add(item);
             this.AddTags(item.Tags);
         }
@@ -79,10 +96,11 @@ namespace Microsoft.Vault.Explorer.Controls.Lists
         public void RemoveAllItems()
         {
             // Remove custom tag columns
-            for (int i = this.Columns.Count - 1; i >= ListViewSecrets.FirstCustomColumnIndex; i--)
+            for (int i = this.Columns.Count - 1; i >= FirstCustomColumnIndex; i--)
             {
                 this.Columns.RemoveAt(i);
             }
+
             this.Items.Clear();
             this._tags.Clear();
         }
@@ -98,11 +116,12 @@ namespace Microsoft.Vault.Explorer.Controls.Lists
                 {
                     bool contains = lvib.Contains(regex);
                     lvib.SearchResult = contains;
-                    if ((selectItem == null) && contains)
+                    if (selectItem == null && contains)
                     {
                         selectItem = lvib;
                     }
                 }
+
                 this.Sort();
                 selectItem?.RefreshAndSelect();
                 this.RefreshGroupsHeader();
@@ -121,7 +140,11 @@ namespace Microsoft.Vault.Explorer.Controls.Lists
         public void ToggleSelectedItemsToFromFavorites()
         {
             this.BeginUpdate();
-            foreach (ListViewItemBase lvib in this.SelectedItems) lvib.Favorite = !lvib.Favorite;
+            foreach (ListViewItemBase lvib in this.SelectedItems)
+            {
+                lvib.Favorite = !lvib.Favorite;
+            }
+
             this.Sort();
             this.RefreshGroupsHeader();
             this.EndUpdate();
@@ -135,17 +158,19 @@ namespace Microsoft.Vault.Explorer.Controls.Lists
             {
                 sb.AppendFormat("{0}\t", col.Text);
             }
+
             sb.Append("Status\t");
             sb.Append("Valid from time (UTC)\t");
             sb.Append("Valid until time (UTC)\t");
             sb.Append("Content Type");
             sb.AppendLine();
             // Take all items or in case of multiple selection only the selected ones
-            IEnumerable<ListViewItem> items = (this.SelectedItems.Count <= 1) ? this.Items.Cast<ListViewItem>() : this.SelectedItems.Cast<ListViewItem>();
+            IEnumerable<ListViewItem> items = this.SelectedItems.Count <= 1 ? this.Items.Cast<ListViewItem>() : this.SelectedItems.Cast<ListViewItem>();
             foreach (ListViewItem item in items)
             {
                 sb.AppendLine(item.ToString());
             }
+
             File.WriteAllText(filename, sb.ToString());
         }
 
@@ -154,13 +179,14 @@ namespace Microsoft.Vault.Explorer.Controls.Lists
             this.BeginUpdate();
             if (this.SortingColumn == e.Column) // Swap sort order
             {
-                this.Sorting = (this.Sorting == SortOrder.Ascending) ? SortOrder.Descending : SortOrder.Ascending;
+                this.Sorting = this.Sorting == SortOrder.Ascending ? SortOrder.Descending : SortOrder.Ascending;
             }
             else
             {
                 this.SortingColumn = e.Column;
                 this.Sorting = SortOrder.Ascending;
             }
+
             this.EndUpdate();
         }
 
@@ -168,7 +194,7 @@ namespace Microsoft.Vault.Explorer.Controls.Lists
         {
             base.WndProc(ref m);
             // Show uxMenuStripColumns menu in case user right-click on columns header bar
-            if ((m.Msg == WM_CONTEXTMENU) && (m.WParam != this.Handle))
+            if (m.Msg == WM_CONTEXTMENU && m.WParam != this.Handle)
             {
                 this.uxMenuStripColumns.Items.Clear();
                 var sortedTags = from t in this._tags.Keys orderby t select t;
@@ -176,7 +202,8 @@ namespace Microsoft.Vault.Explorer.Controls.Lists
                 {
                     this.uxMenuStripColumns.Items.Add(this._tags[k]);
                 }
-                this.uxMenuStripColumns.Show(Control.MousePosition);
+
+                this.uxMenuStripColumns.Show(MousePosition);
             }
         }
 

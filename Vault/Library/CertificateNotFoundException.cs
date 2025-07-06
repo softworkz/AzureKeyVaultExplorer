@@ -6,7 +6,7 @@ namespace Microsoft.Vault.Library
     using System;
 
     /// <summary>
-    /// Indicates the needed certificate for Azure AD authentication is missing
+    ///     Indicates the needed certificate for Azure AD authentication is missing
     /// </summary>
     [Serializable]
     public class CertificateNotFoundException : Exception

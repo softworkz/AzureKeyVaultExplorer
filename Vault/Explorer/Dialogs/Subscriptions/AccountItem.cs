@@ -7,7 +7,7 @@ namespace Microsoft.Vault.Explorer.Dialogs.Subscriptions
         public string DomainHint;
         public string UserAlias;
 
-        public AccountItem(string domainHint, string userAlias=null)
+        public AccountItem(string domainHint, string userAlias = null)
         {
             this.DomainHint = domainHint;
             this.UserAlias = userAlias ?? Environment.UserName;

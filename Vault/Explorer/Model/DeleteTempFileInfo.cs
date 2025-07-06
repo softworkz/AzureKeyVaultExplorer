@@ -7,7 +7,7 @@ namespace Microsoft.Vault.Explorer.Model
     using System.IO;
 
     /// <summary>
-    /// Deletes file if file location is under %TEMP% folder, to be used with using pattern
+    ///     Deletes file if file location is under %TEMP% folder, to be used with using pattern
     /// </summary>
     public class DeleteTempFileInfo : IDisposable
     {
@@ -21,6 +21,7 @@ namespace Microsoft.Vault.Explorer.Model
                 {
                     this.FileInfoObject.Delete();
                 }
+
                 this.FileInfoObject = null;
             }
         }

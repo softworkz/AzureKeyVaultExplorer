@@ -14,7 +14,6 @@ namespace Microsoft.Vault.Explorer.Model.Files.Tags
     [JsonObject]
     public class CustomTag
     {
-
         [JsonProperty]
         public readonly string Name;
 
@@ -25,7 +24,7 @@ namespace Microsoft.Vault.Explorer.Model.Files.Tags
         public readonly Regex ValueRegex;
 
         [JsonProperty]
-        public readonly Dictionary<string,List<TagValues>> ValueList = new Dictionary<string, List<TagValues>>();
+        public readonly Dictionary<string, List<TagValues>> ValueList = new Dictionary<string, List<TagValues>>();
 
         [JsonProperty]
         public readonly List<TagValues> CustomTagValueList = new List<TagValues>();
@@ -38,6 +37,7 @@ namespace Microsoft.Vault.Explorer.Model.Files.Tags
             {
                 throw new ArgumentOutOfRangeException("name.Length", $"Tag name '{name}' is too long, name can be up to {Consts.MaxTagNameLength} chars");
             }
+
             this.Name = name;
             this.DefaultValue = defaultValue;
             this.ValueRegex = new Regex(valueRegex, RegexOptions.Singleline | RegexOptions.Compiled);
@@ -49,9 +49,9 @@ namespace Microsoft.Vault.Explorer.Model.Files.Tags
                 {
                     this.CustomTagValueList.Add(new TagValues(v));
                 }
-                this.ValueList.Add(name,this.CustomTagValueList);
-            }
 
+                this.ValueList.Add(name, this.CustomTagValueList);
+            }
         }
 
         public override string ToString() => this.Name;
@@ -64,10 +64,10 @@ namespace Microsoft.Vault.Explorer.Model.Files.Tags
             {
                 return required ? $"Tag {this.Name} is required\n" : "";
             }
+
             var m = this.ValueRegex.Match(tagItem.Value);
             return m.Success ? "" : $"Tag {this.Name} value must match the following regex: {this.ValueRegex}\n";
         }
-
     }
 
     // Used for storing a list of values for a tag

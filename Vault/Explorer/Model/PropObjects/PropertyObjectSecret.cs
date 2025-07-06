@@ -22,12 +22,12 @@ namespace Microsoft.Vault.Explorer.Model.PropObjects
     using Utils = Microsoft.Vault.Explorer.Common.Utils;
 
     /// <summary>
-    /// Secret object to edit via PropertyGrid
+    ///     Secret object to edit via PropertyGrid
     /// </summary>
     public class PropertyObjectSecret : PropertyObject
     {
         /// <summary>
-        /// Original secret
+        ///     Original secret
         /// </summary>
         private readonly SecretBundle _secret;
 
@@ -38,10 +38,7 @@ namespace Microsoft.Vault.Explorer.Model.PropObjects
         [TypeConverter(typeof(ContentTypeEnumConverter))]
         public ContentType ContentType
         {
-            get
-            {
-                return this._contentType;
-            }
+            get { return this._contentType; }
             set
             {
                 this._contentType = value;
@@ -67,7 +64,11 @@ namespace Microsoft.Vault.Explorer.Model.PropObjects
                 for (int i = 0; i < m.Groups.Count; i++)
                 {
                     string groupName = this.SecretKind.ValueRegex.GroupNameFromNumber(i);
-                    if (groupName == i.ToString()) continue; // Skip unnamed groups
+                    if (groupName == i.ToString())
+                    {
+                        continue; // Skip unnamed groups
+                    }
+
                     yield return new TagItem(groupName, m.Groups[i].Value);
                 }
             }
@@ -75,11 +76,19 @@ namespace Microsoft.Vault.Explorer.Model.PropObjects
 
         public override void PopulateCustomTags()
         {
-            if ((null == this._customTags) || (this._customTags.Count == 0)) return;
+            if (null == this._customTags || this._customTags.Count == 0)
+            {
+                return;
+            }
+
             // Add RequiredCustomTags and OptionalCustomTags
             foreach (var tagId in this.SecretKind.RequiredCustomTags.Concat(this.SecretKind.OptionalCustomTags))
             {
-                if (false == this._customTags.ContainsKey(tagId)) continue;
+                if (false == this._customTags.ContainsKey(tagId))
+                {
+                    continue;
+                }
+
                 this.Tags.AddOrKeep(this._customTags[tagId].ToTagItem());
             }
         }
@@ -91,13 +100,22 @@ namespace Microsoft.Vault.Explorer.Model.PropObjects
             TagItem oldTag = this.Tags.GetOrNull(newTag);
 
             // Don't add the SecretKind to a secret that doesn't have any custom tags
-            if (null == this._customTags) return;
+            if (null == this._customTags)
+            {
+                return;
+            }
 
             // Don't add the SecretKind to a secret that's defaulted to Custom
-            if (sk.Alias == "Custom" && !this.Tags.Contains(newTag)) return;
+            if (sk.Alias == "Custom" && !this.Tags.Contains(newTag))
+            {
+                return;
+            }
 
             // Don't add the SecretKind to a secret that is defaulted to Custom and doesn't have any custom tags.
-            if (oldTag == null && newTag.Value == "Custom") return;
+            if (oldTag == null && newTag.Value == "Custom")
+            {
+                return;
+            }
 
             if (oldTag == null) // Add the SecretKind tag
             {
@@ -115,37 +133,50 @@ namespace Microsoft.Vault.Explorer.Model.PropObjects
 
         public override string AreCustomTagsValid()
         {
-            if ((null == this._customTags) || (this._customTags.Count == 0)) return "";
+            if (null == this._customTags || this._customTags.Count == 0)
+            {
+                return "";
+            }
+
             StringBuilder result = new StringBuilder();
             // Verify RequiredCustomTags
             foreach (var tagId in this.SecretKind.RequiredCustomTags)
             {
-                if (false == this._customTags.ContainsKey(tagId)) continue;
+                if (false == this._customTags.ContainsKey(tagId))
+                {
+                    continue;
+                }
+
                 var ct = this._customTags[tagId];
                 result.Append(ct.Verify(this.Tags.GetOrNull(ct.ToTagItem()), true));
             }
+
             // Verify OptionalCustomTags
             foreach (var tagId in this.SecretKind.OptionalCustomTags)
             {
-                if (false == this._customTags.ContainsKey(tagId)) continue;
+                if (false == this._customTags.ContainsKey(tagId))
+                {
+                    continue;
+                }
+
                 var ct = this._customTags[tagId];
                 result.Append(ct.Verify(this.Tags.GetOrNull(ct.ToTagItem()), false));
             }
+
             return result.ToString();
         }
 
         public override void PopulateExpiration()
         {
             // Set item expiration in case DefaultExpiration is not zero
-            this.Expires = (default(TimeSpan) == this.SecretKind.DefaultExpiration) ? (DateTime?)null :
-                DateTime.UtcNow.Add(this.SecretKind.DefaultExpiration);
+            this.Expires = default(TimeSpan) == this.SecretKind.DefaultExpiration ? null : DateTime.UtcNow.Add(this.SecretKind.DefaultExpiration);
         }
 
-        public SecretAttributes ToSecretAttributes() => new SecretAttributes()
+        public SecretAttributes ToSecretAttributes() => new SecretAttributes
         {
             Enabled = this.Enabled,
             Expires = this.Expires,
-            NotBefore = this.NotBefore
+            NotBefore = this.NotBefore,
         };
 
         public override string GetKeyVaultFileExtension() => ContentType.KeyVaultSecret.ToExtension();

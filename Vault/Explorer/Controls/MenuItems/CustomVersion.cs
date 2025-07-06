@@ -30,6 +30,6 @@ namespace Microsoft.Vault.Explorer.Controls.MenuItems
                 this.Id.Version);
         }
 
-        public override string ToString() => ((0 == this.Index) ? "Current value" : $"Value from {this.Text}") + Utils.DropDownSuffix;
+        public override string ToString() => (0 == this.Index ? "Current value" : $"Value from {this.Text}") + Utils.DropDownSuffix;
     }
 }

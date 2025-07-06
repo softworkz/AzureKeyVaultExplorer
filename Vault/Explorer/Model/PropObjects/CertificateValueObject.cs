@@ -14,7 +14,7 @@ namespace Microsoft.Vault.Explorer.Model.PropObjects
     using Newtonsoft.Json;
 
     /// <summary>
-    /// Certificate (.cer, .crt, .pfx, .p12, .pfxb64, .p12b64) based secret value JSON object
+    ///     Certificate (.cer, .crt, .pfx, .p12, .pfxb64, .p12b64) based secret value JSON object
     /// </summary>
     [JsonObject]
     public class CertificateValueObject
@@ -34,7 +34,7 @@ namespace Microsoft.Vault.Explorer.Model.PropObjects
             this.Data = data;
             this.Password = password;
             byte[] rawData = Convert.FromBase64String(data);
-            this.Certificate = (null == password) ? new X509Certificate2(rawData) : new X509Certificate2(rawData, password, X509KeyStorageFlags.UserKeySet | X509KeyStorageFlags.Exportable);
+            this.Certificate = null == password ? new X509Certificate2(rawData) : new X509Certificate2(rawData, password, X509KeyStorageFlags.UserKeySet | X509KeyStorageFlags.Exportable);
         }
 
         public CertificateValueObject(FileInfo file, string password) :
@@ -86,11 +86,13 @@ namespace Microsoft.Vault.Explorer.Model.PropObjects
                 {
                     return new CertificateValueObject(m.Groups["CertificateBase64"].Value, m.Groups["CertificatePassword"].Value);
                 }
+
                 m = s_wcdCerCertificate.Match(value); // WCD cert
                 if (m.Success)
                 {
                     return new CertificateValueObject(m.Groups["CertificateBase64"].Value, null);
                 }
+
                 if (Consts.ValidBase64Regex.IsMatch(value)) // Key Vault Certificate with empty password via secrets endpoint OR WD cert in JSON base64 format
                 {
                     try
@@ -102,6 +104,7 @@ namespace Microsoft.Vault.Explorer.Model.PropObjects
                         return JsonConvert.DeserializeObject<CertificateValueObject>(Encoding.UTF8.GetString(Convert.FromBase64String(value)));
                     }
                 }
+
                 return JsonConvert.DeserializeObject<CertificateValueObject>(value); // WD cert in JSON format
             }
             catch

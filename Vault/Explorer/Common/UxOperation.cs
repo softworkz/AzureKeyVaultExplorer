@@ -14,7 +14,7 @@ namespace Microsoft.Vault.Explorer.Common
     using Microsoft.Vault.Explorer.Model.Files.Aliases;
 
     /// <summary>
-    /// User experience operation, to be used with using() keyword
+    ///     User experience operation, to be used with using() keyword
     /// </summary>
     public class UxOperation : IDisposable
     {
@@ -30,7 +30,7 @@ namespace Microsoft.Vault.Explorer.Common
         private readonly ToolStripItem[] _controlsToToggle;
         private readonly CancellationTokenSource _cancellationTokenSource;
 
-        private bool _disposedValue = false; // To detect redundant calls
+        private bool _disposedValue; // To detect redundant calls
 
         public UxOperation(VaultAlias currentVaultAlias, ToolStripItem statusLabel, ToolStripProgressBar statusProgress, ToolStripItem cancelButton, params ToolStripItem[] controlsToToggle)
         {
@@ -56,7 +56,11 @@ namespace Microsoft.Vault.Explorer.Common
 
         public void Dispose()
         {
-            if (this._disposedValue) return;
+            if (this._disposedValue)
+            {
+                return;
+            }
+
             if (this._cancelButton != null)
             {
                 this._cancelButton.Click -= this.uxButtonCancel_Click;
@@ -72,8 +76,8 @@ namespace Microsoft.Vault.Explorer.Common
         }
 
         /// <summary>
-        /// Invoke specified vault releated tasks in parallel, in case all tasks failed with Forbidden code
-        /// show access denied message box. If at least one task finished successfully, no error is showed to user
+        ///     Invoke specified vault releated tasks in parallel, in case all tasks failed with Forbidden code
+        ///     show access denied message box. If at least one task finished successfully, no error is showed to user
         /// </summary>
         /// <param name="actionName">Nice name of the action to show in the message box</param>
         /// <param name="tasks"></param>
@@ -101,6 +105,7 @@ namespace Microsoft.Vault.Explorer.Common
                     }
                 }));
             }
+
             await Task.WhenAll(tasksList);
             this.ProgressBarVisibility(false);
             if (exceptions.Count == tasks.Length) // In case all tasks failed with Forbidden, show message box to user
@@ -112,7 +117,10 @@ namespace Microsoft.Vault.Explorer.Common
 
         public static void ToggleControls(bool enabled, params ToolStripItem[] controlsToToggle)
         {
-            foreach (var c in controlsToToggle) c.Enabled = enabled;
+            foreach (var c in controlsToToggle)
+            {
+                c.Enabled = enabled;
+            }
         }
 
         private void ProgressBarVisibility(bool visible)
@@ -121,6 +129,7 @@ namespace Microsoft.Vault.Explorer.Common
             {
                 this._statusProgress.Visible = visible;
             }
+
             if (this._cancelButton != null)
             {
                 this._cancelButton.Visible = visible;
