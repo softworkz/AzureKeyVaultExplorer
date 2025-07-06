@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Vault.Explorer.Dialogs.Passwords
+namespace Microsoft.Vault.Explorer.Dialogs.Passwords
 {
     partial class PasswordDialog
     {

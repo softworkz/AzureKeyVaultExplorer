@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Vault.Explorer.Controls.Lists.Favorites
+namespace Microsoft.Vault.Explorer.Controls.Lists.Favorites
 {
     using System;
     using System.Collections.Generic;

@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Vault.Explorer.Dialogs.Settings
+namespace Microsoft.Vault.Explorer.Dialogs.Settings
 {
     partial class SettingsDialog
     {

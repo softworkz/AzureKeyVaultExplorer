@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Vault.Explorer.Controls.Lists
+namespace Microsoft.Vault.Explorer.Controls.Lists
 {
     partial class ListViewSecrets
     {

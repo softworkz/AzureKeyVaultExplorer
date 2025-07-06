@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Vault.Explorer.Common
+namespace Microsoft.Vault.Explorer.Common
 {
     using System;
 

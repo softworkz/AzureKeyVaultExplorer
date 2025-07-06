@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Vault.Explorer.Dialogs.Exceptions
+namespace Microsoft.Vault.Explorer.Dialogs.Exceptions
 {
     partial class ExceptionDialog
     {

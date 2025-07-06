@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Vault.Explorer.Model.Collections
+namespace Microsoft.Vault.Explorer.Model.Collections
 {
     using System;
     using System.Collections.Generic;

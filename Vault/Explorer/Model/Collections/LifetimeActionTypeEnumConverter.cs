@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Vault.Explorer.Model.Collections
+namespace Microsoft.Vault.Explorer.Model.Collections
 {
     using Microsoft.Azure.KeyVault.Models;
     using Microsoft.Vault.Explorer.Model.ContentTypes;

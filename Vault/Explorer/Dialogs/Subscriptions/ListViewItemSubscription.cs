@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Vault.Explorer.Dialogs.Subscriptions
+namespace Microsoft.Vault.Explorer.Dialogs.Subscriptions
 {
     using System.Windows.Forms;
 

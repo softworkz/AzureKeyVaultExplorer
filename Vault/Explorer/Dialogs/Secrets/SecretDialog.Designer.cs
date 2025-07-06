@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Vault.Explorer.Dialogs.Secrets
+namespace Microsoft.Vault.Explorer.Dialogs.Secrets
 {
     partial class SecretDialog
     {

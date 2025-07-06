@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Vault.Explorer.Controls.MenuItems
+namespace Microsoft.Vault.Explorer.Controls.MenuItems
 {
     using Microsoft.Azure.KeyVault.Models;
 
