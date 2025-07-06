@@ -236,7 +236,7 @@ namespace Microsoft.Vault.Explorer
         const int WM_XBUTTONUP = 0x020C;
 
         // The Messages array must be sorted due to use of Array.BinarySearch
-        static int[] ActivityMessages = new int[] {WM_NCLBUTTONDOWN,
+        static readonly int[] ActivityMessages = new int[] {WM_NCLBUTTONDOWN,
             WM_NCLBUTTONUP, WM_NCRBUTTONDOWN, WM_NCRBUTTONUP, WM_NCMBUTTONDOWN,
             WM_NCMBUTTONUP, WM_NCXBUTTONDOWN, WM_NCXBUTTONUP, WM_KEYDOWN, WM_KEYUP,
             WM_LBUTTONDOWN, WM_LBUTTONUP, WM_RBUTTONDOWN, WM_RBUTTONUP,

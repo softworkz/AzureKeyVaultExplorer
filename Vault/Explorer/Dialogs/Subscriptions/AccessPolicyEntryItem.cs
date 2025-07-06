@@ -9,8 +9,8 @@
     [Editor(typeof(ExpandableObjectConverter), typeof(UITypeEditor))]
     public class AccessPolicyEntryItem
     {
-        private static string[] EmptyList = new string[] { };
-        private AccessPolicyEntry _ape;
+        private static readonly string[] EmptyList = new string[] { };
+        private readonly AccessPolicyEntry _ape;
 
         public AccessPolicyEntryItem(int index, AccessPolicyEntry ape)
         {

@@ -181,6 +181,6 @@ namespace Microsoft.Vault.Explorer.Controls.Lists
         }
 
         private const int WM_CONTEXTMENU = 0x7B;
-        private Dictionary<string, TagMenuItem> _tags;
+        private readonly Dictionary<string, TagMenuItem> _tags;
     }
 }

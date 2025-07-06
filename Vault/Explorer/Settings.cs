@@ -21,7 +21,7 @@ namespace Microsoft.Vault.Explorer
 
     public class Settings : ApplicationSettingsBase
     {
-        private static Settings defaultInstance = ((Settings)(ApplicationSettingsBase.Synchronized(new Settings())));
+        private static readonly Settings defaultInstance = ((Settings)(ApplicationSettingsBase.Synchronized(new Settings())));
         private readonly FavoriteSecretsDictionary _favoriteSecretsDictionary;
 
         public static Settings Default
