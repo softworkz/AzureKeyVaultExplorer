@@ -47,7 +47,7 @@ namespace Microsoft.Vault.Explorer
             ApplySettings();
 
             ToolStripManager.RenderMode = ToolStripManagerRenderMode.System;
-            
+
             _moveSecretCursor = Utils.LoadCursorFromResource(Resources.move_secret);
             _moveValueCursor = Utils.LoadCursorFromResource(Resources.move_value);
             _moveLinkCursor = Utils.LoadCursorFromResource(Resources.move_link);
@@ -104,7 +104,102 @@ namespace Microsoft.Vault.Explorer
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
+            // Check if there are any new vaults that haven't been saved
+            var newVaults = new List<VaultAlias>();
+            var processedAliases = new HashSet<string>();
+
+            // Check temporary vaults
+            foreach (var vault in _tempVaultAliases.Values)
+            {
+                if (vault.IsNew && !processedAliases.Contains(vault.Alias))
+                {
+                    newVaults.Add(vault);
+                    processedAliases.Add(vault.Alias);
+                }
+            }
+
+            // Check vaults in the dropdown (avoid duplicates)
+            foreach (var item in uxComboBoxVaultAlias.Items)
+            {
+                if (item is VaultAlias vault && vault.IsNew && !processedAliases.Contains(vault.Alias))
+                {
+                    newVaults.Add(vault);
+                    processedAliases.Add(vault.Alias);
+                }
+            }
+
+            // If there are new vaults, show save confirmation
+            if (newVaults.Count > 0)
+            {
+                var result = MessageBox.Show(
+                    $"You have added {newVaults.Count} new vault(s) to the list. Would you like to save them to your configuration?",
+                    "Save Vault List",
+                    MessageBoxButtons.YesNoCancel,
+                    MessageBoxIcon.Question,
+                    MessageBoxDefaultButton.Button1);
+
+                switch (result)
+                {
+                    case DialogResult.Yes:
+                        // Save all new vaults
+                        if (SaveNewVaults(newVaults))
+                        {
+                            ////MessageBox.Show($"Successfully saved {newVaults.Count} vault(s) to your configuration.",
+                            ////    "Vault Configuration", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            // Just exit
+                        }
+                        else
+                        {
+                            // If save failed, cancel the close operation
+                            e.Cancel = true;
+                            return;
+                        }
+                        break;
+
+                    case DialogResult.No:
+                        // Don't save, just close
+                        break;
+
+                    case DialogResult.Cancel:
+                        // Cancel the close operation
+                        e.Cancel = true;
+                        return;
+                }
+            }
+
             SaveSettings();
+        }
+
+        private bool SaveNewVaults(List<VaultAlias> newVaults)
+        {
+            try
+            {
+                foreach (var vault in newVaults)
+                {
+                    bool success = VaultConfigurationManager.AddVaultConfiguration(
+                        vault.VaultNames[0], // vault name
+                        vault.Alias,         // alias name
+                        0,                   // Interactive authentication (default)
+                        vault.DomainHint,
+                        vault.UserAlias
+                    );
+
+                    if (!success)
+                    {
+                        MessageBox.Show($"Failed to save vault '{vault.VaultNames[0]}'. Please check the application logs for details.",
+                            "Vault Configuration", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error saving vault configuration: {ex.Message}",
+                    "Vault Configuration", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
         }
 
         private UxOperation NewUxOperationWithProgress(params ToolStripItem[] controlsToToggle) => new UxOperation(CurrentVaultAlias, uxStatusLabel, uxStatusProgressBar, uxButtonCancel, controlsToToggle);
@@ -117,15 +212,22 @@ namespace Microsoft.Vault.Explorer
         {
             object prevSelectedItem = uxComboBoxVaultAlias.SelectedItem;
             uxComboBoxVaultAlias.Items.Clear();
-            IEnumerable<VaultAlias> va = Utils.LoadFromJsonFile<VaultAliases>(Settings.Default.VaultAliasesJsonFileLocation);
+            List<VaultAlias> va = Utils.LoadFromJsonFile<VaultAliases>(Settings.Default.VaultAliasesJsonFileLocation);
             if (!string.IsNullOrEmpty(_activationUri.VaultName)) // In case vault name was provided during activation, search for it, if not found let us add it on the fly
             {
-                va = from v in va where v.VaultNames.Contains(_activationUri.VaultName, StringComparer.CurrentCultureIgnoreCase) select v;
-                if (0 == va.Count()) // Not found, let add new vault alias == vault name, with Custom secret kind
+                va = (from v in va where v.VaultNames.Contains(_activationUri.VaultName, StringComparer.CurrentCultureIgnoreCase) select v).ToList();
+                if (0 == va.Count) // Not found, let add new vault alias == vault name, with Custom secret kind
                 {
-                    va = Enumerable.Repeat(new VaultAlias(_activationUri.VaultName, new string[] { _activationUri.VaultName }, new string[] { "Custom" }), 1);
+                    va = Enumerable.Repeat(new VaultAlias(_activationUri.VaultName, new string[] { _activationUri.VaultName }, new string[] { "Custom" }), 1).ToList();
                 }
             }
+
+            // Mark all vaults loaded from JSON as not new
+            foreach (var vault in va)
+            {
+                vault.IsNew = false;
+            }
+
             uxComboBoxVaultAlias.Items.AddRange(va.ToArray());
             uxComboBoxVaultAlias.Items.AddRange(_tempVaultAliases.Values.ToArray());
             uxComboBoxVaultAlias.Items.Add(AddNewVaultText);
@@ -167,22 +269,41 @@ namespace Microsoft.Vault.Explorer
                             uxComboBoxVaultAlias.SelectedItem = CurrentVaultAlias;
                             return false;
                         }
+
+                        // Add vault to temporary collection since it's new
                         _tempVaultAliases[smd.CurrentVaultAlias.Alias] = smd.CurrentVaultAlias;
-                        uxComboBoxVaultAlias.Items.Insert(uxComboBoxVaultAlias.Items.Count - 1, smd.CurrentVaultAlias);
-                        uxComboBoxVaultAlias.SelectedItem = smd.CurrentVaultAlias;
+                        uxComboBoxVaultAlias.Items.Insert(uxComboBoxVaultAlias.Items.Count - 2, smd.CurrentVaultAlias);
+
+                        if (uxComboBoxVaultAlias.SelectedItem == null)
+                        {
+                            uxComboBoxVaultAlias.SelectedItem = smd.CurrentVaultAlias;
+                        }
 
                         // Set user alias and domain hint manually as they are not set from the assignment
-                        ((VaultAlias)uxComboBoxVaultAlias.SelectedItem).UserAlias = smd.CurrentVaultAlias.UserAlias;
-                        ((VaultAlias)uxComboBoxVaultAlias.SelectedItem).DomainHint = smd.CurrentVaultAlias.DomainHint;
+                        if (uxComboBoxVaultAlias.SelectedItem is VaultAlias selectedVault)
+                        {
+                            selectedVault.UserAlias = smd.CurrentVaultAlias.UserAlias;
+                            selectedVault.DomainHint = smd.CurrentVaultAlias.DomainHint;
+                        }
                         break;
                 }
             }
-            CurrentVaultAlias = (VaultAlias)uxComboBoxVaultAlias.SelectedItem;
+            // Only set CurrentVaultAlias if the selected item is actually a VaultAlias object
+            if (uxComboBoxVaultAlias.SelectedItem is VaultAlias vaultAlias)
+            {
+                CurrentVaultAlias = vaultAlias;
+                uxComboBoxVaultAlias.SelectedText = CurrentVaultAlias.Alias;
+                // In some cases, the combobox will be blank. Setting the text on a blank combobox will null the selected item. So, always ensure the selecteditem is set when setting the selected text.
+                uxComboBoxVaultAlias.SelectedItem = CurrentVaultAlias;
+                uxComboBoxVaultAlias.ToolTipText = "Vault names: " + string.Join(", ", CurrentVaultAlias.VaultNames);
+            }
+            else
+            {
+                // Selected item is not a VaultAlias (probably a string like menu items), don't change CurrentVaultAlias
+                uxComboBoxVaultAlias.ToolTipText = "";
+            }
+
             bool itemSelected = (null != CurrentVaultAlias);
-            uxComboBoxVaultAlias.SelectedText = CurrentVaultAlias.Alias;
-            // In some cases, the combobox will be blank. Setting the text on a blank combobox will null the selected item. So, always ensure the selecteditem is set when setting the selected text.
-            uxComboBoxVaultAlias.SelectedItem = CurrentVaultAlias;            
-            uxComboBoxVaultAlias.ToolTipText = itemSelected ? "Vault names: " + string.Join(", ", CurrentVaultAlias.VaultNames) : "";
             uxMenuItemRefresh.Enabled = itemSelected;
             return itemSelected;
         }
@@ -191,9 +312,9 @@ namespace Microsoft.Vault.Explorer
         {
             CurrentVault = new Vault(Utils.FullPathToJsonFile(Settings.Default.VaultsJsonFileLocation), VaultAccessTypeEnum.ReadWrite, CurrentVaultAlias.VaultNames);
             // In case that subscription is chosen by the dialog, overwrite permissions taken from vaults.json
-            if (CurrentVaultAlias.UserAlias!=null)
+            if (CurrentVaultAlias.UserAlias != null)
             {
-                CurrentVault.VaultsConfig[CurrentVaultAlias.VaultNames[0]]= new VaultAccessType(
+                CurrentVault.VaultsConfig[CurrentVaultAlias.VaultNames[0]] = new VaultAccessType(
                     new VaultAccess[] { new VaultAccessUserInteractive(CurrentVaultAlias.DomainHint, CurrentVaultAlias.UserAlias) },
                     new VaultAccess[] { new VaultAccessUserInteractive(CurrentVaultAlias.DomainHint, CurrentVaultAlias.UserAlias) });
             }
@@ -201,9 +322,9 @@ namespace Microsoft.Vault.Explorer
 
         private async void uxMenuItemRefresh_Click(object sender, EventArgs e)
         {
-            using (var op = NewUxOperationWithProgress(uxMenuItemRefresh, uxComboBoxVaultAlias, uxButtonAdd, uxMenuItemAdd, 
-                uxButtonEdit, uxMenuItemEdit, uxButtonToggle, uxMenuItemToggle, uxButtonDelete, uxMenuItemDelete, uxImageSearch, uxTextBoxSearch, 
-                uxButtonShare, uxMenuItemShare, uxButtonFavorite, uxMenuItemFavorite)) 
+            using (var op = NewUxOperationWithProgress(uxMenuItemRefresh, uxComboBoxVaultAlias, uxButtonAdd, uxMenuItemAdd,
+                uxButtonEdit, uxMenuItemEdit, uxButtonToggle, uxMenuItemToggle, uxButtonDelete, uxMenuItemDelete, uxImageSearch, uxTextBoxSearch,
+                uxButtonShare, uxMenuItemShare, uxButtonFavorite, uxMenuItemFavorite))
             {
                 try
                 {
@@ -223,13 +344,13 @@ namespace Microsoft.Vault.Explorer
                         async () => // List Secrets
                         {
                             CurrentVaultAlias.SecretsCollectionEnabled = false;
-                            secrets = await CurrentVault.ListSecretsAsync(0, (p) => { s = p;  Invoke(updateCount); }, cancellationToken: op.CancellationToken);
+                            secrets = await CurrentVault.ListSecretsAsync(0, (p) => { s = p; Invoke(updateCount); }, cancellationToken: op.CancellationToken);
                             CurrentVaultAlias.SecretsCollectionEnabled = true;
                         },
                         async () => // List Key Vault Certificates
                         {
                             CurrentVaultAlias.CertificatesCollectionEnabled = false;
-                            certificates = await CurrentVault.ListCertificatesAsync(0, (p) => { c = p;  Invoke(updateCount); }, cancellationToken: op.CancellationToken);
+                            certificates = await CurrentVault.ListCertificatesAsync(0, (p) => { c = p; Invoke(updateCount); }, cancellationToken: op.CancellationToken);
                             CurrentVaultAlias.CertificatesCollectionEnabled = true;
                         }
                     );
@@ -346,7 +467,7 @@ namespace Microsoft.Vault.Explorer
             }
             else
             {
-                uxOpenFileDialog.FilterIndex = (sender == uxAddCertFromFile) || (sender == uxAddCertFromFile2) || (sender == uxAddKVCertFromFile) || (sender == uxAddKVCertFromFile2)  ? ContentType.Pkcs12.ToFilterIndex() : ContentType.None.ToFilterIndex();
+                uxOpenFileDialog.FilterIndex = (sender == uxAddCertFromFile) || (sender == uxAddCertFromFile2) || (sender == uxAddKVCertFromFile) || (sender == uxAddKVCertFromFile2) ? ContentType.Pkcs12.ToFilterIndex() : ContentType.None.ToFilterIndex();
                 if (uxOpenFileDialog.ShowDialog() != DialogResult.OK) return null;
                 fi = new FileInfo(uxOpenFileDialog.FileName);
             }
@@ -445,7 +566,7 @@ namespace Microsoft.Vault.Explorer
                 }
             }
         }
-      
+
         private async void uxButtonEdit_Click(object sender, EventArgs e)
         {
             var item = uxListViewSecrets.FirstSelectedItem;
@@ -459,7 +580,8 @@ namespace Microsoft.Vault.Explorer
                     await op.Invoke($"update {item.Kind} in", async () => newItem = await item.ResetExpirationAsync(op.CancellationToken));
                     AddOrReplaceItemInListView(newItem, item);
                     item = newItem;
-                };
+                }
+                ;
             }
             if (item.Enabled && item.Active)
             {
@@ -477,7 +599,8 @@ namespace Microsoft.Vault.Explorer
                         ListViewItemBase newItem = null;
                         await op.Invoke($"update {item.Kind} in", async () => newItem = await item.UpdateAsync(editDlg.OriginalObject, editDlg.PropertyObject, op.CancellationToken));
                         AddOrReplaceItemInListView(newItem, item);
-                    };
+                    }
+                    ;
                 }
             }
         }

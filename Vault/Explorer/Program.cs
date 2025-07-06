@@ -67,6 +67,66 @@ namespace Microsoft.Vault.Explorer
                 Properties.Settings.Default.Upgrade();
                 Properties.Settings.Default.Save();
             }
+
+            // Setup configuration files in proper user data directory if using default location
+            SetupConfigurationFiles();
+        }
+
+        /// <summary>
+        /// Sets up configuration files in proper user data directory when JsonConfigurationFilesRoot is set to default
+        /// </summary>
+        private static void SetupConfigurationFiles()
+        {
+            try
+            {
+                // Only setup if using default location
+                if (Settings.Default.JsonConfigurationFilesRoot != @".\")
+                {
+                    return; // User has customized the location, don't interfere
+                }
+
+                // Define target directory
+                string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+                string configDir = System.IO.Path.Combine(localAppData, "VaultExplorer", "Config");
+
+                // Create directory if it doesn't exist
+                if (!System.IO.Directory.Exists(configDir))
+                {
+                    System.IO.Directory.CreateDirectory(configDir);
+                }
+
+                // List of configuration files to copy
+                string[] configFiles = { "Vaults.json", "VaultAliases.json", "SecretKinds.json", "CustomTags.json" };
+                string appDir = System.IO.Path.GetDirectoryName(Application.ExecutablePath);
+
+                bool anyFilesCopied = false;
+
+                foreach (string configFile in configFiles)
+                {
+                    string sourceFile = System.IO.Path.Combine(appDir, configFile);
+                    string targetFile = System.IO.Path.Combine(configDir, configFile);
+
+                    // Only copy if source exists and target doesn't exist
+                    if (System.IO.File.Exists(sourceFile) && !System.IO.File.Exists(targetFile))
+                    {
+                        System.IO.File.Copy(sourceFile, targetFile);
+                        anyFilesCopied = true;
+                    }
+                }
+
+                // Update the setting to point to the new location if we copied any files
+                if (anyFilesCopied || System.IO.Directory.GetFiles(configDir, "*.json").Length > 0)
+                {
+                    Settings.Default.JsonConfigurationFilesRoot = configDir;
+                    Settings.Default.Save();
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log the error but don't crash the application
+                System.Diagnostics.Debug.WriteLine($"Failed to setup configuration files: {ex.Message}");
+                // Application will continue using the default location
+            }
         }
 
         /// <summary>
@@ -201,4 +261,3 @@ namespace Microsoft.Vault.Explorer
         }
     }
 }
-

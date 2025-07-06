@@ -34,6 +34,9 @@ namespace Microsoft.Vault.Explorer
 
         public string UserAlias;
 
+        [JsonIgnore]
+        public bool IsNew { get; set; }
+
         [JsonConstructor]
         public VaultAlias(string alias, string[] vaultNames, string[] secretKinds)
         {
@@ -47,7 +50,7 @@ namespace Microsoft.Vault.Explorer
 
         public override string ToString() => Alias;
 
-        public override bool Equals(object obj) => Equals((VaultAlias)obj);
+        public override bool Equals(object obj) => obj is VaultAlias va && Equals(va);
 
         public bool Equals(VaultAlias va) => (Alias == va?.Alias);
 
