@@ -1,5 +1,5 @@
-// Copyright (c) Microsoft Corporation. All rights reserved. 
-// Licensed under the MIT License. See License.txt in the project root for license information. 
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
 
 namespace Microsoft.Vault.Explorer.Dialogs.Subscriptions
 {
@@ -81,7 +81,7 @@ namespace Microsoft.Vault.Explorer.Dialogs.Subscriptions
             {
                 case null:
                     return;
-                    
+
                 case AddAccountText:
                     this.AddNewAccount();
                     break;
@@ -156,10 +156,10 @@ namespace Microsoft.Vault.Explorer.Dialogs.Subscriptions
                 var vault = await this._currentKeyVaultMgmtClient.Vaults.GetAsync(v.GroupName, v.Name);
                 this.uxPropertyGridVault.SelectedObject = new PropertyObjectVault(s.Subscription, v.GroupName, vault);
                 this.uxButtonOK.Enabled = true;
-                
-                this.CurrentVaultAlias = new VaultAlias(v.Name, new string[] { v.Name }, new string[] { "Custom" }) 
-                { 
-                    DomainHint = this._currentAccountItem.DomainHint, 
+
+                this.CurrentVaultAlias = new VaultAlias(v.Name, new string[] { v.Name }, new string[] { "Custom" })
+                {
+                    DomainHint = this._currentAccountItem.DomainHint,
                     UserAlias = this._currentAccountItem.UserAlias,
                     IsNew = true  // Mark as new since it's being added from SubscriptionsManagerDialog
                 };

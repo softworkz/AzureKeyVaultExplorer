@@ -1,5 +1,5 @@
-// Copyright (c) Microsoft Corporation. All rights reserved. 
-// Licensed under the MIT License. See License.txt in the project root for license information. 
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
 
 namespace Microsoft.Vault.Explorer.Model.PropObjects
 {
@@ -92,10 +92,10 @@ namespace Microsoft.Vault.Explorer.Model.PropObjects
 
             // Don't add the SecretKind to a secret that doesn't have any custom tags
             if (null == this._customTags) return;
-            
+
             // Don't add the SecretKind to a secret that's defaulted to Custom
             if (sk.Alias == "Custom" && !this.Tags.Contains(newTag)) return;
-            
+
             // Don't add the SecretKind to a secret that is defaulted to Custom and doesn't have any custom tags.
             if (oldTag == null && newTag.Value == "Custom") return;
 

@@ -1,5 +1,5 @@
-// Copyright (c) Microsoft Corporation. All rights reserved. 
-// Licensed under the MIT License. See License.txt in the project root for license information. 
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
 
 namespace Microsoft.Vault.Explorer.Model.PropObjects
 {
@@ -37,7 +37,7 @@ namespace Microsoft.Vault.Explorer.Model.PropObjects
             this.Certificate = (null == password) ? new X509Certificate2(rawData) : new X509Certificate2(rawData, password, X509KeyStorageFlags.UserKeySet | X509KeyStorageFlags.Exportable);
         }
 
-        public CertificateValueObject(FileInfo file, string password) : 
+        public CertificateValueObject(FileInfo file, string password) :
             this(Convert.ToBase64String(File.ReadAllBytes(file.FullName)), password)
         {
         }
@@ -48,7 +48,7 @@ namespace Microsoft.Vault.Explorer.Model.PropObjects
             tags.AddOrReplace(new TagItem("Thumbprint", this.Certificate.Thumbprint.ToLowerInvariant()));
             tags.AddOrReplace(new TagItem("Expiration", this.Certificate.GetExpirationDateString()));
             tags.AddOrReplace(new TagItem("Subject", this.Certificate.GetNameInfo(X509NameType.SimpleName, false)));
-            var sans = 
+            var sans =
                 from X509Extension ext in this.Certificate.Extensions
                 where ext.Oid.Value == "2.5.29.17" // Subject Alternative Name
                 select ext.Format(false).Replace("DNS Name=", "");

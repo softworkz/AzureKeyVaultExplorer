@@ -1,5 +1,5 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved. 
-// Licensed under the MIT License. See License.txt in the project root for license information. 
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
 
 using Microsoft.Vault.Library;
 using System;
@@ -159,7 +159,7 @@ namespace Microsoft.Vault.Explorer
         }
 
         /// <summary>
-        /// Event Handler for Application Idle. Starts the Idle Timer 
+        /// Event Handler for Application Idle. Starts the Idle Timer
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>

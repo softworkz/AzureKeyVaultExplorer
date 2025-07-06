@@ -1,5 +1,5 @@
-// Copyright (c) Microsoft Corporation. All rights reserved. 
-// Licensed under the MIT License. See License.txt in the project root for license information. 
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
 
 namespace Microsoft.Vault.Explorer.Dialogs
 {
@@ -31,7 +31,7 @@ namespace Microsoft.Vault.Explorer.Dialogs
         protected virtual void InvalidateOkButton()
         {
             string tagsError = this.PropertyObject.AreCustomTagsValid();
-            this.uxButtonOK.Enabled = this._changed && this.PropertyObject.IsNameValid && this.PropertyObject.IsValueValid && 
+            this.uxButtonOK.Enabled = this._changed && this.PropertyObject.IsNameValid && this.PropertyObject.IsValueValid &&
                                       this.PropertyObject.IsExpirationValid && string.IsNullOrEmpty(tagsError);
         }
 

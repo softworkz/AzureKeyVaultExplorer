@@ -54,7 +54,7 @@ namespace Microsoft.Vault.Explorer.Dialogs.Subscriptions
         [DisplayName("Sku")]
         [ReadOnly(true)]
         public SkuName Sku => this._vault.Properties.Sku.Name;
-        
+
         [DisplayName("Access Policies")]
         [ReadOnly(true)]
         [TypeConverter(typeof(ExpandableCollectionObjectConverter))]

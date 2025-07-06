@@ -1,5 +1,5 @@
-// Copyright (c) Microsoft Corporation. All rights reserved. 
-// Licensed under the MIT License. See License.txt in the project root for license information. 
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
 
 namespace Microsoft.Vault.Explorer.Controls.MenuItems
 {
@@ -73,7 +73,7 @@ namespace Microsoft.Vault.Explorer.Controls.MenuItems
         }
 
         [JsonConstructor]
-        public SecretKind(string alias, string description, string nameRegex, string valueRegex, string valueTemplate, 
+        public SecretKind(string alias, string description, string nameRegex, string valueRegex, string valueTemplate,
             string certificateFormat, string[] requiredCustomTags, string[] optionalCustomTags,
             TimeSpan defaultExpiration, TimeSpan maxExpiration) : base(alias)
         {

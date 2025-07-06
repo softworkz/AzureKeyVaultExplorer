@@ -4,7 +4,7 @@ namespace Microsoft.Vault.Explorer.Controls.Lists.Favorites
     {
         public static bool Contains(string vaultAlias, string secretName)
         {
-            return Settings.Default.FavoriteSecretsDictionary.ContainsKey(vaultAlias) ? 
+            return Settings.Default.FavoriteSecretsDictionary.ContainsKey(vaultAlias) ?
                 Settings.Default.FavoriteSecretsDictionary[vaultAlias].ContainsKey(secretName) ? true : false : false;
         }
 
