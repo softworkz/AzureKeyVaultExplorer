@@ -29,8 +29,8 @@ $version = $tag.TrimStart('v').Split('-')[0]
 Write-Output "Version: $version"
 
 # Clean output directory.
-$publishDir = 'publish'
-$outDir = "$projDir/bin/$publishDir"
+$publishDir = 'bin/publish'
+$outDir = "$projDir/$publishDir"
 if (Test-Path $outDir) {
     Remove-Item -Path $outDir -Recurse
 }
@@ -47,10 +47,11 @@ try {
     }
     & $msBuildPath /target:publish /p:PublishProfile=ClickOnceProfile `
         /p:ApplicationVersion=$version /p:Configuration=Release `
+        /p:PublishDir=$publishDir `
         $msBuildVerbosityArg
 
     # Measure publish size.
-    $publishSize = (Get-ChildItem -Path "bin/$publishDir/Application Files" -Recurse |
+    $publishSize = (Get-ChildItem -Path "$publishDir/Application Files" -Recurse |
             Measure-Object -Property Length -Sum).Sum / 1Mb
     Write-Output ('Published size: {0:N2} MB' -f $publishSize)
 } finally {
