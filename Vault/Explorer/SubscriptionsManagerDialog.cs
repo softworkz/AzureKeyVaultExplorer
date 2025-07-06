@@ -41,6 +41,7 @@ namespace Microsoft.Vault.Explorer
         private AuthenticationResult _currentAuthResult;
         private KeyVaultManagementClient _currentKeyVaultMgmtClient;
         private readonly HttpClient _httpClient;
+        private int _initialVaultCount = 0;
 
         public VaultAlias CurrentVaultAlias { get; private set; }
 
@@ -50,6 +51,7 @@ namespace Microsoft.Vault.Explorer
             _httpClient = new HttpClient();
 
             // Create Default accounts based on domain hints and aliases.
+            bool hasPreConfiguredAccounts = false;
             foreach (string userAccountName in Settings.Default.UserAccountNamesList)
             {
                 string[] accounts = userAccountName.Split('@');
@@ -59,10 +61,23 @@ namespace Microsoft.Vault.Explorer
                 }
 
                 uxComboBoxAccounts.Items.Add(new AccountItem(accounts[1], accounts[0]));
+                hasPreConfiguredAccounts = true;
             }
+            
             uxComboBoxAccounts.Items.Add(AddAccountText);
             uxComboBoxAccounts.Items.Add(AddDomainHintText);
-            uxComboBoxAccounts.SelectedIndex = 0;
+            
+            // Only auto-select if we have pre-configured accounts, otherwise let user choose
+            if (hasPreConfiguredAccounts)
+            {
+                uxComboBoxAccounts.SelectedIndex = 0;
+            }
+            else
+            {
+                // No pre-configured accounts, don't auto-select anything
+                uxComboBoxAccounts.SelectedIndex = -1;
+                uxComboBoxAccounts.Text = "Select an account or add new...";
+            }
         }
 
         private UxOperation NewUxOperationWithProgress(params ToolStripItem[] controlsToToggle) => new UxOperation(null, uxStatusLabel, uxProgressBar, uxButtonCancelOperation, controlsToToggle);
@@ -148,25 +163,44 @@ namespace Microsoft.Vault.Explorer
                 var vault = await _currentKeyVaultMgmtClient.Vaults.GetAsync(v.GroupName, v.Name);
                 uxPropertyGridVault.SelectedObject = new PropertyObjectVault(s.Subscription, v.GroupName, vault);
                 uxButtonOK.Enabled = true;
-                CurrentVaultAlias = new VaultAlias(v.Name, new string[] { v.Name }, new string[] { "Custom" }) { DomainHint = _currentAccountItem.DomainHint, UserAlias = _currentAccountItem.UserAlias};
+                
+                CurrentVaultAlias = new VaultAlias(v.Name, new string[] { v.Name }, new string[] { "Custom" }) 
+                { 
+                    DomainHint = _currentAccountItem.DomainHint, 
+                    UserAlias = _currentAccountItem.UserAlias,
+                    IsNew = true  // Mark as new since it's being added from SubscriptionsManagerDialog
+                };
             }
         }
 
+
         private async void AddNewAccount()
         {
-            // Create temp account item for new account
-            _currentAccountItem = new AccountItem(Guid.NewGuid().ToString());
-            await GetAuthenticationTokenAsync();
+            try
+            {
+                // For new account, use "common" as domain hint to let Azure AD determine the tenant
+                _currentAccountItem = new AccountItem("common", null);
+                await GetAuthenticationTokenAsync();
 
-            // Get new user account and add it to default settings
-            string userAccountName = _currentAuthResult.Account?.Username ?? "unknown@unknown.com";
-            string[] userLogin = userAccountName.Split('@');
-            _currentAccountItem.UserAlias = userLogin[0];
-            _currentAccountItem.DomainHint = userLogin[1];
-            Settings.Default.AddUserAccountName(userAccountName);
+                // Get new user account and add it to default settings
+                string userAccountName = _currentAuthResult.Account?.Username ?? "unknown@unknown.com";
+                string[] userLogin = userAccountName.Split('@');
+                _currentAccountItem.UserAlias = userLogin[0];
+                _currentAccountItem.DomainHint = userLogin[1];
+                Settings.Default.AddUserAccountName(userAccountName);
 
-            uxComboBoxAccounts.Items.Insert(0, userAccountName);
-            uxComboBoxAccounts.SelectedIndex = 0;
+                // Add the new account to the dropdown and select it
+                var newAccountItem = new AccountItem(_currentAccountItem.DomainHint, _currentAccountItem.UserAlias);
+                uxComboBoxAccounts.Items.Insert(0, newAccountItem);
+                uxComboBoxAccounts.SelectedIndex = 0;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Authentication failed: {ex.Message}", "Authentication Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                // Reset selection to allow user to try again
+                uxComboBoxAccounts.SelectedIndex = -1;
+                uxComboBoxAccounts.Text = "Select an account or add new...";
+            }
         }
 
         // Attempt to authenticate with current account.
