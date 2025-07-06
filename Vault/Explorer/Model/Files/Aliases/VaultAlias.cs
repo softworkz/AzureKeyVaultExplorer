@@ -1,18 +1,11 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved. 
 // Licensed under the MIT License. See License.txt in the project root for license information. 
 
-using Newtonsoft.Json;
-using System;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using Microsoft.Vault.Library;
-using Microsoft.Vault.Core;
-
-namespace Microsoft.Vault.Explorer
+namespace Microsoft.Vault.Explorer.Model.Files.Aliases
 {
+    using Microsoft.Vault.Core;
+    using Newtonsoft.Json;
+
     [JsonObject]
     public class VaultAlias
     {
@@ -42,17 +35,17 @@ namespace Microsoft.Vault.Explorer
             Guard.ArgumentNotNullOrEmptyString(alias, nameof(alias));
             Guard.ArgumentCollectionNotEmpty(vaultNames, nameof(vaultNames));
             Guard.ArgumentInRange(vaultNames.Length, 1, 2, nameof(vaultNames));
-            Alias = alias;
-            VaultNames = vaultNames;
-            SecretKinds = secretKinds;
+            this.Alias = alias;
+            this.VaultNames = vaultNames;
+            this.SecretKinds = secretKinds;
         }
 
-        public override string ToString() => Alias;
+        public override string ToString() => this.Alias;
 
-        public override bool Equals(object obj) => obj is VaultAlias va && Equals(va);
+        public override bool Equals(object obj) => obj is VaultAlias va && this.Equals(va);
 
-        public bool Equals(VaultAlias va) => (Alias == va?.Alias);
+        public bool Equals(VaultAlias va) => (this.Alias == va?.Alias);
 
-        public override int GetHashCode() => Alias?.GetHashCode() ?? 0;
+        public override int GetHashCode() => this.Alias?.GetHashCode() ?? 0;
     }
 }

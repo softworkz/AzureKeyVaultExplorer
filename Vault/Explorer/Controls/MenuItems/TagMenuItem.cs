@@ -1,8 +1,9 @@
-﻿namespace Microsoft.Vault.Explorer
+﻿namespace Microsoft.Vault.Explorer.Controls.MenuItems
 {
     using System;
     using System.Linq;
     using System.Windows.Forms;
+    using Microsoft.Vault.Explorer.Controls.Lists;
 
     public class TagMenuItem : ToolStripMenuItem, IComparable, IComparable<TagMenuItem>
     {

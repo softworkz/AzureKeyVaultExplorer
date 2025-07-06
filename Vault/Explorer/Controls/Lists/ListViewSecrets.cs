@@ -1,20 +1,17 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved. 
 // Licensed under the MIT License. See License.txt in the project root for license information. 
 
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Data;
-using System.Linq;
-using System.IO;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using System.Text.RegularExpressions;
-
-namespace Microsoft.Vault.Explorer
+namespace Microsoft.Vault.Explorer.Controls.Lists
 {
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Linq;
+    using System.Text;
+    using System.Text.RegularExpressions;
+    using System.Windows.Forms;
+    using Microsoft.Vault.Explorer.Controls.MenuItems;
+
     public partial class ListViewSecrets : ListView
     {
         public const int FirstCustomColumnIndex = 4;
@@ -23,19 +20,19 @@ namespace Microsoft.Vault.Explorer
 
         public ListViewSecrets()
         {
-            InitializeComponent();
-            ListViewItemSorter = new ListViewSecretsSorter(this);
-            DoubleBuffered = true;
-            _tags = new Dictionary<string, TagMenuItem>();
+            this.InitializeComponent();
+            this.ListViewItemSorter = new ListViewSecretsSorter(this);
+            this.DoubleBuffered = true;
+            this._tags = new Dictionary<string, TagMenuItem>();
         }
 
-        public ListViewItemBase FirstSelectedItem => SelectedItems.Count > 0 ? SelectedItems[0] as ListViewItemBase : null;
+        public ListViewItemBase FirstSelectedItem => this.SelectedItems.Count > 0 ? this.SelectedItems[0] as ListViewItemBase : null;
 
-        public int SearchResultsCount => Groups[ListViewItemBase.SearchResultsGroup].Items.Count;
+        public int SearchResultsCount => this.Groups[ListViewItemBase.SearchResultsGroup].Items.Count;
 
         public void RefreshGroupsHeader()
         {
-            foreach (var g in Groups.Cast<ListViewGroup>())
+            foreach (var g in this.Groups.Cast<ListViewGroup>())
             {
                 g.Header = $"{g.Name} ({g.Items.Count})";
             }
@@ -46,11 +43,11 @@ namespace Microsoft.Vault.Explorer
             if (null == tags) return;
             foreach (string t in tags.Keys)
             {
-                if (false == _tags.ContainsKey(t)) continue;
-                _tags[t].Count--;
-                if (_tags[t].Count < 0)
+                if (false == this._tags.ContainsKey(t)) continue;
+                this._tags[t].Count--;
+                if (this._tags[t].Count < 0)
                 {
-                    _tags.Remove(t);
+                    this._tags.Remove(t);
                 }
             }
         }
@@ -60,34 +57,34 @@ namespace Microsoft.Vault.Explorer
             if (null == tags) return;
             foreach (string t in tags.Keys)
             {
-                var tag = _tags.ContainsKey(t) ? _tags[t] : new TagMenuItem(t, this);
+                var tag = this._tags.ContainsKey(t) ? this._tags[t] : new TagMenuItem(t, this);
                 tag.Count++;
-                _tags[t] = tag;
+                this._tags[t] = tag;
             }
         }
 
         public void AddOrReplaceItem(ListViewItemBase item)
         {
             if (null == item) return;
-            if (Items.ContainsKey(item.Name)) // Overwrite flow
+            if (this.Items.ContainsKey(item.Name)) // Overwrite flow
             {
-                var lvi = Items[item.Name] as ListViewItemBase;
-                RemoveTags(lvi.Tags);
-                Items.RemoveByKey(item.Name); 
+                var lvi = this.Items[item.Name] as ListViewItemBase;
+                this.RemoveTags(lvi.Tags);
+                this.Items.RemoveByKey(item.Name); 
             }
-            Items.Add(item);
-            AddTags(item.Tags);
+            this.Items.Add(item);
+            this.AddTags(item.Tags);
         }
 
         public void RemoveAllItems()
         {
             // Remove custom tag columns
-            for (int i = Columns.Count - 1; i >= ListViewSecrets.FirstCustomColumnIndex; i--)
+            for (int i = this.Columns.Count - 1; i >= ListViewSecrets.FirstCustomColumnIndex; i--)
             {
-                Columns.RemoveAt(i);
+                this.Columns.RemoveAt(i);
             }
-            Items.Clear();
-            _tags.Clear();
+            this.Items.Clear();
+            this._tags.Clear();
         }
 
         public Exception FindItemsWithText(string regexPattern)
@@ -95,9 +92,9 @@ namespace Microsoft.Vault.Explorer
             try
             {
                 ListViewItemBase selectItem = null;
-                BeginUpdate();
+                this.BeginUpdate();
                 Regex regex = new Regex(regexPattern, RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
-                foreach (ListViewItemBase lvib in Items)
+                foreach (ListViewItemBase lvib in this.Items)
                 {
                     bool contains = lvib.Contains(regex);
                     lvib.SearchResult = contains;
@@ -106,9 +103,9 @@ namespace Microsoft.Vault.Explorer
                         selectItem = lvib;
                     }
                 }
-                Sort();
+                this.Sort();
                 selectItem?.RefreshAndSelect();
-                RefreshGroupsHeader();
+                this.RefreshGroupsHeader();
                 return null;
             }
             catch (Exception e)
@@ -117,24 +114,24 @@ namespace Microsoft.Vault.Explorer
             }
             finally
             {
-                EndUpdate();
+                this.EndUpdate();
             }
         }
 
         public void ToggleSelectedItemsToFromFavorites()
         {
-            BeginUpdate();
-            foreach (ListViewItemBase lvib in SelectedItems) lvib.Favorite = !lvib.Favorite;
-            Sort();
-            RefreshGroupsHeader();
-            EndUpdate();
+            this.BeginUpdate();
+            foreach (ListViewItemBase lvib in this.SelectedItems) lvib.Favorite = !lvib.Favorite;
+            this.Sort();
+            this.RefreshGroupsHeader();
+            this.EndUpdate();
         }
 
         public void ExportToTsv(string filename)
         {
             StringBuilder sb = new StringBuilder();
             // Output column headers
-            foreach (ColumnHeader col in Columns)
+            foreach (ColumnHeader col in this.Columns)
             {
                 sb.AppendFormat("{0}\t", col.Text);
             }
@@ -144,7 +141,7 @@ namespace Microsoft.Vault.Explorer
             sb.Append("Content Type");
             sb.AppendLine();
             // Take all items or in case of multiple selection only the selected ones
-            IEnumerable<ListViewItem> items = (SelectedItems.Count <= 1) ? Items.Cast<ListViewItem>() : SelectedItems.Cast<ListViewItem>();
+            IEnumerable<ListViewItem> items = (this.SelectedItems.Count <= 1) ? this.Items.Cast<ListViewItem>() : this.SelectedItems.Cast<ListViewItem>();
             foreach (ListViewItem item in items)
             {
                 sb.AppendLine(item.ToString());
@@ -154,17 +151,17 @@ namespace Microsoft.Vault.Explorer
 
         private void ListViewSecrets_ColumnClick(object sender, ColumnClickEventArgs e)
         {
-            BeginUpdate();
-            if (SortingColumn == e.Column) // Swap sort order
+            this.BeginUpdate();
+            if (this.SortingColumn == e.Column) // Swap sort order
             {
-                Sorting = (Sorting == SortOrder.Ascending) ? SortOrder.Descending : SortOrder.Ascending;
+                this.Sorting = (this.Sorting == SortOrder.Ascending) ? SortOrder.Descending : SortOrder.Ascending;
             }
             else
             {
-                SortingColumn = e.Column;
-                Sorting = SortOrder.Ascending;
+                this.SortingColumn = e.Column;
+                this.Sorting = SortOrder.Ascending;
             }
-            EndUpdate();
+            this.EndUpdate();
         }
 
         protected override void WndProc(ref Message m)
@@ -173,13 +170,13 @@ namespace Microsoft.Vault.Explorer
             // Show uxMenuStripColumns menu in case user right-click on columns header bar
             if ((m.Msg == WM_CONTEXTMENU) && (m.WParam != this.Handle))
             {
-                uxMenuStripColumns.Items.Clear();
-                var sortedTags = from t in _tags.Keys orderby t select t;
+                this.uxMenuStripColumns.Items.Clear();
+                var sortedTags = from t in this._tags.Keys orderby t select t;
                 foreach (string k in sortedTags)
                 {
-                    uxMenuStripColumns.Items.Add(_tags[k]);
+                    this.uxMenuStripColumns.Items.Add(this._tags[k]);
                 }
-                uxMenuStripColumns.Show(Control.MousePosition);
+                this.uxMenuStripColumns.Show(Control.MousePosition);
             }
         }
 

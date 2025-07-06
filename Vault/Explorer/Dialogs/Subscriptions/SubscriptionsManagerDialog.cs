@@ -1,25 +1,23 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved. 
 // Licensed under the MIT License. See License.txt in the project root for license information. 
 
-using Microsoft.Azure;
-using Microsoft.Azure.Management.KeyVault;
-using Microsoft.Identity.Client;
-using Microsoft.Rest;
-using Newtonsoft.Json;
-using System;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using Microsoft.Vault.Library;
-
-namespace Microsoft.Vault.Explorer
+namespace Microsoft.Vault.Explorer.Dialogs.Subscriptions
 {
+    using System;
+    using System.Net.Http;
+    using System.Net.Http.Headers;
+    using System.Threading.Tasks;
+    using System.Windows.Forms;
+    using Microsoft.Azure.Management.KeyVault;
+    using Microsoft.Identity.Client;
+    using Microsoft.Rest;
+    using Microsoft.Vault.Explorer.Common;
+    using Microsoft.Vault.Explorer.Model.Files.Aliases;
+    using Microsoft.Vault.Library;
+    using Newtonsoft.Json;
+    using Settings = Microsoft.Vault.Explorer.Settings;
+    using Utils = Microsoft.Vault.Explorer.Common.Utils;
+
     public partial class SubscriptionsManagerDialog : Form
     {
         const string ApiVersion = "api-version=2016-07-01";
@@ -42,8 +40,8 @@ namespace Microsoft.Vault.Explorer
 
         public SubscriptionsManagerDialog()
         {
-            InitializeComponent();
-            _httpClient = new HttpClient();
+            this.InitializeComponent();
+            this._httpClient = new HttpClient();
 
             // Create Default accounts based on domain hints and aliases.
             bool hasPreConfiguredAccounts = false;
@@ -55,52 +53,52 @@ namespace Microsoft.Vault.Explorer
                     continue;
                 }
 
-                uxComboBoxAccounts.Items.Add(new AccountItem(accounts[1], accounts[0]));
+                this.uxComboBoxAccounts.Items.Add(new AccountItem(accounts[1], accounts[0]));
                 hasPreConfiguredAccounts = true;
             }
             
-            uxComboBoxAccounts.Items.Add(AddAccountText);
-            uxComboBoxAccounts.Items.Add(AddDomainHintText);
+            this.uxComboBoxAccounts.Items.Add(AddAccountText);
+            this.uxComboBoxAccounts.Items.Add(AddDomainHintText);
             
             // Only auto-select if we have pre-configured accounts, otherwise let user choose
             if (hasPreConfiguredAccounts)
             {
-                uxComboBoxAccounts.SelectedIndex = 0;
+                this.uxComboBoxAccounts.SelectedIndex = 0;
             }
             else
             {
                 // No pre-configured accounts, don't auto-select anything
-                uxComboBoxAccounts.SelectedIndex = -1;
-                uxComboBoxAccounts.Text = "Select an account or add new...";
+                this.uxComboBoxAccounts.SelectedIndex = -1;
+                this.uxComboBoxAccounts.Text = "Select an account or add new...";
             }
         }
 
-        private UxOperation NewUxOperationWithProgress(params ToolStripItem[] controlsToToggle) => new UxOperation(null, uxStatusLabel, uxProgressBar, uxButtonCancelOperation, controlsToToggle);
+        private UxOperation NewUxOperationWithProgress(params ToolStripItem[] controlsToToggle) => new UxOperation(null, this.uxStatusLabel, this.uxProgressBar, this.uxButtonCancelOperation, controlsToToggle);
 
         private async void uxComboBoxAccounts_SelectedIndexChanged(object sender, EventArgs e)
         {
-            switch(uxComboBoxAccounts.SelectedItem)
+            switch(this.uxComboBoxAccounts.SelectedItem)
             {
                 case null:
                     return;
                     
                 case AddAccountText:
-                    AddNewAccount();
+                    this.AddNewAccount();
                     break;
 
                 case AddDomainHintText:
                     // Display instructions on how to add domain hint
                     MessageBox.Show(AddDomainHintInstructions, Utils.AppName, MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    uxComboBoxAccounts.SelectedItem = null;
+                    this.uxComboBoxAccounts.SelectedItem = null;
                     return;
 
                 case AccountItem account:
                     // Authenticate into selected account
-                    _currentAccountItem = account;
-                    await GetAuthenticationTokenAsync();
-                    if (_currentAuthResult.Account != null)
+                    this._currentAccountItem = account;
+                    await this.GetAuthenticationTokenAsync();
+                    if (this._currentAuthResult.Account != null)
                     {
-                        _currentAccountItem.UserAlias = _currentAuthResult.Account.Username.Split('@')[0];
+                        this._currentAccountItem.UserAlias = this._currentAuthResult.Account.Username.Split('@')[0];
                     }
                     break;
 
@@ -108,61 +106,61 @@ namespace Microsoft.Vault.Explorer
                     return;
             }
 
-            if (_currentAuthResult == null)
+            if (this._currentAuthResult == null)
             {
                 return;
             }
 
-            using (var op = NewUxOperationWithProgress(uxComboBoxAccounts))
+            using (var op = this.NewUxOperationWithProgress(this.uxComboBoxAccounts))
             {
-                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _currentAuthResult.AccessToken);
-                var hrm = await _httpClient.GetAsync($"{ManagmentEndpoint}subscriptions?{ApiVersion}", op.CancellationToken);
+                this._httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", this._currentAuthResult.AccessToken);
+                var hrm = await this._httpClient.GetAsync($"{ManagmentEndpoint}subscriptions?{ApiVersion}", op.CancellationToken);
                 var json = await hrm.Content.ReadAsStringAsync();
                 var subs = JsonConvert.DeserializeObject<SubscriptionsResponse>(json);
 
-                uxListViewSubscriptions.Items.Clear();
-                uxListViewVaults.Items.Clear();
-                uxPropertyGridVault.SelectedObject = null;
+                this.uxListViewSubscriptions.Items.Clear();
+                this.uxListViewVaults.Items.Clear();
+                this.uxPropertyGridVault.SelectedObject = null;
                 foreach (var s in subs.Subscriptions)
                 {
-                    uxListViewSubscriptions.Items.Add(new ListViewItemSubscription(s));
+                    this.uxListViewSubscriptions.Items.Add(new ListViewItemSubscription(s));
                 }
             }
         }
 
         private async void uxListViewSubscriptions_SelectedIndexChanged(object sender, EventArgs e)
         {
-            ListViewItemSubscription s = uxListViewSubscriptions.SelectedItems.Count > 0 ? (ListViewItemSubscription)uxListViewSubscriptions.SelectedItems[0] : null;
+            ListViewItemSubscription s = this.uxListViewSubscriptions.SelectedItems.Count > 0 ? (ListViewItemSubscription)this.uxListViewSubscriptions.SelectedItems[0] : null;
             if (null == s) return;
-            using (var op = NewUxOperationWithProgress(uxComboBoxAccounts))
+            using (var op = this.NewUxOperationWithProgress(this.uxComboBoxAccounts))
             {
-                var tvcc = new TokenCredentials(_currentAuthResult.AccessToken);
-                _currentKeyVaultMgmtClient = new KeyVaultManagementClient(tvcc) { SubscriptionId = s.Subscription.SubscriptionId.ToString() };
-                var vaults = await _currentKeyVaultMgmtClient.Vaults.ListAsync(null, op.CancellationToken);
-                uxListViewVaults.Items.Clear();
+                var tvcc = new TokenCredentials(this._currentAuthResult.AccessToken);
+                this._currentKeyVaultMgmtClient = new KeyVaultManagementClient(tvcc) { SubscriptionId = s.Subscription.SubscriptionId.ToString() };
+                var vaults = await this._currentKeyVaultMgmtClient.Vaults.ListAsync(null, op.CancellationToken);
+                this.uxListViewVaults.Items.Clear();
                 foreach (var v in vaults)
                 {
-                    uxListViewVaults.Items.Add(new ListViewItemVault(v));
+                    this.uxListViewVaults.Items.Add(new ListViewItemVault(v));
                 }
             }
         }
 
         private async void uxListViewVaults_SelectedIndexChanged(object sender, EventArgs e)
         {
-            ListViewItemSubscription s = uxListViewSubscriptions.SelectedItems.Count > 0 ? (ListViewItemSubscription)uxListViewSubscriptions.SelectedItems[0] : null;
-            ListViewItemVault v = uxListViewVaults.SelectedItems.Count > 0 ? (ListViewItemVault)uxListViewVaults.SelectedItems[0] : null;
-            uxButtonOK.Enabled = false;
+            ListViewItemSubscription s = this.uxListViewSubscriptions.SelectedItems.Count > 0 ? (ListViewItemSubscription)this.uxListViewSubscriptions.SelectedItems[0] : null;
+            ListViewItemVault v = this.uxListViewVaults.SelectedItems.Count > 0 ? (ListViewItemVault)this.uxListViewVaults.SelectedItems[0] : null;
+            this.uxButtonOK.Enabled = false;
             if ((null == s) || (null == v)) return;
-            using (var op = NewUxOperationWithProgress(uxComboBoxAccounts))
+            using (var op = this.NewUxOperationWithProgress(this.uxComboBoxAccounts))
             {
-                var vault = await _currentKeyVaultMgmtClient.Vaults.GetAsync(v.GroupName, v.Name);
-                uxPropertyGridVault.SelectedObject = new PropertyObjectVault(s.Subscription, v.GroupName, vault);
-                uxButtonOK.Enabled = true;
+                var vault = await this._currentKeyVaultMgmtClient.Vaults.GetAsync(v.GroupName, v.Name);
+                this.uxPropertyGridVault.SelectedObject = new PropertyObjectVault(s.Subscription, v.GroupName, vault);
+                this.uxButtonOK.Enabled = true;
                 
-                CurrentVaultAlias = new VaultAlias(v.Name, new string[] { v.Name }, new string[] { "Custom" }) 
+                this.CurrentVaultAlias = new VaultAlias(v.Name, new string[] { v.Name }, new string[] { "Custom" }) 
                 { 
-                    DomainHint = _currentAccountItem.DomainHint, 
-                    UserAlias = _currentAccountItem.UserAlias,
+                    DomainHint = this._currentAccountItem.DomainHint, 
+                    UserAlias = this._currentAccountItem.UserAlias,
                     IsNew = true  // Mark as new since it's being added from SubscriptionsManagerDialog
                 };
             }
@@ -174,36 +172,36 @@ namespace Microsoft.Vault.Explorer
             try
             {
                 // For new account, use "common" as domain hint to let Azure AD determine the tenant
-                _currentAccountItem = new AccountItem("common", null);
-                await GetAuthenticationTokenAsync();
+                this._currentAccountItem = new AccountItem("common", null);
+                await this.GetAuthenticationTokenAsync();
 
                 // Get new user account and add it to default settings
-                string userAccountName = _currentAuthResult.Account?.Username ?? "unknown@unknown.com";
+                string userAccountName = this._currentAuthResult.Account?.Username ?? "unknown@unknown.com";
                 string[] userLogin = userAccountName.Split('@');
-                _currentAccountItem.UserAlias = userLogin[0];
-                _currentAccountItem.DomainHint = userLogin[1];
+                this._currentAccountItem.UserAlias = userLogin[0];
+                this._currentAccountItem.DomainHint = userLogin[1];
                 Settings.Default.AddUserAccountName(userAccountName);
 
                 // Add the new account to the dropdown and select it
-                var newAccountItem = new AccountItem(_currentAccountItem.DomainHint, _currentAccountItem.UserAlias);
-                uxComboBoxAccounts.Items.Insert(0, newAccountItem);
-                uxComboBoxAccounts.SelectedIndex = 0;
+                var newAccountItem = new AccountItem(this._currentAccountItem.DomainHint, this._currentAccountItem.UserAlias);
+                this.uxComboBoxAccounts.Items.Insert(0, newAccountItem);
+                this.uxComboBoxAccounts.SelectedIndex = 0;
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Authentication failed: {ex.Message}", "Authentication Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 // Reset selection to allow user to try again
-                uxComboBoxAccounts.SelectedIndex = -1;
-                uxComboBoxAccounts.Text = "Select an account or add new...";
+                this.uxComboBoxAccounts.SelectedIndex = -1;
+                this.uxComboBoxAccounts.Text = "Select an account or add new...";
             }
         }
 
         // Attempt to authenticate with current account.
         private async Task GetAuthenticationTokenAsync()
         {
-            VaultAccessUserInteractive vaui = new VaultAccessUserInteractive(_currentAccountItem.DomainHint, _currentAccountItem.UserAlias);
+            VaultAccessUserInteractive vaui = new VaultAccessUserInteractive(this._currentAccountItem.DomainHint, this._currentAccountItem.UserAlias);
             string[] scopes = VaultAccess.ConvertResourceToScopes(ManagmentEndpoint);
-            _currentAuthResult = await vaui.AcquireTokenAsync(scopes, _currentAccountItem.UserAlias);
+            this._currentAuthResult = await vaui.AcquireTokenAsync(scopes, this._currentAccountItem.UserAlias);
         }
     }
 

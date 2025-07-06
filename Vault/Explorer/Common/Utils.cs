@@ -1,26 +1,26 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved. 
 // Licensed under the MIT License. See License.txt in the project root for license information. 
 
-using Microsoft.Win32;
-using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Windows.Forms;
-using Microsoft.Vault.Library;
-using Windows.Data.Xml.Dom;
-using Windows.UI.Notifications;
-using Microsoft.Vault.Core;
-
-namespace Microsoft.Vault.Explorer
+namespace Microsoft.Vault.Explorer.Common
 {
+    using System;
+    using System.Collections.Specialized;
+    using System.Diagnostics;
+    using System.IO;
+    using System.Linq;
+    using System.Security.Cryptography;
+    using System.Security.Cryptography.X509Certificates;
+    using System.Text;
+    using System.Text.RegularExpressions;
+    using System.Windows.Forms;
+    using Windows.Data.Xml.Dom;
+    using Windows.UI.Notifications;
+    using Microsoft.Vault.Core;
+    using Microsoft.Vault.Explorer.Model.ContentTypes;
+    using Microsoft.Vault.Library;
+    using Microsoft.Win32;
+    using Newtonsoft.Json;
+
     public static class Utils
     {
         public const string ProductName = "VaultExplorer";

@@ -1,28 +1,28 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved. 
 // Licensed under the MIT License. See License.txt in the project root for license information. 
 
-using System;
-using System.ComponentModel;
-
-namespace Microsoft.Vault.Explorer
+namespace Microsoft.Vault.Explorer.Common
 {
+    using System;
+    using System.ComponentModel;
+
     public class ReadOnlyPropertyDescriptor : PropertyDescriptor
     {
         public readonly object Value;
 
         public ReadOnlyPropertyDescriptor(string name, object value) : base(name, null)
         {
-            Value = value;
+            this.Value = value;
         }
 
-        public override Type PropertyType => (Value == null) ? typeof(string) : Value.GetType();
+        public override Type PropertyType => (this.Value == null) ? typeof(string) : this.Value.GetType();
 
         public override void SetValue(object component, object value)
         {
             throw new InvalidOperationException();
         }
 
-        public override object GetValue(object component) => Value;
+        public override object GetValue(object component) => this.Value;
 
         public override bool IsReadOnly => true;
 

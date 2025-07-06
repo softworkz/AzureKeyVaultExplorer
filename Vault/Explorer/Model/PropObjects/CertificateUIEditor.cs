@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Vault.Explorer
+﻿namespace Microsoft.Vault.Explorer.Model.PropObjects
 {
     using System;
     using System.ComponentModel;

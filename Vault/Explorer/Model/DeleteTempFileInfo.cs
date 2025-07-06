@@ -1,15 +1,11 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved. 
 // Licensed under the MIT License. See License.txt in the project root for license information. 
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Microsoft.Vault.Explorer
+namespace Microsoft.Vault.Explorer.Model
 {
+    using System;
+    using System.IO;
+
     /// <summary>
     /// Deletes file if file location is under %TEMP% folder, to be used with using pattern
     /// </summary>
@@ -19,13 +15,13 @@ namespace Microsoft.Vault.Explorer
 
         public void Dispose()
         {
-            if (FileInfoObject != null)
+            if (this.FileInfoObject != null)
             {
-                if (FileInfoObject.DirectoryName.StartsWith(Path.GetTempPath().TrimEnd('\\'), StringComparison.CurrentCultureIgnoreCase))
+                if (this.FileInfoObject.DirectoryName.StartsWith(Path.GetTempPath().TrimEnd('\\'), StringComparison.CurrentCultureIgnoreCase))
                 {
-                    FileInfoObject.Delete();
+                    this.FileInfoObject.Delete();
                 }
-                FileInfoObject = null;
+                this.FileInfoObject = null;
             }
         }
     }

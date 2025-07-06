@@ -1,8 +1,9 @@
-﻿namespace Microsoft.Vault.Explorer
+﻿namespace Microsoft.Vault.Explorer.Dialogs.Subscriptions
 {
     using System;
     using System.ComponentModel;
     using Microsoft.Azure.Management.KeyVault.Models;
+    using Microsoft.Vault.Explorer.Model.Collections;
 
     public class PropertyObjectVault
     {

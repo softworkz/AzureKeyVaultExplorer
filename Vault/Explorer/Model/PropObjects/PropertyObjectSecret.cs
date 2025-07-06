@@ -1,25 +1,26 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved. 
 // Licensed under the MIT License. See License.txt in the project root for license information. 
 
-using Microsoft.Azure.KeyVault;
-using Microsoft.Azure.KeyVault.Models;
-using Microsoft.Vault.Library;
-using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.ComponentModel.Design;
-using System.Drawing.Design;
-using System.IO;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Windows.Forms;
-
-namespace Microsoft.Vault.Explorer
+namespace Microsoft.Vault.Explorer.Model.PropObjects
 {
+    using System;
+    using System.Collections.Generic;
+    using System.ComponentModel;
+    using System.IO;
+    using System.Linq;
+    using System.Security.Cryptography.X509Certificates;
+    using System.Text;
+    using System.Text.RegularExpressions;
+    using System.Windows.Forms;
+    using Microsoft.Azure.KeyVault.Models;
+    using Microsoft.Vault.Explorer.Controls.MenuItems;
+    using Microsoft.Vault.Explorer.Model.Collections;
+    using Microsoft.Vault.Explorer.Model.ContentTypes;
+    using Microsoft.Vault.Explorer.Model.Files.Secrets;
+    using Microsoft.Vault.Explorer.Model.Files.Tags;
+    using Microsoft.Vault.Library;
+    using Utils = Microsoft.Vault.Explorer.Common.Utils;
+
     /// <summary>
     /// Secret object to edit via PropertyGrid
     /// </summary>
@@ -39,33 +40,33 @@ namespace Microsoft.Vault.Explorer
         {
             get
             {
-                return _contentType;
+                return this._contentType;
             }
             set
             {
-                _contentType = value;
-                NotifyPropertyChanged(nameof(ContentType));
+                this._contentType = value;
+                this.NotifyPropertyChanged(nameof(this.ContentType));
             }
         }
 
         public PropertyObjectSecret(SecretBundle secret, PropertyChangedEventHandler propertyChanged) :
             base(secret.SecretIdentifier, secret.Tags, secret.Attributes.Enabled, secret.Attributes.Expires, secret.Attributes.NotBefore, propertyChanged)
         {
-            _secret = secret;
-            _contentType = ContentTypeEnumConverter.GetValue(secret.ContentType);
-            _value = _contentType.FromRawValue(secret.Value);
-            _customTags = Utils.LoadFromJsonFile<CustomTags>(Settings.Default.CustomTagsJsonFileLocation, isOptional: true);
+            this._secret = secret;
+            this._contentType = ContentTypeEnumConverter.GetValue(secret.ContentType);
+            this._value = this._contentType.FromRawValue(secret.Value);
+            this._customTags = Utils.LoadFromJsonFile<CustomTags>(Settings.Default.CustomTagsJsonFileLocation, isOptional: true);
         }
 
         protected override IEnumerable<TagItem> GetValueBasedCustomTags()
         {
             // Add tags based on all named groups in the value regex
-            Match m = SecretKind.ValueRegex.Match(Value);
+            Match m = this.SecretKind.ValueRegex.Match(this.Value);
             if (m.Success)
             {
                 for (int i = 0; i < m.Groups.Count; i++)
                 {
-                    string groupName = SecretKind.ValueRegex.GroupNameFromNumber(i);
+                    string groupName = this.SecretKind.ValueRegex.GroupNameFromNumber(i);
                     if (groupName == i.ToString()) continue; // Skip unnamed groups
                     yield return new TagItem(groupName, m.Groups[i].Value);
                 }
@@ -74,12 +75,12 @@ namespace Microsoft.Vault.Explorer
 
         public override void PopulateCustomTags()
         {
-            if ((null == _customTags) || (_customTags.Count == 0)) return;
+            if ((null == this._customTags) || (this._customTags.Count == 0)) return;
             // Add RequiredCustomTags and OptionalCustomTags
-            foreach (var tagId in SecretKind.RequiredCustomTags.Concat(SecretKind.OptionalCustomTags))
+            foreach (var tagId in this.SecretKind.RequiredCustomTags.Concat(this.SecretKind.OptionalCustomTags))
             {
-                if (false == _customTags.ContainsKey(tagId)) continue;
-                Tags.AddOrKeep(_customTags[tagId].ToTagItem());
+                if (false == this._customTags.ContainsKey(tagId)) continue;
+                this.Tags.AddOrKeep(this._customTags[tagId].ToTagItem());
             }
         }
 
@@ -90,7 +91,7 @@ namespace Microsoft.Vault.Explorer
             TagItem oldTag = this.Tags.GetOrNull(newTag);
 
             // Don't add the SecretKind to a secret that doesn't have any custom tags
-            if (null == _customTags) return;
+            if (null == this._customTags) return;
             
             // Don't add the SecretKind to a secret that's defaulted to Custom
             if (sk.Alias == "Custom" && !this.Tags.Contains(newTag)) return;
@@ -100,35 +101,35 @@ namespace Microsoft.Vault.Explorer
 
             if (oldTag == null) // Add the SecretKind tag
             {
-                Tags.AddOrReplace(newTag);
+                this.Tags.AddOrReplace(newTag);
             }
             else if (oldTag.Value != newTag.Value) // Update the SecretKind tag
             {
-                Tags.AddOrReplace(newTag);
+                this.Tags.AddOrReplace(newTag);
             }
             else // Leave the SecretKind tag alone
             {
-                Tags.AddOrReplace(oldTag);
+                this.Tags.AddOrReplace(oldTag);
             }
         }
 
         public override string AreCustomTagsValid()
         {
-            if ((null == _customTags) || (_customTags.Count == 0)) return "";
+            if ((null == this._customTags) || (this._customTags.Count == 0)) return "";
             StringBuilder result = new StringBuilder();
             // Verify RequiredCustomTags
-            foreach (var tagId in SecretKind.RequiredCustomTags)
+            foreach (var tagId in this.SecretKind.RequiredCustomTags)
             {
-                if (false == _customTags.ContainsKey(tagId)) continue;
-                var ct = _customTags[tagId];
-                result.Append(ct.Verify(Tags.GetOrNull(ct.ToTagItem()), true));
+                if (false == this._customTags.ContainsKey(tagId)) continue;
+                var ct = this._customTags[tagId];
+                result.Append(ct.Verify(this.Tags.GetOrNull(ct.ToTagItem()), true));
             }
             // Verify OptionalCustomTags
-            foreach (var tagId in SecretKind.OptionalCustomTags)
+            foreach (var tagId in this.SecretKind.OptionalCustomTags)
             {
-                if (false == _customTags.ContainsKey(tagId)) continue;
-                var ct = _customTags[tagId];
-                result.Append(ct.Verify(Tags.GetOrNull(ct.ToTagItem()), false));
+                if (false == this._customTags.ContainsKey(tagId)) continue;
+                var ct = this._customTags[tagId];
+                result.Append(ct.Verify(this.Tags.GetOrNull(ct.ToTagItem()), false));
             }
             return result.ToString();
         }
@@ -136,15 +137,15 @@ namespace Microsoft.Vault.Explorer
         public override void PopulateExpiration()
         {
             // Set item expiration in case DefaultExpiration is not zero
-            Expires = (default(TimeSpan) == SecretKind.DefaultExpiration) ? (DateTime?)null :
-                DateTime.UtcNow.Add(SecretKind.DefaultExpiration);
+            this.Expires = (default(TimeSpan) == this.SecretKind.DefaultExpiration) ? (DateTime?)null :
+                DateTime.UtcNow.Add(this.SecretKind.DefaultExpiration);
         }
 
         public SecretAttributes ToSecretAttributes() => new SecretAttributes()
         {
-            Enabled = Enabled,
-            Expires = Expires,
-            NotBefore = NotBefore
+            Enabled = this.Enabled,
+            Expires = this.Expires,
+            NotBefore = this.NotBefore
         };
 
         public override string GetKeyVaultFileExtension() => ContentType.KeyVaultSecret.ToExtension();
@@ -153,7 +154,7 @@ namespace Microsoft.Vault.Explorer
         {
             var dataObj = base.GetClipboardValue();
             // We use SetData() and not SetText() to support correctly empty string "" as a value
-            dataObj.SetData(DataFormats.UnicodeText, ContentType.IsCertificate() ? CertificateValueObject.FromValue(Value)?.Password : Value);
+            dataObj.SetData(DataFormats.UnicodeText, this.ContentType.IsCertificate() ? CertificateValueObject.FromValue(this.Value)?.Password : this.Value);
             return dataObj;
         }
 
@@ -163,21 +164,21 @@ namespace Microsoft.Vault.Explorer
             switch (ContentTypeUtils.FromExtension(Path.GetExtension(fullName)))
             {
                 case ContentType.KeyVaultSecret: // Serialize the entire secret as encrypted JSON for current user
-                    File.WriteAllText(fullName, new KeyVaultSecretFile(_secret).Serialize());
+                    File.WriteAllText(fullName, new KeyVaultSecretFile(this._secret).Serialize());
                     break;
                 case ContentType.KeyVaultCertificate:
                     throw new InvalidOperationException("One can't save key vault secret as key vault certificate");
                 case ContentType.KeyVaultLink:
-                    File.WriteAllText(fullName, GetLinkAsInternetShortcut());
+                    File.WriteAllText(fullName, this.GetLinkAsInternetShortcut());
                     break;
                 case ContentType.Certificate:
-                    File.WriteAllBytes(fullName, CertificateValueObject.FromValue(Value).Certificate.Export(X509ContentType.Cert));
+                    File.WriteAllBytes(fullName, CertificateValueObject.FromValue(this.Value).Certificate.Export(X509ContentType.Cert));
                     break;
                 case ContentType.Pkcs12:
-                    File.WriteAllBytes(fullName, Convert.FromBase64String(CertificateValueObject.FromValue(Value).Data));
+                    File.WriteAllBytes(fullName, Convert.FromBase64String(CertificateValueObject.FromValue(this.Value).Data));
                     break;
                 default:
-                    File.WriteAllText(fullName, Value);
+                    File.WriteAllText(fullName, this.Value);
                     break;
             }
         }

@@ -1,20 +1,16 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved. 
 // Licensed under the MIT License. See License.txt in the project root for license information. 
 
-using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using Microsoft.Vault.Library;
-using Microsoft.Vault.Core;
-
-namespace Microsoft.Vault.Explorer
+namespace Microsoft.Vault.Explorer.Model.Files.Tags
 {
-    
+    using System;
+    using System.Collections.Generic;
+    using System.Text.RegularExpressions;
+    using Microsoft.Vault.Core;
+    using Microsoft.Vault.Explorer.Model.Collections;
+    using Microsoft.Vault.Library;
+    using Newtonsoft.Json;
+
     [JsonObject]
     public class CustomTag
     {
@@ -42,34 +38,34 @@ namespace Microsoft.Vault.Explorer
             {
                 throw new ArgumentOutOfRangeException("name.Length", $"Tag name '{name}' is too long, name can be up to {Consts.MaxTagNameLength} chars");
             }
-            Name = name;
-            DefaultValue = defaultValue;
-            ValueRegex = new Regex(valueRegex, RegexOptions.Singleline | RegexOptions.Compiled);
+            this.Name = name;
+            this.DefaultValue = defaultValue;
+            this.ValueRegex = new Regex(valueRegex, RegexOptions.Singleline | RegexOptions.Compiled);
 
             // Convert the array to a list
             if (valueList != null)
             {
                 foreach (string v in valueList)
                 {
-                    CustomTagValueList.Add(new TagValues(v));
+                    this.CustomTagValueList.Add(new TagValues(v));
                 }
-                ValueList.Add(name,CustomTagValueList);
+                this.ValueList.Add(name,this.CustomTagValueList);
             }
 
         }
 
-        public override string ToString() => Name;
+        public override string ToString() => this.Name;
 
-        public TagItem ToTagItem() => new TagItem(Name, DefaultValue, ValueList);
+        public TagItem ToTagItem() => new TagItem(this.Name, this.DefaultValue, this.ValueList);
 
         public string Verify(TagItem tagItem, bool required)
         {
             if (null == tagItem)
             {
-                return required ? $"Tag {Name} is required\n" : "";
+                return required ? $"Tag {this.Name} is required\n" : "";
             }
-            var m = ValueRegex.Match(tagItem.Value);
-            return m.Success ? "" : $"Tag {Name} value must match the following regex: {ValueRegex}\n";
+            var m = this.ValueRegex.Match(tagItem.Value);
+            return m.Success ? "" : $"Tag {this.Name} value must match the following regex: {this.ValueRegex}\n";
         }
 
     }

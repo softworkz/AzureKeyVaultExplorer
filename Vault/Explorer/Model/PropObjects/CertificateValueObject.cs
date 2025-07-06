@@ -1,19 +1,18 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved. 
 // Licensed under the MIT License. See License.txt in the project root for license information. 
 
-using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using Microsoft.Vault.Library;
-
-namespace Microsoft.Vault.Explorer
+namespace Microsoft.Vault.Explorer.Model.PropObjects
 {
+    using System;
+    using System.IO;
+    using System.Linq;
+    using System.Security.Cryptography.X509Certificates;
+    using System.Text;
+    using System.Text.RegularExpressions;
+    using Microsoft.Vault.Explorer.Model.Collections;
+    using Microsoft.Vault.Library;
+    using Newtonsoft.Json;
+
     /// <summary>
     /// Certificate (.cer, .crt, .pfx, .p12, .pfxb64, .p12b64) based secret value JSON object
     /// </summary>
@@ -32,10 +31,10 @@ namespace Microsoft.Vault.Explorer
         [JsonConstructor]
         public CertificateValueObject(string data, string password)
         {
-            Data = data;
-            Password = password;
+            this.Data = data;
+            this.Password = password;
             byte[] rawData = Convert.FromBase64String(data);
-            Certificate = (null == password) ? new X509Certificate2(rawData) : new X509Certificate2(rawData, password, X509KeyStorageFlags.UserKeySet | X509KeyStorageFlags.Exportable);
+            this.Certificate = (null == password) ? new X509Certificate2(rawData) : new X509Certificate2(rawData, password, X509KeyStorageFlags.UserKeySet | X509KeyStorageFlags.Exportable);
         }
 
         public CertificateValueObject(FileInfo file, string password) : 
@@ -46,16 +45,16 @@ namespace Microsoft.Vault.Explorer
         public void FillTagsAndExpiration(PropertyObject obj)
         {
             ObservableTagItemsCollection tags = obj.Tags;
-            tags.AddOrReplace(new TagItem("Thumbprint", Certificate.Thumbprint.ToLowerInvariant()));
-            tags.AddOrReplace(new TagItem("Expiration", Certificate.GetExpirationDateString()));
-            tags.AddOrReplace(new TagItem("Subject", Certificate.GetNameInfo(X509NameType.SimpleName, false)));
+            tags.AddOrReplace(new TagItem("Thumbprint", this.Certificate.Thumbprint.ToLowerInvariant()));
+            tags.AddOrReplace(new TagItem("Expiration", this.Certificate.GetExpirationDateString()));
+            tags.AddOrReplace(new TagItem("Subject", this.Certificate.GetNameInfo(X509NameType.SimpleName, false)));
             var sans = 
-                from X509Extension ext in Certificate.Extensions
+                from X509Extension ext in this.Certificate.Extensions
                 where ext.Oid.Value == "2.5.29.17" // Subject Alternative Name
                 select ext.Format(false).Replace("DNS Name=", "");
             tags.AddOrReplace(new TagItem("SAN", string.Join(";", sans)));
-            obj.NotBefore = Certificate.NotBefore;
-            obj.Expires = Certificate.NotAfter;
+            obj.NotBefore = this.Certificate.NotBefore;
+            obj.Expires = this.Certificate.NotAfter;
         }
 
         public override string ToString() => JsonConvert.SerializeObject(this, Formatting.Indented);
@@ -65,12 +64,12 @@ namespace Microsoft.Vault.Explorer
             switch (secretKind)
             {
                 case "WCD.PfxCertificate":
-                    return $"{Certificate.Thumbprint.ToLowerInvariant()};{Password};{Data}";
+                    return $"{this.Certificate.Thumbprint.ToLowerInvariant()};{this.Password};{this.Data}";
                 case "WCD.CerCertificate":
-                    return $"{Certificate.Thumbprint.ToLowerInvariant()};{Data}";
+                    return $"{this.Certificate.Thumbprint.ToLowerInvariant()};{this.Data}";
                 case "WD.Certificate":
                 default:
-                    return ToString();
+                    return this.ToString();
             }
         }
 

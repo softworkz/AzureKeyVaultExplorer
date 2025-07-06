@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Vault.Explorer
+﻿namespace Microsoft.Vault.Explorer.Controls.MenuItems
 {
     using System;
     using System.Collections.Generic;

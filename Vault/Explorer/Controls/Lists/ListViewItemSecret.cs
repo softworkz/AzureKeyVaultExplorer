@@ -1,19 +1,23 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved. 
 // Licensed under the MIT License. See License.txt in the project root for license information. 
 
-using Microsoft.Azure.KeyVault;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Windows.Forms;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Linq;
-using Microsoft.Azure.KeyVault.Models;
-
-namespace Microsoft.Vault.Explorer
+namespace Microsoft.Vault.Explorer.Controls.Lists
 {
+    using System;
+    using System.Collections.Generic;
+    using System.ComponentModel;
+    using System.Linq;
+    using System.Threading;
+    using System.Threading.Tasks;
+    using System.Windows.Forms;
+    using Microsoft.Azure.KeyVault;
+    using Microsoft.Azure.KeyVault.Models;
+    using Microsoft.Vault.Explorer.Common;
+    using Microsoft.Vault.Explorer.Dialogs.Secrets;
+    using Microsoft.Vault.Explorer.Model;
+    using Microsoft.Vault.Explorer.Model.ContentTypes;
+    using Microsoft.Vault.Explorer.Model.PropObjects;
+
     /// <summary>
     /// Secret list view item which also presents itself nicely to PropertyGrid
     /// </summary>
@@ -27,9 +31,9 @@ namespace Microsoft.Vault.Explorer
             base(session, ContentTypeEnumConverter.GetValue(contentTypeStr).IsCertificate() ? CertificatesGroup : SecretsGroup,
                 identifier, tags, attributes.Enabled, attributes.Created, attributes.Updated, attributes.NotBefore, attributes.Expires)
         {
-            Attributes = attributes;
-            ContentTypeStr = contentTypeStr;
-            ContentType = ContentTypeEnumConverter.GetValue(contentTypeStr);
+            this.Attributes = attributes;
+            this.ContentTypeStr = contentTypeStr;
+            this.ContentType = ContentTypeEnumConverter.GetValue(contentTypeStr);
         }
 
         public ListViewItemSecret(ISession session, SecretItem si) : this(session, si.Identifier, si.Attributes, si.ContentType, si.Tags) { }
@@ -38,21 +42,21 @@ namespace Microsoft.Vault.Explorer
 
         protected override IEnumerable<PropertyDescriptor> GetCustomProperties()
         {
-            yield return new ReadOnlyPropertyDescriptor("Content Type", ContentTypeStr);
+            yield return new ReadOnlyPropertyDescriptor("Content Type", this.ContentTypeStr);
         }
 
-        public override ContentType GetContentType() => ContentType;
+        public override ContentType GetContentType() => this.ContentType;
 
         public override async Task<PropertyObject> GetAsync(CancellationToken cancellationToken)
         {
-            var s = await Session.CurrentVault.GetSecretAsync(Name, null, cancellationToken);
+            var s = await this.Session.CurrentVault.GetSecretAsync(this.Name, null, cancellationToken);
             return new PropertyObjectSecret(s, null);
         }
 
         public override async Task<ListViewItemBase> ToggleAsync(CancellationToken cancellationToken)
         {
-            SecretBundle s = await Session.CurrentVault.UpdateSecretAsync(Name, null, new Dictionary<string, string>(Tags), null, new SecretAttributes() { Enabled = !Attributes.Enabled }, cancellationToken); // Toggle only Enabled attribute
-            return new ListViewItemSecret(Session, s);
+            SecretBundle s = await this.Session.CurrentVault.UpdateSecretAsync(this.Name, null, new Dictionary<string, string>(this.Tags), null, new SecretAttributes() { Enabled = !this.Attributes.Enabled }, cancellationToken); // Toggle only Enabled attribute
+            return new ListViewItemSecret(this.Session, s);
         }
 
         public override async Task<ListViewItemBase> ResetExpirationAsync(CancellationToken cancellationToken)
@@ -62,24 +66,24 @@ namespace Microsoft.Vault.Explorer
                 NotBefore = (this.NotBefore == null) ? (DateTime?)null : DateTime.UtcNow.AddHours(-1),
                 Expires = (this.Expires == null) ? (DateTime?)null : DateTime.UtcNow.AddYears(1)
             };
-            SecretBundle s = await Session.CurrentVault.UpdateSecretAsync(Name, null, new Dictionary<string, string>(Tags), null, sa, cancellationToken); // Reset only NotBefore and Expires attributes
-            return new ListViewItemSecret(Session, s);
+            SecretBundle s = await this.Session.CurrentVault.UpdateSecretAsync(this.Name, null, new Dictionary<string, string>(this.Tags), null, sa, cancellationToken); // Reset only NotBefore and Expires attributes
+            return new ListViewItemSecret(this.Session, s);
         }
 
         public override async Task<ListViewItemBase> DeleteAsync(CancellationToken cancellationToken)
         {
-            await Session.CurrentVault.DeleteSecretAsync(Name, cancellationToken);
+            await this.Session.CurrentVault.DeleteSecretAsync(this.Name, cancellationToken);
             return this;
         }
 
         public override async Task<IEnumerable<object>> GetVersionsAsync(CancellationToken cancellationToken)
         {
-            return await Session.CurrentVault.GetSecretVersionsAsync(Name, 0, cancellationToken);
+            return await this.Session.CurrentVault.GetSecretVersionsAsync(this.Name, 0, cancellationToken);
         }
 
         public override Form GetEditDialog(string name, IEnumerable<object> versions)
         {
-            return new SecretDialog(Session, name, versions.Cast<SecretItem>());
+            return new SecretDialog(this.Session, name, versions.Cast<SecretItem>());
         }
 
         private static async Task<ListViewItemSecret> NewOrUpdateAsync(ISession session, object originalObject, PropertyObject newObject, CancellationToken cancellationToken)
@@ -106,7 +110,7 @@ namespace Microsoft.Vault.Explorer
 
         public override async Task<ListViewItemBase> UpdateAsync(object originalObject, PropertyObject newObject, CancellationToken cancellationToken)
         {
-            return await NewOrUpdateAsync(Session, originalObject, newObject, cancellationToken);
+            return await NewOrUpdateAsync(this.Session, originalObject, newObject, cancellationToken);
         }
 
         public static Task<ListViewItemSecret> NewAsync(ISession session, PropertyObject newObject, CancellationToken cancellationToken)

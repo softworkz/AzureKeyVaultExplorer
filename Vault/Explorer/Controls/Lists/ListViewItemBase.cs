@@ -1,20 +1,26 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved. 
 // Licensed under the MIT License. See License.txt in the project root for license information. 
 
-using Microsoft.Azure.KeyVault;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using Microsoft.Vault.Library;
-
-namespace Microsoft.Vault.Explorer
+namespace Microsoft.Vault.Explorer.Controls.Lists
 {
+    using System;
+    using System.Collections.Generic;
+    using System.ComponentModel;
+    using System.Linq;
+    using System.Text;
+    using System.Text.RegularExpressions;
+    using System.Threading;
+    using System.Threading.Tasks;
+    using System.Windows.Forms;
+    using Microsoft.Azure.KeyVault;
+    using Microsoft.Vault.Explorer.Common;
+    using Microsoft.Vault.Explorer.Controls.Lists.Favorites;
+    using Microsoft.Vault.Explorer.Model;
+    using Microsoft.Vault.Explorer.Model.ContentTypes;
+    using Microsoft.Vault.Explorer.Model.PropObjects;
+    using Microsoft.Vault.Library;
+    using Utils = Microsoft.Vault.Explorer.Common.Utils;
+
     /// <summary>
     /// Base list view item which also presents itself nicely to PropertyGrid
     /// </summary>
@@ -41,86 +47,86 @@ namespace Microsoft.Vault.Explorer
             ObjectIdentifier identifier, IDictionary<string, string> tags, bool? enabled,
             DateTime? created, DateTime? updated, DateTime? notBefore, DateTime? expires) : base(identifier.Name)
         {
-            Session = session;
-            GroupIndex = groupIndex;
-            Identifier = identifier;
-            VaultHttpsUri = new VaultHttpsUri(identifier.Identifier);
-            Tags = tags;
-            Enabled = enabled ?? true;
-            Created = created;
-            Updated = updated;
-            NotBefore = notBefore;
-            Expires = expires;
+            this.Session = session;
+            this.GroupIndex = groupIndex;
+            this.Identifier = identifier;
+            this.VaultHttpsUri = new VaultHttpsUri(identifier.Identifier);
+            this.Tags = tags;
+            this.Enabled = enabled ?? true;
+            this.Created = created;
+            this.Updated = updated;
+            this.NotBefore = notBefore;
+            this.Expires = expires;
 
-            ImageIndex = Enabled ? 2 * GroupIndex - 3 : 2 * GroupIndex - 2;
+            this.ImageIndex = this.Enabled ? 2 * this.GroupIndex - 3 : 2 * this.GroupIndex - 2;
 
-            RepopulateSubItems();
+            this.RepopulateSubItems();
 
-            ToolTipText += string.Format("Status:\t\t\t{0}\nCreation time:\t\t{1}\nLast updated time:\t{2}",
-                Status,
+            this.ToolTipText += string.Format("Status:\t\t\t{0}\nCreation time:\t\t{1}\nLast updated time:\t{2}",
+                this.Status,
                 Utils.NullableDateTimeToString(created),
                 Utils.NullableDateTimeToString(updated));
 
-            _favorite = FavoriteSecretUtil.Contains(Session.CurrentVaultAlias.Alias, Name);
-            _searchResult = false;
-            SetGroup();
+            this._favorite = FavoriteSecretUtil.Contains(this.Session.CurrentVaultAlias.Alias, this.Name);
+            this._searchResult = false;
+            this.SetGroup();
         }
 
-        public string Status => (Enabled ? "Enabled" : "Disabled") + (Active ? ", Active" : ", Expired");
+        public string Status => (this.Enabled ? "Enabled" : "Disabled") + (this.Active ? ", Active" : ", Expired");
 
-        public ListViewGroupCollection Groups => Session.ListViewSecrets.Groups;
+        public ListViewGroupCollection Groups => this.Session.ListViewSecrets.Groups;
 
-        public string Id => VaultHttpsUri.ToString();
+        public string Id => this.VaultHttpsUri.ToString();
 
-        public string ChangedBy => Microsoft.Vault.Library.Utils.GetChangedBy(Tags);
+        public string ChangedBy => Microsoft.Vault.Library.Utils.GetChangedBy(this.Tags);
 
-        public string Md5 => Microsoft.Vault.Library.Utils.GetMd5(Tags);
+        public string Md5 => Microsoft.Vault.Library.Utils.GetMd5(this.Tags);
 
-        public string Link => $"{Globals.ActivationUrl}?{VaultHttpsUri.VaultLink}";
+        public string Link => $"{Globals.ActivationUrl}?{this.VaultHttpsUri.VaultLink}";
 
-        public bool AboutToExpire => DateTime.UtcNow + Settings.Default.AboutToExpireWarningPeriod <= (Expires ?? DateTime.MaxValue);
+        public bool AboutToExpire => DateTime.UtcNow + Settings.Default.AboutToExpireWarningPeriod <= (this.Expires ?? DateTime.MaxValue);
 
         /// <summary>
         /// True only if current time is within the below range, or range is NULL
         /// [NotBefore] Valid from time (UTC) 
         /// [Expires] Valid until time (UTC) 
         /// </summary>
-        public bool Active => (DateTime.UtcNow >= (NotBefore ?? DateTime.MinValue)) && (DateTime.UtcNow <= (Expires ?? DateTime.MaxValue));
+        public bool Active => (DateTime.UtcNow >= (this.NotBefore ?? DateTime.MinValue)) && (DateTime.UtcNow <= (this.Expires ?? DateTime.MaxValue));
 
         private static string[] GroupIndexToName = new string[] { "s", "f", "certificate", "key vault certificate", "secret" };
-        public string Kind => GroupIndexToName[GroupIndex];
+        public string Kind => GroupIndexToName[this.GroupIndex];
 
         public void RepopulateSubItems()
         {
-            SubItems.Clear();
-            SubItems[0].Name = SubItems[0].Text = Identifier.Name;
-            SubItems.Add(new ListViewSubItem(this, Utils.NullableDateTimeToString(Updated)) { Tag = Updated }); // Add Tag so ListViewItemSorter will sort DateTime correctly
-            SubItems.Add(ChangedBy);
-            SubItems.Add(new ListViewSubItem(this, Utils.ExpirationToString(Expires)) { Tag = Expires }); // Add Tag so ListViewItemSorter will sort TimeSpan correctly
+            this.SubItems.Clear();
+            this.SubItems[0].Name = this.SubItems[0].Text = this.Identifier.Name;
+            this.SubItems.Add(new ListViewSubItem(this, Utils.NullableDateTimeToString(this.Updated)) { Tag = this.Updated }); // Add Tag so ListViewItemSorter will sort DateTime correctly
+            this.SubItems.Add(this.ChangedBy);
+            this.SubItems.Add(new ListViewSubItem(this, Utils.ExpirationToString(this.Expires)) { Tag = this.Expires }); // Add Tag so ListViewItemSorter will sort TimeSpan correctly
             // Add tag value for all the custom columns
-            for (int i = ListViewSecrets.FirstCustomColumnIndex; i < Session.ListViewSecrets.Columns.Count; i++)
+            for (int i = ListViewSecrets.FirstCustomColumnIndex; i < this.Session.ListViewSecrets.Columns.Count; i++)
             {
-                string key = Session.ListViewSecrets.Columns[i].Name;
-                SubItems.Add((null == Tags) || (Tags.Count == 0) || !Tags.ContainsKey(key) ? "" : string.IsNullOrWhiteSpace(Tags[key]) ? "(none)" : Tags[key]);
+                string key = this.Session.ListViewSecrets.Columns[i].Name;
+                this.SubItems.Add((null == this.Tags) || (this.Tags.Count == 0) || !this.Tags.ContainsKey(key) ? "" : string.IsNullOrWhiteSpace(this.Tags[key]) ? "(none)" : this.Tags[key]);
             }
 
-            ForeColor = AboutToExpire ? ForeColor : Settings.Default.AboutToExpireItemColor;
-            ForeColor = Active ? ForeColor : Settings.Default.ExpiredItemColor;
-            ForeColor = Enabled ? ForeColor : Settings.Default.DisabledItemColor;
+            this.ForeColor = this.AboutToExpire ? this.ForeColor : Settings.Default.AboutToExpireItemColor;
+            this.ForeColor = this.Active ? this.ForeColor : Settings.Default.ExpiredItemColor;
+            this.ForeColor = this.Enabled ? this.ForeColor : Settings.Default.DisabledItemColor;
         }
 
         public void RefreshAndSelect()
         {
-            Session.ListViewSecrets.MultiSelect = false;
-            EnsureVisible();
-            Focused = Selected = false;
-            Focused = Selected = true;
-            Session.ListViewSecrets.MultiSelect = true;
+            this.Session.ListViewSecrets.MultiSelect = false;
+            this.EnsureVisible();
+            this.Focused = this.Selected = false;
+            this.Focused = this.Selected = true;
+            this.Session.ListViewSecrets.MultiSelect = true;
         }
 
         private void SetGroup()
         {
-            Group = _searchResult ? Groups[SearchResultsGroup] : _favorite ? Groups[FavoritesGroup] : Groups[GroupIndex];
+            this.Group = this._searchResult ? this.Groups[SearchResultsGroup] : this._favorite ? this.Groups[FavoritesGroup] : this.Groups[this.GroupIndex];
         }
 
         private bool _searchResult;
@@ -128,12 +134,12 @@ namespace Microsoft.Vault.Explorer
         {
             get
             {
-                return _searchResult;
+                return this._searchResult;
             }
             set
             {
-                _searchResult = value;
-                SetGroup();
+                this._searchResult = value;
+                this.SetGroup();
             }
         }
 
@@ -142,19 +148,19 @@ namespace Microsoft.Vault.Explorer
         {
             get
             {
-                return _favorite;
+                return this._favorite;
             }
             set
             {
-                _favorite = value;
-                SetGroup();
-                if (_favorite)
+                this._favorite = value;
+                this.SetGroup();
+                if (this._favorite)
                 {
-                    FavoriteSecretUtil.Add(Session.CurrentVaultAlias.Alias, Name);
+                    FavoriteSecretUtil.Add(this.Session.CurrentVaultAlias.Alias, this.Name);
                 }
                 else
                 {
-                    FavoriteSecretUtil.Remove(Session.CurrentVaultAlias.Alias, Name);
+                    FavoriteSecretUtil.Remove(this.Session.CurrentVaultAlias.Alias, this.Name);
                 }
             }
         }
@@ -163,7 +169,7 @@ namespace Microsoft.Vault.Explorer
         {
             if (string.IsNullOrWhiteSpace(regexPattern.ToString()))
                 return false;
-            foreach (ReadOnlyPropertyDescriptor ropd in GetProperties(null))
+            foreach (ReadOnlyPropertyDescriptor ropd in this.GetProperties(null))
             {
                 if (regexPattern.Match($"{ropd.Name}={ropd.Value}").Success)
                     return true;
@@ -195,14 +201,14 @@ namespace Microsoft.Vault.Explorer
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder();
-            foreach (ListViewSubItem subItem in SubItems)
+            foreach (ListViewSubItem subItem in this.SubItems)
             {
                 sb.AppendFormat("{0}\t", subItem.Text);
             }
-            sb.AppendFormat("{0}\t", Status);
-            sb.AppendFormat("{0}\t", Utils.NullableDateTimeToString(NotBefore));
-            sb.AppendFormat("{0}\t", Utils.NullableDateTimeToString(Expires));
-            sb.AppendFormat("{0}", ContentTypeEnumConverter.GetDescription(GetContentType()));
+            sb.AppendFormat("{0}\t", this.Status);
+            sb.AppendFormat("{0}\t", Utils.NullableDateTimeToString(this.NotBefore));
+            sb.AppendFormat("{0}\t", Utils.NullableDateTimeToString(this.Expires));
+            sb.AppendFormat("{0}", ContentTypeEnumConverter.GetDescription(this.GetContentType()));
 
             return sb.ToString();
         }
@@ -239,7 +245,7 @@ namespace Microsoft.Vault.Explorer
 
         public TypeConverter GetConverter() => TypeDescriptor.GetConverter(this, true);
 
-        public object GetPropertyOwner(PropertyDescriptor pd) => Id;
+        public object GetPropertyOwner(PropertyDescriptor pd) => this.Id;
 
         public AttributeCollection GetAttributes() => TypeDescriptor.GetAttributes(this, true);
 
@@ -247,25 +253,25 @@ namespace Microsoft.Vault.Explorer
 
         public PropertyDescriptor GetDefaultProperty() => null;
 
-        public PropertyDescriptorCollection GetProperties() => GetProperties(new Attribute[0]);
+        public PropertyDescriptorCollection GetProperties() => this.GetProperties(new Attribute[0]);
 
         public PropertyDescriptorCollection GetProperties(Attribute[] attributes)
         {
             List<PropertyDescriptor> properties = new List<PropertyDescriptor>()
             {
-                new ReadOnlyPropertyDescriptor("Name", Name),
-                new ReadOnlyPropertyDescriptor("Link", Link),
-                new ReadOnlyPropertyDescriptor("Identifier", Id),
-                new ReadOnlyPropertyDescriptor("Creation time", Utils.NullableDateTimeToString(Created)),
-                new ReadOnlyPropertyDescriptor("Last updated time", Utils.NullableDateTimeToString(Updated)),
-                new ReadOnlyPropertyDescriptor("Enabled", Enabled),
-                new ReadOnlyPropertyDescriptor("Valid from time (UTC)", NotBefore),
-                new ReadOnlyPropertyDescriptor("Valid until time (UTC)", Expires),
+                new ReadOnlyPropertyDescriptor("Name", this.Name),
+                new ReadOnlyPropertyDescriptor("Link", this.Link),
+                new ReadOnlyPropertyDescriptor("Identifier", this.Id),
+                new ReadOnlyPropertyDescriptor("Creation time", Utils.NullableDateTimeToString(this.Created)),
+                new ReadOnlyPropertyDescriptor("Last updated time", Utils.NullableDateTimeToString(this.Updated)),
+                new ReadOnlyPropertyDescriptor("Enabled", this.Enabled),
+                new ReadOnlyPropertyDescriptor("Valid from time (UTC)", this.NotBefore),
+                new ReadOnlyPropertyDescriptor("Valid until time (UTC)", this.Expires),
             };
-            properties.AddRange(GetCustomProperties());
-            if (Tags != null)
+            properties.AddRange(this.GetCustomProperties());
+            if (this.Tags != null)
             {
-                foreach (var kvp in Tags)
+                foreach (var kvp in this.Tags)
                 {
                     properties.Add(new ReadOnlyPropertyDescriptor(kvp.Key, kvp.Value));
                 }

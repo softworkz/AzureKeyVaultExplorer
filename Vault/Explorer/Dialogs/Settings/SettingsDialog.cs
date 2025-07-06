@@ -1,43 +1,40 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved. 
 // Licensed under the MIT License. See License.txt in the project root for license information. 
 
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Configuration;
-using System.Data;
-using System.Diagnostics;
-using System.Drawing;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using Microsoft.Vault.Library;
-
-namespace Microsoft.Vault.Explorer
+namespace Microsoft.Vault.Explorer.Dialogs.Settings
 {
+    using System;
+    using System.ComponentModel;
+    using System.Configuration;
+    using System.Diagnostics;
+    using System.IO;
+    using System.Text;
+    using System.Windows.Forms;
+    using Microsoft.Vault.Library;
+    using Settings = Microsoft.Vault.Explorer.Settings;
+    using Utils = Microsoft.Vault.Explorer.Common.Utils;
+
     public partial class SettingsDialog : Form
     {
         private readonly Settings _currentSettings;
 
         public SettingsDialog()
         {
-            InitializeComponent();
-            uxPropertyGrid.SelectedObject = _currentSettings = new Settings();
-            _currentSettings.PropertyChanged += (object sender, PropertyChangedEventArgs e) => { uxButtonOK.Enabled = true; };
-            uxTextBoxVersions.Text = FetchVersions();
+            this.InitializeComponent();
+            this.uxPropertyGrid.SelectedObject = this._currentSettings = new Settings();
+            this._currentSettings.PropertyChanged += (object sender, PropertyChangedEventArgs e) => { this.uxButtonOK.Enabled = true; };
+            this.uxTextBoxVersions.Text = this.FetchVersions();
 
             string licenseTxt = Path.Combine(Path.GetDirectoryName(Application.ExecutablePath), "License.txt");
             if (File.Exists(licenseTxt))
             {
-                uxTextBoxLicense.Text = File.ReadAllText(licenseTxt).Replace("\n", "\r\n");
+                this.uxTextBoxLicense.Text = File.ReadAllText(licenseTxt).Replace("\n", "\r\n");
             }
         }
 
         private void uxButtonOK_Click(object sender, EventArgs e)
         {
-            _currentSettings.Save();
+            this._currentSettings.Save();
             Settings.Default.Reload();
         }
 
@@ -67,7 +64,7 @@ namespace Microsoft.Vault.Explorer
             // Ensure the user settings file exists before trying to open the folder.
             if (!File.Exists(config.FilePath))
             {
-                _currentSettings.Save();
+                this._currentSettings.Save();
             }
 
             ProcessStartInfo sInfo = new ProcessStartInfo() { FileName = configFolder, UseShellExecute = true };

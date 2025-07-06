@@ -1,30 +1,32 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved. 
 // Licensed under the MIT License. See License.txt in the project root for license information. 
-using Microsoft.Azure.KeyVault;
-using Microsoft.Azure.KeyVault.Models;
-using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Drawing;
-using System.IO;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 
-namespace Microsoft.Vault.Explorer
+namespace Microsoft.Vault.Explorer.Dialogs.Certificates
 {
+    using System;
+    using System.Collections.Generic;
+    using System.ComponentModel;
+    using System.IO;
+    using System.Linq;
+    using System.Security.Cryptography.X509Certificates;
+    using System.Threading.Tasks;
+    using System.Windows.Forms;
+    using Microsoft.Azure.KeyVault.Models;
+    using Microsoft.Vault.Explorer.Common;
+    using Microsoft.Vault.Explorer.Controls.MenuItems;
+    using Microsoft.Vault.Explorer.Dialogs.Passwords;
+    using Microsoft.Vault.Explorer.Model;
+    using Microsoft.Vault.Explorer.Model.ContentTypes;
+    using Microsoft.Vault.Explorer.Model.Files.Secrets;
+    using Microsoft.Vault.Explorer.Model.PropObjects;
+
     public partial class CertificateDialog : ItemDialogBase //<PropertyObjectCertificate, CertificateBundle>
     {
         private CertificatePolicy _certificatePolicy; // There is one policy and multiple versions of kv certificate. A policy is a recipe to create a next version of the kv certificate.
 
         private CertificateDialog(ISession session, string title, ItemDialogBaseMode mode) : base(session, title, mode)
         {
-            InitializeComponent();
+            this.InitializeComponent();
         }
 
         /// <summary>
@@ -45,7 +47,7 @@ namespace Microsoft.Vault.Explorer
                     var pwdDlg = new PasswordDialog();
                     if (pwdDlg.ShowDialog() != DialogResult.OK)
                     {
-                        DialogResult = DialogResult.Cancel;
+                        this.DialogResult = DialogResult.Cancel;
                         return;
                     }
                     password = pwdDlg.Password;
@@ -59,7 +61,7 @@ namespace Microsoft.Vault.Explorer
                 default:
                     throw new ArgumentException($"Unsupported ContentType {contentType}");
             }
-            NewCertificate(cb, cert);
+            this.NewCertificate(cb, cert);
         }
 
         /// <summary>
@@ -67,7 +69,7 @@ namespace Microsoft.Vault.Explorer
         /// </summary>
         public CertificateDialog(ISession session, X509Certificate2 cert) : this(session, "New certificate", ItemDialogBaseMode.New)
         {
-            NewCertificate(null, cert);
+            this.NewCertificate(null, cert);
         }
 
         /// <summary>
@@ -75,16 +77,16 @@ namespace Microsoft.Vault.Explorer
         /// </summary>
         public CertificateDialog(ISession session, string name, IEnumerable<CertificateItem> versions) : this(session, $"Edit certificate {name}", ItemDialogBaseMode.Edit)
         {
-            uxTextBoxName.ReadOnly = true;
+            this.uxTextBoxName.ReadOnly = true;
             int i = 0;
-            uxMenuVersions.Items.AddRange((from v in versions orderby v.Attributes.Created descending select new CertificateVersion(i++, v)).ToArray());
-            uxMenuVersions_ItemClicked(null, new ToolStripItemClickedEventArgs(uxMenuVersions.Items[0])); // Pass sender as NULL so _changed will be set to false
+            this.uxMenuVersions.Items.AddRange((from v in versions orderby v.Attributes.Created descending select new CertificateVersion(i++, v)).ToArray());
+            this.uxMenuVersions_ItemClicked(null, new ToolStripItemClickedEventArgs(this.uxMenuVersions.Items[0])); // Pass sender as NULL so _changed will be set to false
         }
 
         private void NewCertificate(CertificateBundle cb, X509Certificate2 cert)
         {
-            _certificatePolicy = cb?.Policy;
-            _certificatePolicy = _certificatePolicy ?? new CertificatePolicy()
+            this._certificatePolicy = cb?.Policy;
+            this._certificatePolicy = this._certificatePolicy ?? new CertificatePolicy()
             {
                 KeyProperties = new KeyProperties()
                 {
@@ -102,38 +104,38 @@ namespace Microsoft.Vault.Explorer
             {
                 Attributes = new CertificateAttributes()
             };
-            RefreshCertificateObject(cb, _certificatePolicy, cert);
-            uxTextBoxName.Text = Utils.ConvertToValidSecretName(cert.GetNameInfo(X509NameType.SimpleName, false));
+            this.RefreshCertificateObject(cb, this._certificatePolicy, cert);
+            this.uxTextBoxName.Text = Utils.ConvertToValidSecretName(cert.GetNameInfo(X509NameType.SimpleName, false));
         }
 
         private void RefreshCertificateObject(CertificateBundle cb, CertificatePolicy cp, X509Certificate2 certificate)
         {
-            uxPropertyGridSecret.SelectedObject = PropertyObject = new PropertyObjectCertificate(cb, cp, certificate, SecretObject_PropertyChanged);
-            uxTextBoxName.Text = PropertyObject.Name;
-            uxToolTip.SetToolTip(uxLinkLabelSecretKind, PropertyObject.SecretKind.Description);
+            this.uxPropertyGridSecret.SelectedObject = this.PropertyObject = new PropertyObjectCertificate(cb, cp, certificate, this.SecretObject_PropertyChanged);
+            this.uxTextBoxName.Text = this.PropertyObject.Name;
+            this.uxToolTip.SetToolTip(this.uxLinkLabelSecretKind, this.PropertyObject.SecretKind.Description);
         }
 
         protected override void uxLinkLabelSecretKind_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            var obj = (PropertyObjectCertificate)PropertyObject;
+            var obj = (PropertyObjectCertificate)this.PropertyObject;
             X509Certificate2UI.DisplayCertificate(obj.Certificate);
         }
 
         private void SecretObject_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            _changed = true;
-            InvalidateOkButton();
+            this._changed = true;
+            this.InvalidateOkButton();
         }
 
         protected override async Task<object> OnVersionChangeAsync(CustomVersion cv)
         {
-            var cb = await _session.CurrentVault.GetCertificateAsync(cv.Id.Name, (cv.Index == 0) ? null : cv.Id.Version); // Pass NULL as a version to fetch current CertificatePolicy
-            var cert = await _session.CurrentVault.GetCertificateWithExportableKeysAsync(cv.Id.Name, cv.Id.Version);
-            if ((_certificatePolicy == null) && (cb.Policy != null)) // cb.Policy will be NULL when version is not current
+            var cb = await this._session.CurrentVault.GetCertificateAsync(cv.Id.Name, (cv.Index == 0) ? null : cv.Id.Version); // Pass NULL as a version to fetch current CertificatePolicy
+            var cert = await this._session.CurrentVault.GetCertificateWithExportableKeysAsync(cv.Id.Name, cv.Id.Version);
+            if ((this._certificatePolicy == null) && (cb.Policy != null)) // cb.Policy will be NULL when version is not current
             {
-                _certificatePolicy = cb.Policy;
+                this._certificatePolicy = cb.Policy;
             }
-            RefreshCertificateObject(cb, _certificatePolicy, cert);
+            this.RefreshCertificateObject(cb, this._certificatePolicy, cert);
             return cb;
         }
     }
