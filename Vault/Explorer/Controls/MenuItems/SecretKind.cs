@@ -3,14 +3,12 @@
 
 using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Microsoft.Vault.Library;
-using Microsoft.Vault.Core;
 
 namespace Microsoft.Vault.Explorer
 {
@@ -102,20 +100,5 @@ namespace Microsoft.Vault.Explorer
         }
 
         public override string ToString() => Text + " secret name" + Utils.DropDownSuffix;
-    }
-
-    [JsonDictionary]
-    public class SecretKinds : Dictionary<string, SecretKind>
-    {
-        public SecretKinds() : base() { }
-
-        [JsonConstructor]
-        public SecretKinds(IDictionary<string, SecretKind> secretKinds) : base(secretKinds, StringComparer.CurrentCultureIgnoreCase)
-        {
-            foreach (string secretKindName in Keys)
-            {
-                Guard.ArgumentNotNullOrWhitespace(secretKindName, nameof(secretKindName));
-            }
-        }
     }
 }

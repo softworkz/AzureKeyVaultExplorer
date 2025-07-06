@@ -3,22 +3,17 @@
 
 using Microsoft.Azure;
 using Microsoft.Azure.Management.KeyVault;
-using Microsoft.Azure.Management.KeyVault.Models;
 using Microsoft.Identity.Client;
 using Microsoft.Rest;
 using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
 using System.Drawing;
-using System.Drawing.Design;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Microsoft.Vault.Library;
@@ -214,176 +209,9 @@ namespace Microsoft.Vault.Explorer
 
     #region Aux UI related classes
 
-    public class AccountItem
-    {
-        public string DomainHint;
-        public string UserAlias;
-
-        public AccountItem(string domainHint, string userAlias=null)
-        {
-            DomainHint = domainHint;
-            UserAlias = userAlias ?? Environment.UserName;
-        }
-
-        public override string ToString() => $"{UserAlias}@{DomainHint}";
-    }
-
-    public class ListViewItemSubscription : ListViewItem
-    {
-        public readonly Subscription Subscription;
-
-        public ListViewItemSubscription(Subscription s) : base(s.DisplayName)
-        {
-            Subscription = s;
-            Name = s.DisplayName;
-            SubItems.Add(s.SubscriptionId.ToString());
-            ToolTipText = $"State: {s.State}";
-            ImageIndex = 0;
-        }
-    }
-
-    public class ListViewItemVault : ListViewItem
-    {
-        // https://azure.microsoft.com/en-us/documentation/articles/guidance-naming-conventions/
-        private static Regex s_resourceNameRegex = new Regex(@".*\/resourceGroups\/(?<GroupName>[a-zA-Z0-9_\-\.]{1,64})\/", RegexOptions.CultureInvariant | RegexOptions.Compiled);
-
-        public readonly Microsoft.Azure.Management.KeyVault.Models.Resource Vault;
-        public readonly string GroupName;
-
-        public ListViewItemVault(Microsoft.Azure.Management.KeyVault.Models.Resource vault) : base(vault.Name)
-        {
-            Vault = vault;
-            Name = vault.Name;
-            GroupName = s_resourceNameRegex.Match(vault.Id).Groups["GroupName"].Value;
-            SubItems.Add(GroupName);
-            ToolTipText = $"Location: {vault.Location}";
-            ImageIndex = 1;
-        }
-    }
-
-    public class PropertyObjectVault
-    {
-        private readonly Subscription _subscription;
-        private readonly string _resourceGroupName;
-        private readonly Microsoft.Azure.Management.KeyVault.Models.Vault _vault;
-
-        public PropertyObjectVault(Subscription s, string resourceGroupName, Microsoft.Azure.Management.KeyVault.Models.Vault vault)
-        {
-            _subscription = s;
-            _resourceGroupName = resourceGroupName;
-            _vault = vault;
-            Tags = new ObservableTagItemsCollection();
-            if (null != _vault.Tags) foreach (var kvp in _vault.Tags) Tags.Add(new TagItem(kvp));
-            AccessPolicies = new ObservableAccessPoliciesCollection();
-            int i = -1;
-            foreach (var ape in _vault.Properties.AccessPolicies) AccessPolicies.Add(new AccessPolicyEntryItem(++i, ape));
-        }
-
-        [DisplayName("Name")]
-        [ReadOnly(true)]
-        public string Name => _vault.Name;
-
-        [DisplayName("Location")]
-        [ReadOnly(true)]
-        public string Location => _vault.Location;
-
-        [DisplayName("Uri")]
-        [ReadOnly(true)]
-        public string Uri => _vault.Properties.VaultUri;
-
-        [DisplayName("Subscription Name")]
-        [ReadOnly(true)]
-        public string SubscriptionName => _subscription.DisplayName;
-
-        [DisplayName("Subscription Id")]
-        [ReadOnly(true)]
-        public Guid SubscriptionId => _subscription.SubscriptionId;
-
-        [DisplayName("Resource Group Name")]
-        [ReadOnly(true)]
-        public string ResourceGroupName => _resourceGroupName;
-
-        [DisplayName("Custom Tags")]
-        [ReadOnly(true)]
-        public ObservableTagItemsCollection Tags { get; private set; }
-
-        [DisplayName("Sku")]
-        [ReadOnly(true)]
-        public SkuName Sku => _vault.Properties.Sku.Name;
-        
-        [DisplayName("Access Policies")]
-        [ReadOnly(true)]
-        [TypeConverter(typeof(ExpandableCollectionObjectConverter))]
-        public ObservableAccessPoliciesCollection AccessPolicies { get; }
-    }
-
-    [Editor(typeof(ExpandableCollectionEditor<ObservableAccessPoliciesCollection, AccessPolicyEntryItem>), typeof(UITypeEditor))]
-    public class ObservableAccessPoliciesCollection : ObservableCustomCollection<AccessPolicyEntryItem>
-    {
-        public ObservableAccessPoliciesCollection() : base() { }
-
-        public ObservableAccessPoliciesCollection(IEnumerable<AccessPolicyEntryItem> collection) : base(collection) { }
-
-        protected override PropertyDescriptor GetPropertyDescriptor(AccessPolicyEntryItem item) =>
-            new ReadOnlyPropertyDescriptor($"[{item.Index}]", item);
-    }
-
-    [Editor(typeof(ExpandableObjectConverter), typeof(UITypeEditor))]
-    public class AccessPolicyEntryItem
-    {
-        private static string[] EmptyList = new string[] { };
-        private AccessPolicyEntry _ape;
-
-        public AccessPolicyEntryItem(int index, AccessPolicyEntry ape)
-        {
-            Index = index;
-            _ape = ape;
-        }
-
-        [JsonIgnore]
-        public int Index { get; }
-
-        [Description("Application ID of the client making request on behalf of a principal")]
-        public Guid? ApplicationId => _ape.ApplicationId;
-
-        [Description("Object ID of the principal")]
-        public Guid ObjectId => Guid.Parse(_ape.ObjectId);
-
-        [Description("Permissions to keys")]
-        public string PermissionsToKeys => string.Join(",", _ape.Permissions.Keys ?? EmptyList);
-
-        [Description("Permissions to secrets")]
-        public string PermissionsToSecrets => string.Join(",", _ape.Permissions.Secrets ?? EmptyList);
-
-        [Description("Permissions to certificates")]
-        public string PermissionsToCertificates => string.Join(",", _ape.Permissions.Certificates ?? EmptyList);
-
-        [Description("Tenant ID of the principal")]
-        public Guid TenantId => _ape.TenantId;
-
-        public override string ToString() => JsonConvert.SerializeObject(this, Formatting.Indented);
-    }
-
     #endregion
 
     #region Managment endpoint JSON response classes
-
-    [JsonObject]
-    public class SubscriptionsResponse
-    {
-        [JsonProperty(PropertyName = "value")]
-        public Subscription[] Subscriptions { get; set; }
-    }
-
-    [JsonObject]
-    public class Subscription
-    {
-        public string Id { get; set; }
-        public Guid SubscriptionId { get; set; }
-        public string DisplayName { get; set; }
-        public string State { get; set; }
-        public string AuthorizationSource { get; set; }
-    }
 
     #endregion
 }

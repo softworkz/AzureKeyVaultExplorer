@@ -3,7 +3,6 @@
 
 using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -56,7 +55,4 @@ namespace Microsoft.Vault.Explorer
 
         public override int GetHashCode() => Alias?.GetHashCode() ?? 0;
     }
-
-    [JsonArray]
-    public class VaultAliases : List<VaultAlias> { }
 }

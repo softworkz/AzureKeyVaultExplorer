@@ -74,33 +74,5 @@ namespace Microsoft.Vault.Explorer
 
     }
 
-    [JsonDictionary]
-    public class CustomTags : Dictionary<string, CustomTag>
-    {
-        public CustomTags() : base() { }
-
-        [JsonConstructor]
-        public CustomTags(IDictionary<string, CustomTag> customTags) : base(customTags, StringComparer.CurrentCultureIgnoreCase)
-        {
-            foreach (string customTagKey in Keys)
-            {
-                Guard.ArgumentNotNullOrWhitespace(customTagKey, nameof(customTagKey));
-            }
-        }
-    }
-
     // Used for storing a list of values for a tag
-    public class TagValues
-    {
-        public String tagvalue;
-        public override String ToString()
-        {
-            return tagvalue;
-        }
-        public TagValues(string tag) { tagvalue = tag; }
-        public TagValues() : base() { }
-    }
-
-    
-
 }
