@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Vault.Explorer.Model.ContentTypes
+namespace Microsoft.Vault.Explorer.Model.ContentTypes
 {
     using System;
     using System.IO;

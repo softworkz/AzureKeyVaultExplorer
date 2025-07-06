@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Vault.Explorer.Model.Files.Secrets
+namespace Microsoft.Vault.Explorer.Model.Files.Secrets
 {
     using System;
     using System.Security.Cryptography;

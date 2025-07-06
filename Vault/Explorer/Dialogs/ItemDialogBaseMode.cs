@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Vault.Explorer.Dialogs
+namespace Microsoft.Vault.Explorer.Dialogs
 {
     public enum ItemDialogBaseMode
     {

@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Vault.Explorer.Dialogs.Certificates
+namespace Microsoft.Vault.Explorer.Dialogs.Certificates
 {
     partial class CertificateDialog
     {

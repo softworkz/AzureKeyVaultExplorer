@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Vault.Explorer.Model.Files.Tags
+namespace Microsoft.Vault.Explorer.Model.Files.Tags
 {
     using System;
 
