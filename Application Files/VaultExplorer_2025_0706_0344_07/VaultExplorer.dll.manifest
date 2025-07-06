@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <asmv1:assembly xsi:schemaLocation="urn:schemas-microsoft-com:asm.v1 assembly.adaptive.xsd" manifestVersion="1.0" xmlns:asmv1="urn:schemas-microsoft-com:asm.v1" xmlns="urn:schemas-microsoft-com:asm.v2" xmlns:asmv2="urn:schemas-microsoft-com:asm.v2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:co.v1="urn:schemas-microsoft-com:clickonce.v1" xmlns:asmv3="urn:schemas-microsoft-com:asm.v3" xmlns:dsig="http://www.w3.org/2000/09/xmldsig#" xmlns:co.v2="urn:schemas-microsoft-com:clickonce.v2">
-  <asmv1:assemblyIdentity name="VaultExplorer.exe" version="2025.0706.0145.22" publicKeyToken="0000000000000000" language="neutral" processorArchitecture="msil" type="win32" />
+  <asmv1:assemblyIdentity name="VaultExplorer.exe" version="2025.0706.0344.07" publicKeyToken="0000000000000000" language="neutral" processorArchitecture="msil" type="win32" />
   <description asmv2:iconFile="VaultExplorer.ico" xmlns="urn:schemas-microsoft-com:asm.v1" />
   <application />
   <entryPoint>
@@ -1347,7 +1347,7 @@
         <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
       </dsig:Transforms>
       <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-      <dsig:DigestValue>4EGTIF4+8I/Bm23rN60FY+KUgmDhMgPJwLzTZPrkSus=</dsig:DigestValue>
+      <dsig:DigestValue>MT4anGAzqsjXPAlEKeG3U0ZZJTOSTQOniw2wsS1egk0=</dsig:DigestValue>
     </hash>
   </file>
   <file name="Microsoft.Vault.Library.dll" size="57344">
@@ -1356,7 +1356,7 @@
         <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
       </dsig:Transforms>
       <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-      <dsig:DigestValue>/KLqywrsFUr7B51WxFFLM1l9k3u6TMYzPDlU58WtaO4=</dsig:DigestValue>
+      <dsig:DigestValue>2mWrsR4Fe0yNLWslr7gxTZYivDNXzvtVW26xIHRCsAs=</dsig:DigestValue>
     </hash>
   </file>
   <file name="Microsoft.VisualBasic.Core.dll" size="1247496">
@@ -4065,7 +4065,7 @@
         <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
       </dsig:Transforms>
       <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-      <dsig:DigestValue>L3DXa/B4cfDWjUc0o2AS9/AFuN++VjFactpa8TLj2Zc=</dsig:DigestValue>
+      <dsig:DigestValue>1Vs5JXTB81HvUcDL9WnjwYf5nfSd26VUh6QCVPl4tWw=</dsig:DigestValue>
     </hash>
   </file>
   <file name="VaultExplorer.dll.config" size="3405">
@@ -4083,7 +4083,7 @@
         <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
       </dsig:Transforms>
       <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-      <dsig:DigestValue>hZPMrLvqJUtnbfk8V81eYUGfVT5oTO1rAxNiV4V0rkw=</dsig:DigestValue>
+      <dsig:DigestValue>UU2ycE3diReWxnSnu6Nudg7ZKBnG64Rc8/BiUq6C8m0=</dsig:DigestValue>
     </hash>
   </file>
   <file name="VaultExplorer.ico" size="99411">
