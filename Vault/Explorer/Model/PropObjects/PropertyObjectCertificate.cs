@@ -20,7 +20,7 @@ namespace Microsoft.Vault.Explorer.Model.PropObjects
     using Microsoft.Vault.Explorer.Model.Files.Secrets;
 
     /// <summary>
-    /// Certificate object to edit via PropertyGrid
+    ///     Certificate object to edit via PropertyGrid
     /// </summary>
     [DefaultProperty("Certificate")]
     public class PropertyObjectCertificate : PropertyObject
@@ -78,16 +78,14 @@ namespace Microsoft.Vault.Explorer.Model.PropObjects
         public SecretProperties SecretProperties => this.CertificatePolicy.SecretProperties;
 
         private ObservableLifetimeActionsCollection _lifetimeActions;
+
         [Category("Policy")]
         [DisplayName("Life time actions")]
         [Description("Actions that will be performed by Key Vault over the lifetime of a certificate.")]
         [TypeConverter(typeof(ExpandableCollectionObjectConverter))]
         public ObservableLifetimeActionsCollection LifetimeActions
         {
-            get
-            {
-                return this._lifetimeActions;
-            }
+            get { return this._lifetimeActions; }
             set
             {
                 this._lifetimeActions = value;
@@ -117,14 +115,15 @@ namespace Microsoft.Vault.Explorer.Model.PropObjects
             {
                 foreach (var la in this.CertificatePolicy.LifetimeActions)
                 {
-                    olac.Add(new LifetimeActionItem() { Type = la.Action.ActionType, DaysBeforeExpiry = la.Trigger.DaysBeforeExpiry, LifetimePercentage = la.Trigger.LifetimePercentage });
+                    olac.Add(new LifetimeActionItem { Type = la.Action.ActionType, DaysBeforeExpiry = la.Trigger.DaysBeforeExpiry, LifetimePercentage = la.Trigger.LifetimePercentage });
                 }
             }
+
             this.LifetimeActions = olac;
             this.LifetimeActions.SetPropertyChangedEventHandler(propertyChanged);
         }
 
-        public CertificateAttributes ToCertificateAttributes() => new CertificateAttributes() { Enabled = this.Enabled, Expires = this.Expires, NotBefore = this.NotBefore };
+        public CertificateAttributes ToCertificateAttributes() => new CertificateAttributes { Enabled = this.Enabled, Expires = this.Expires, NotBefore = this.NotBefore };
 
         public override string GetKeyVaultFileExtension() => ContentType.KeyVaultCertificate.ToExtension();
 
@@ -169,15 +168,21 @@ namespace Microsoft.Vault.Explorer.Model.PropObjects
             yield break;
         }
 
-        public override void PopulateCustomTags() { }
+        public override void PopulateCustomTags()
+        {
+        }
 
-        public override void AddOrUpdateSecretKind(SecretKind sk) { }
+        public override void AddOrUpdateSecretKind(SecretKind sk)
+        {
+        }
 
-        public override void PopulateExpiration() { }
+        public override void PopulateExpiration()
+        {
+        }
 
         public override string AreCustomTagsValid() => ""; // Return always valid
 
         private IList<LifetimeAction> LifetimeActionsToList() =>
-            (from lai in this.LifetimeActions select new LifetimeAction(new Trigger(lai.LifetimePercentage, lai.DaysBeforeExpiry), new Microsoft.Azure.KeyVault.Models.Action(lai.Type))).ToList();
+            (from lai in this.LifetimeActions select new LifetimeAction(new Trigger(lai.LifetimePercentage, lai.DaysBeforeExpiry), new Azure.KeyVault.Models.Action(lai.Type))).ToList();
     }
 }

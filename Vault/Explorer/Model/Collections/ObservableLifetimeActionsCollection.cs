@@ -8,9 +8,13 @@ namespace Microsoft.Vault.Explorer.Model.Collections
     [Editor(typeof(ExpandableCollectionEditor<ObservableLifetimeActionsCollection, LifetimeActionItem>), typeof(UITypeEditor))]
     public class ObservableLifetimeActionsCollection : ObservableCustomCollection<LifetimeActionItem>
     {
-        public ObservableLifetimeActionsCollection() : base() { }
+        public ObservableLifetimeActionsCollection()
+        {
+        }
 
-        public ObservableLifetimeActionsCollection(IEnumerable<LifetimeActionItem> collection) : base(collection) { }
+        public ObservableLifetimeActionsCollection(IEnumerable<LifetimeActionItem> collection) : base(collection)
+        {
+        }
 
         protected override PropertyDescriptor GetPropertyDescriptor(LifetimeActionItem item) =>
             new ReadOnlyPropertyDescriptor(item.ToString(), $"DaysBeforeExpiry={Utils.NullableIntToString(item.DaysBeforeExpiry)}, LifetimePercentage={Utils.NullableIntToString(item.LifetimePercentage)}");

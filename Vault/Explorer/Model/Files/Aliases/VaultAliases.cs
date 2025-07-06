@@ -4,5 +4,7 @@ namespace Microsoft.Vault.Explorer.Model.Files.Aliases
     using Newtonsoft.Json;
 
     [JsonArray]
-    public class VaultAliases : List<VaultAlias> { }
+    public class VaultAliases : List<VaultAlias>
+    {
+    }
 }

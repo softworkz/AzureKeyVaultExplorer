@@ -9,21 +9,18 @@ namespace Microsoft.Vault.Explorer.Model.Collections
     using Microsoft.Vault.Library;
     using Utils = Microsoft.Vault.Explorer.Common.Utils;
 
-    public partial class TagItem
+    public class TagItem
     {
         private string _name;
         private string _value;
         private List<TagValueListItems> _valueList = new List<TagValueListItems>();
         private static Dictionary<string, List<TagValueListItems>> _valueListDictionary = new Dictionary<string, List<TagValueListItems>>();
-        private bool _isList = false;
+        private bool _isList;
 
         [Category("Tag")]
         public string Name
         {
-            get
-            {
-                return this._name;
-            }
+            get { return this._name; }
             set
             {
                 Guard.ArgumentNotNullOrEmptyString(value, nameof(value));
@@ -31,6 +28,7 @@ namespace Microsoft.Vault.Explorer.Model.Collections
                 {
                     throw new ArgumentOutOfRangeException("Name.Length", $"Tag name '{value}' is too long, name can be up to {Consts.MaxTagNameLength} chars");
                 }
+
                 this._name = value;
             }
         }
@@ -39,10 +37,7 @@ namespace Microsoft.Vault.Explorer.Model.Collections
         [TypeConverter(typeof(TagValueListItemConverter))]
         public string Value
         {
-            get
-            {
-                return this._value;
-            }
+            get { return this._value; }
             set
             {
                 Guard.ArgumentNotNull(value, nameof(value));
@@ -50,6 +45,7 @@ namespace Microsoft.Vault.Explorer.Model.Collections
                 {
                     throw new ArgumentOutOfRangeException("Value.Length", $"Tag value '{value}' is too long, value can be up to {Consts.MaxTagValueLength} chars");
                 }
+
                 this._value = value;
             }
         }
@@ -59,23 +55,14 @@ namespace Microsoft.Vault.Explorer.Model.Collections
         [Browsable(false)]
         public List<TagValueListItems> ValueList
         {
-            get
-            {
-                return this._valueList;
-            }
-            set
-            {
-                this._valueList = value;
-            }
+            get { return this._valueList; }
+            set { this._valueList = value; }
         }
 
         [Browsable(false)]
         public Dictionary<string, List<TagValueListItems>> ValueListDictionary
         {
-            get
-            {
-                return _valueListDictionary;
-            }
+            get { return _valueListDictionary; }
             set
             {
                 //if (value != null) { _isList = true; }
@@ -87,24 +74,22 @@ namespace Microsoft.Vault.Explorer.Model.Collections
         [Browsable(false)]
         public bool IsList
         {
-            get
-            {
-                return this._isList;
-            }
-            set
-            {
-                this._isList = value;
-            }
-
+            get { return this._isList; }
+            set { this._isList = value; }
         }
 
 
+        public TagItem() : this("name", "")
+        {
+        }
 
-        public TagItem() : this("name", "") { }
+        public TagItem(KeyValuePair<string, string> kvp) : this(kvp.Key, kvp.Value)
+        {
+        }
 
-        public TagItem(KeyValuePair<string, string> kvp) : this(kvp.Key, kvp.Value) { }
-
-        public TagItem(string name, string value) : this(name, value, new Dictionary<string, List<TagValues>>()) { }
+        public TagItem(string name, string value) : this(name, value, new Dictionary<string, List<TagValues>>())
+        {
+        }
 
         public TagItem(string name, string value, Dictionary<string, List<TagValues>> valueList)
         {
@@ -124,17 +109,19 @@ namespace Microsoft.Vault.Explorer.Model.Collections
                         {
                             tagValueListItems.Add(new TagValueListItems(x.ToString()));
                         }
+
                         // Sort the value list before adding
                         _valueListDictionary.Add(name, tagValueListItems.OrderBy(o => o.Value).ToList());
                         this.ValueListDictionary = _valueListDictionary;
                     }
+
                     this._isList = true;
                 }
 
                 /*
                 foreach (var s in valueList)
                 {
-                    
+
                     if (ValueList.Count() < valueList.Count())
                     {
                         //ValueList.Add(new TagValueListItems(s));
@@ -145,8 +132,6 @@ namespace Microsoft.Vault.Explorer.Model.Collections
             }
 
             //ValueList = valueList;
-
-
         }
 
 
@@ -154,19 +139,27 @@ namespace Microsoft.Vault.Explorer.Model.Collections
 
         public override bool Equals(object obj) => this.Equals(obj as TagItem);
 
-        public bool Equals(TagItem ti) => (ti != null) && (0 == string.Compare(ti.Name, this.Name, true));
+        public bool Equals(TagItem ti) => ti != null && 0 == string.Compare(ti.Name, this.Name, true);
 
         public override int GetHashCode() => this.Name.GetHashCode();
 
         public class TagValueListItems
         {
             public string Value;
-            public override String ToString() => this.Value;
+            public override string ToString() => this.Value;
 
-            public TagValueListItems(string value) { this.Value = value; }
-            public TagValueListItems() : base() { }
+            public TagValueListItems(string value)
+            {
+                this.Value = value;
+            }
+
+            public TagValueListItems()
+            {
+            }
         }
+
         public static List<TagValues> taglist = new List<TagValues>();
+
         public class TagValueListItemConverter : TypeConverter
         {
             public override bool GetStandardValuesSupported(ITypeDescriptorContext context)
@@ -176,6 +169,7 @@ namespace Microsoft.Vault.Explorer.Model.Collections
                 {
                     return true;
                 }
+
                 return false;
             }
 
@@ -195,6 +189,7 @@ namespace Microsoft.Vault.Explorer.Model.Collections
                 {
                     return true;
                 }
+
                 return base.CanConvertFrom(context, sourceType);
             }
 
@@ -207,7 +202,10 @@ namespace Microsoft.Vault.Explorer.Model.Collections
                     _valueListDictionary.TryGetValue(context.Instance.ToString(), out tvli);
 
                     // If the value is not in the list dictionary, just return the string value
-                    if (tvli == null) { return value; }
+                    if (tvli == null)
+                    {
+                        return value;
+                    }
 
                     // If the dictionary has the right key, try to get the value selected from the dictionary
                     foreach (TagValueListItems tv in tvli)
@@ -220,8 +218,8 @@ namespace Microsoft.Vault.Explorer.Model.Collections
 
                     // If the value was not in the dictionary, return the value anyway.
                     return value;
-
                 }
+
                 return base.ConvertFrom(context, culture, value);
             }
             /*

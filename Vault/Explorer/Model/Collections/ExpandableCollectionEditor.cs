@@ -6,13 +6,15 @@ namespace Microsoft.Vault.Explorer.Model.Collections
     using System.ComponentModel.Design;
 
     /// <summary>
-    /// Our collection editor, that will force refresh the expandable properties in case collection was changed
+    ///     Our collection editor, that will force refresh the expandable properties in case collection was changed
     /// </summary>
     /// <typeparam name="T">type of the collection</typeparam>
     /// <typeparam name="U">type of the item in the collection</typeparam>
     public class ExpandableCollectionEditor<T, U> : CollectionEditor where T : ObservableCustomCollection<U> where U : class
     {
-        public ExpandableCollectionEditor(Type type) : base(type) { }
+        public ExpandableCollectionEditor(Type type) : base(type)
+        {
+        }
 
         public override object EditValue(ITypeDescriptorContext context, IServiceProvider provider, object value)
         {
@@ -29,10 +31,8 @@ namespace Microsoft.Vault.Explorer.Model.Collections
                 lastHandler.Invoke(newCollection, new PropertyChangedEventArgs("Count"));
                 return newCollection;
             }
-            else
-            {
-                return collection;
-            }
+
+            return collection;
         }
     }
 }

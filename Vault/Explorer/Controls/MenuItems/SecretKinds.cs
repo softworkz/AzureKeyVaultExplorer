@@ -8,7 +8,9 @@ namespace Microsoft.Vault.Explorer.Controls.MenuItems
     [JsonDictionary]
     public class SecretKinds : Dictionary<string, SecretKind>
     {
-        public SecretKinds() : base() { }
+        public SecretKinds()
+        {
+        }
 
         [JsonConstructor]
         public SecretKinds(IDictionary<string, SecretKind> secretKinds) : base(secretKinds, StringComparer.CurrentCultureIgnoreCase)

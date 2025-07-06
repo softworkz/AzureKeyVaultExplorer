@@ -6,7 +6,7 @@ namespace Microsoft.Vault.Explorer.Controls.MenuItems
     {
         public readonly SecretItem SecretItem;
 
-        public SecretVersion(int index, SecretItem secretItem) : base(index, secretItem.Attributes.Created, secretItem.Attributes.Updated, Microsoft.Vault.Library.Utils.GetChangedBy(secretItem.Tags), secretItem.Identifier)
+        public SecretVersion(int index, SecretItem secretItem) : base(index, secretItem.Attributes.Created, secretItem.Attributes.Updated, Library.Utils.GetChangedBy(secretItem.Tags), secretItem.Identifier)
         {
             this.SecretItem = secretItem;
         }

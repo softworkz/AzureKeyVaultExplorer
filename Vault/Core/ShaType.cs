@@ -7,6 +7,6 @@ namespace Microsoft.Vault.Core
     {
         Sha1,
 
-        Sha256
+        Sha256,
     }
 }

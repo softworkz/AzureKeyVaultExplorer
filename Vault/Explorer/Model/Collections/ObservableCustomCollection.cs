@@ -10,9 +10,10 @@ namespace Microsoft.Vault.Explorer.Model.Collections
     using System.Linq;
 
     #region ObservableCustomCollection, ExpandableCollectionObjectConverter and ExpandableCollectionEditor
+
     /// <summary>
-    /// Simple wrapper on top of ObservableCollection, so we can enforce some validation logic plus register for:
-    /// protected event PropertyChangedEventHandler PropertyChanged;
+    ///     Simple wrapper on top of ObservableCollection, so we can enforce some validation logic plus register for:
+    ///     protected event PropertyChangedEventHandler PropertyChanged;
     /// </summary>
     /// <typeparam name="T">type of the item in the collection</typeparam>
     [TypeConverter(typeof(ExpandableCollectionObjectConverter))]
@@ -21,9 +22,13 @@ namespace Microsoft.Vault.Explorer.Model.Collections
         private PropertyChangedEventHandler _propertyChanged;
         protected abstract PropertyDescriptor GetPropertyDescriptor(T item);
 
-        public ObservableCustomCollection() : base() { }
+        public ObservableCustomCollection()
+        {
+        }
 
-        public ObservableCustomCollection(IEnumerable<T> collection) : base(collection) { }
+        public ObservableCustomCollection(IEnumerable<T> collection) : base(collection)
+        {
+        }
 
         public void SetPropertyChangedEventHandler(PropertyChangedEventHandler propertyChanged)
         {
@@ -36,19 +41,29 @@ namespace Microsoft.Vault.Explorer.Model.Collections
         public void AddOrReplace(T item)
         {
             int i = this.IndexOf(item);
-            if (i == -1) this.Add(item); else this.SetItem(i, item);
+            if (i == -1)
+            {
+                this.Add(item);
+            }
+            else
+            {
+                this.SetItem(i, item);
+            }
         }
 
         public void AddOrKeep(T item)
         {
             int i = this.IndexOf(item);
-            if (i == -1) this.Add(item);
+            if (i == -1)
+            {
+                this.Add(item);
+            }
         }
 
         public T GetOrNull(T item)
         {
             int i = this.IndexOf(item);
-            return (i == -1) ? null : this[i];
+            return i == -1 ? null : this[i];
         }
 
         #region ICustomTypeDescriptor interface to show properties in PropertyGrid
@@ -82,14 +97,6 @@ namespace Microsoft.Vault.Explorer.Model.Collections
 
         #endregion
     }
-
-    #endregion
-
-    #region TagItems
-
-    #endregion
-
-    #region LifetimeActionItems
 
     #endregion
 }

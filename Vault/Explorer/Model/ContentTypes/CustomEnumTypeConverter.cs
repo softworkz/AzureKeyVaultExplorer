@@ -18,7 +18,9 @@ namespace Microsoft.Vault.Explorer.Model.ContentTypes
             Initialize();
         }
 
-        public CustomEnumTypeConverter() : base(typeof(T)) { }
+        public CustomEnumTypeConverter() : base(typeof(T))
+        {
+        }
 
         internal static void Initialize()
         {
@@ -39,6 +41,7 @@ namespace Microsoft.Vault.Explorer.Model.ContentTypes
                 var attribute = (DescriptionAttribute)Attribute.GetCustomAttribute(optionInfo, typeof(DescriptionAttribute));
                 return attribute.Description;
             }
+
             return optionDescription;
         }
 
@@ -48,6 +51,7 @@ namespace Microsoft.Vault.Explorer.Model.ContentTypes
             {
                 return s_toValue[description];
             }
+
             return default(T);
         }
 

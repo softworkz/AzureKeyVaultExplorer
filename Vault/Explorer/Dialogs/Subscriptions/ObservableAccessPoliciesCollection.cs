@@ -9,9 +9,13 @@ namespace Microsoft.Vault.Explorer.Dialogs.Subscriptions
     [Editor(typeof(ExpandableCollectionEditor<ObservableAccessPoliciesCollection, AccessPolicyEntryItem>), typeof(UITypeEditor))]
     public class ObservableAccessPoliciesCollection : ObservableCustomCollection<AccessPolicyEntryItem>
     {
-        public ObservableAccessPoliciesCollection() : base() { }
+        public ObservableAccessPoliciesCollection()
+        {
+        }
 
-        public ObservableAccessPoliciesCollection(IEnumerable<AccessPolicyEntryItem> collection) : base(collection) { }
+        public ObservableAccessPoliciesCollection(IEnumerable<AccessPolicyEntryItem> collection) : base(collection)
+        {
+        }
 
         protected override PropertyDescriptor GetPropertyDescriptor(AccessPolicyEntryItem item) =>
             new ReadOnlyPropertyDescriptor($"[{item.Index}]", item);

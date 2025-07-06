@@ -9,7 +9,10 @@ namespace Microsoft.Vault.Explorer.Model.ContentTypes
     {
         public static string FromRawValue(this ContentType contentType, string rawValue)
         {
-            if (rawValue == null) return null;
+            if (rawValue == null)
+            {
+                return null;
+            }
 
             switch (contentType)
             {
@@ -39,6 +42,7 @@ namespace Microsoft.Vault.Explorer.Model.ContentTypes
                             {
                                 gz.CopyTo(output);
                             }
+
                             return Encoding.UTF8.GetString(output.ToArray());
                         }
                     }
@@ -49,7 +53,10 @@ namespace Microsoft.Vault.Explorer.Model.ContentTypes
 
         public static string ToRawValue(this ContentType contentType, string value)
         {
-            if (value == null) return null;
+            if (value == null)
+            {
+                return null;
+            }
 
             switch (contentType)
             {
@@ -78,6 +85,7 @@ namespace Microsoft.Vault.Explorer.Model.ContentTypes
                             {
                                 input.CopyTo(gz);
                             }
+
                             return Convert.ToBase64String(output.ToArray());
                         }
                     }
@@ -161,8 +169,10 @@ namespace Microsoft.Vault.Explorer.Model.ContentTypes
         }
 
         /// <summary>
-        /// Use to set right FilterIndex as part of SaveFileDialog flow
-        /// Text files|*.txt|Csv (Comma delimited)|*.csv|Tsv (Tab delimited)|*.tsv|Configuration files|*.json;*.xml;*.config|X509 Certificate|*.cer;*.crt|Personal Information Exchange|*.pfx;*.p12|Key Vault Secret files|*.kv-secret|Key Vault Certificate files|*.kv-certificate|All files|*.*
+        ///     Use to set right FilterIndex as part of SaveFileDialog flow
+        ///     Text files|*.txt|Csv (Comma delimited)|*.csv|Tsv (Tab delimited)|*.tsv|Configuration
+        ///     files|*.json;*.xml;*.config|X509 Certificate|*.cer;*.crt|Personal Information Exchange|*.pfx;*.p12|Key Vault Secret
+        ///     files|*.kv-secret|Key Vault Certificate files|*.kv-certificate|All files|*.*
         /// </summary>
         public static int ToFilterIndex(this ContentType contentType)
         {
@@ -225,8 +235,8 @@ namespace Microsoft.Vault.Explorer.Model.ContentTypes
         }
 
         /// <summary>
-        /// True if content type is certificate, otherwise False
+        ///     True if content type is certificate, otherwise False
         /// </summary>
-        public static bool IsCertificate(this ContentType contentType) => (contentType == ContentType.Certificate) || (contentType == ContentType.Pkcs12) || (contentType == ContentType.Pkcs12Base64);
+        public static bool IsCertificate(this ContentType contentType) => contentType == ContentType.Certificate || contentType == ContentType.Pkcs12 || contentType == ContentType.Pkcs12Base64;
     }
 }

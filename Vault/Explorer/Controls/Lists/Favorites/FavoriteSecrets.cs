@@ -11,7 +11,9 @@ namespace Microsoft.Vault.Explorer.Controls.Lists.Favorites
     [JsonDictionary]
     public class FavoriteSecrets : Dictionary<string, FavoriteSecret>
     {
-        public FavoriteSecrets() : base() { }
+        public FavoriteSecrets()
+        {
+        }
 
         [JsonConstructor]
         public FavoriteSecrets(IDictionary<string, FavoriteSecret> dictionary) : base(dictionary, StringComparer.CurrentCultureIgnoreCase)

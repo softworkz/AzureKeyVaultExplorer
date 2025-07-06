@@ -18,7 +18,9 @@ namespace Microsoft.Vault.Explorer.Dialogs
         public object OriginalObject; //  Will be NULL in New mode and current value in case of Edit mode
         public PropertyObject PropertyObject { get; protected set; }
 
-        public ItemDialogBase() { }
+        public ItemDialogBase()
+        {
+        }
 
         public ItemDialogBase(ISession session, string title, ItemDialogBaseMode mode)
         {
@@ -48,23 +50,32 @@ namespace Microsoft.Vault.Explorer.Dialogs
             this.uxMenuSecretKind.Show(this.uxLinkLabelSecretKind, 0, this.uxLinkLabelSecretKind.Height);
         }
 
-        protected virtual void uxMenuSecretKind_ItemClicked(object sender, ToolStripItemClickedEventArgs e) { }
+        protected virtual void uxMenuSecretKind_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
+        }
 
         protected virtual Task<object> OnVersionChangeAsync(CustomVersion cv) => null;
 
         protected async void uxMenuVersions_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
         {
             var cv = (CustomVersion)e.ClickedItem;
-            if (cv.Checked) return; // Same item was clicked
-            foreach (var item in this.uxMenuVersions.Items) ((CustomVersion)item).Checked = false;
+            if (cv.Checked)
+            {
+                return; // Same item was clicked
+            }
+
+            foreach (var item in this.uxMenuVersions.Items)
+            {
+                ((CustomVersion)item).Checked = false;
+            }
 
             var u = await this.OnVersionChangeAsync(cv);
-            this.OriginalObject = (null == this.OriginalObject) ? u : this.OriginalObject;
+            this.OriginalObject = null == this.OriginalObject ? u : this.OriginalObject;
 
             cv.Checked = true;
             this.uxLinkLabelValue.Text = cv.ToString();
             this.uxToolTip.SetToolTip(this.uxLinkLabelValue, cv.ToolTipText);
-            this._changed = (sender != null); // Sender will be NULL for the first time during Edit mode ctor
+            this._changed = sender != null; // Sender will be NULL for the first time during Edit mode ctor
             this.InvalidateOkButton();
         }
 

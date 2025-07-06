@@ -7,12 +7,13 @@ namespace Microsoft.Vault.Explorer.Controls.MessageBox
     using System.Windows.Forms;
 
     /// <summary>
-    /// Implementation for closing the Message Box if no input from the user
+    ///     Implementation for closing the Message Box if no input from the user
     /// </summary>
     public sealed class AutoClosingMessageBox : IDisposable
     {
         private readonly System.Threading.Timer timeoutTimer;
         private const uint MB_TOPMOST = 0x40000;
+
         public AutoClosingMessageBox(int timeout)
         {
             if (timeout <= 0)
@@ -28,15 +29,15 @@ namespace Microsoft.Vault.Explorer.Controls.MessageBox
         }
 
         /// <summary>
-        /// Displays the message box as the topmost element on the window
+        ///     Displays the message box as the topmost element on the window
         /// </summary>
         /// <param name="buttons">Type of Message Box Buttons. In this case YesNo </param>
         /// <param name="icon">Icon of Message Box. In this case question</param>
         /// <param name="button">Type of button-Button1</param>
         /// <returns></returns>
         public DialogResult Show(
-            String text,
-            String caption,
+            string text,
+            string caption,
             MessageBoxButtons buttons,
             MessageBoxIcon icon,
             MessageBoxDefaultButton button)
@@ -45,6 +46,7 @@ namespace Microsoft.Vault.Explorer.Controls.MessageBox
             {
                 throw new ArgumentException(nameof(text));
             }
+
             if (string.IsNullOrWhiteSpace(caption))
             {
                 throw new ArgumentException(nameof(caption));

@@ -15,7 +15,7 @@ namespace Microsoft.Vault.Explorer.Common
             this.Value = value;
         }
 
-        public override Type PropertyType => (this.Value == null) ? typeof(string) : this.Value.GetType();
+        public override Type PropertyType => this.Value == null ? typeof(string) : this.Value.GetType();
 
         public override void SetValue(object component, object value)
         {
@@ -30,7 +30,9 @@ namespace Microsoft.Vault.Explorer.Common
 
         public override bool CanResetValue(object component) => false;
 
-        public override void ResetValue(object component) { }
+        public override void ResetValue(object component)
+        {
+        }
 
         public override bool ShouldSerializeValue(object component) => false;
     }

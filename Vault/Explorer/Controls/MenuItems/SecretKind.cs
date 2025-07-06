@@ -91,6 +91,7 @@ namespace Microsoft.Vault.Explorer.Controls.MenuItems
             {
                 throw new ArgumentOutOfRangeException("DefaultExpiration or MaxExpiration", $"DefaultExpiration value must be less than MaxExpiration in secret kind {alias}");
             }
+
             if (this.RequiredCustomTags.Length + this.OptionalCustomTags.Length > Consts.MaxNumberOfTags)
             {
                 throw new ArgumentOutOfRangeException("Total CustomTags.Length", $"Too many custom tags for secret kind {alias}, maximum number of tags for secret is only {Consts.MaxNumberOfTags}");

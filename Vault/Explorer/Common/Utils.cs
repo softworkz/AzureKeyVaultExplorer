@@ -28,32 +28,52 @@ namespace Microsoft.Vault.Explorer.Common
         public const string AppName = "Azure Key Vault Explorer";
 
         /// <summary>
-        /// Space with black down triangle char
+        ///     Space with black down triangle char
         /// </summary>
         public const string DropDownSuffix = " \u25BC";
 
         /// <summary>
-        /// Converts DateTime? to LocalTime string
+        ///     Converts DateTime? to LocalTime string
         /// </summary>
         /// <param name="dt">DateTime?</param>
         /// <returns>string</returns>
-        public static string NullableDateTimeToString(DateTime? dt) => (dt == null) ? "(none)" : dt.Value.ToLocalTime().ToString();
+        public static string NullableDateTimeToString(DateTime? dt) => dt == null ? "(none)" : dt.Value.ToLocalTime().ToString();
 
-        public static string NullableIntToString(int? x) => (x == null) ? "(none)" : x.ToString();
+        public static string NullableIntToString(int? x) => x == null ? "(none)" : x.ToString();
 
         public static string ExpirationToString(DateTime? dt)
         {
-            if (dt == null) return "";
+            if (dt == null)
+            {
+                return "";
+            }
+
             var ts = dt.Value - DateTime.UtcNow;
             return ExpirationToString(ts);
         }
 
         public static string ExpirationToString(TimeSpan ts)
         {
-            if (ts == TimeSpan.MaxValue) return "Never";
-            if (ts.TotalDays < 0) return "Expired";
-            if (ts.TotalDays >= 2) return $"{ts.TotalDays:N0} days";
-            if (ts.TotalDays >= 1) return $"{ts.TotalDays:N0} day and {ts.Hours} hours";
+            if (ts == TimeSpan.MaxValue)
+            {
+                return "Never";
+            }
+
+            if (ts.TotalDays < 0)
+            {
+                return "Expired";
+            }
+
+            if (ts.TotalDays >= 2)
+            {
+                return $"{ts.TotalDays:N0} days";
+            }
+
+            if (ts.TotalDays >= 1)
+            {
+                return $"{ts.TotalDays:N0} day and {ts.Hours} hours";
+            }
+
             return $"{ts.Hours} hours";
         }
 
@@ -67,9 +87,17 @@ namespace Microsoft.Vault.Explorer.Common
         public static string FullPathToJsonFile(string filename)
         {
             filename = Environment.ExpandEnvironmentVariables(filename);
-            if (Path.IsPathRooted(filename)) return filename;
+            if (Path.IsPathRooted(filename))
+            {
+                return filename;
+            }
+
             filename = Path.Combine(Settings.Default.JsonConfigurationFilesRoot, filename);
-            if (Path.IsPathRooted(filename)) return filename;
+            if (Path.IsPathRooted(filename))
+            {
+                return filename;
+            }
+
             return Path.Combine(AppDomain.CurrentDomain.BaseDirectory, filename);
         }
 
@@ -81,10 +109,12 @@ namespace Microsoft.Vault.Explorer.Common
                 var x = JsonConvert.DeserializeObject<T>(File.ReadAllText(path));
                 return x;
             }
+
             if (isOptional)
             {
                 return new T();
             }
+
             throw new FileNotFoundException("Mandatory .json configuration file is not found", path);
         }
 
@@ -104,8 +134,16 @@ namespace Microsoft.Vault.Explorer.Common
 
         public static string ConvertToValidTagValue(string value)
         {
-            if (string.IsNullOrEmpty(value)) return value;
-            if (value.Length <= Consts.MaxTagNameLength) return value;
+            if (string.IsNullOrEmpty(value))
+            {
+                return value;
+            }
+
+            if (value.Length <= Consts.MaxTagNameLength)
+            {
+                return value;
+            }
+
             return value.Substring(0, Consts.MaxTagNameLength - 3) + "...";
         }
 
@@ -115,12 +153,19 @@ namespace Microsoft.Vault.Explorer.Common
             foreach (var c in s)
             {
                 if (c == '\\' || c == '{' || c == '}')
+                {
                     sb.Append(@"\" + c);
+                }
                 else if (c <= 0x7f)
+                {
                     sb.Append(c);
+                }
                 else
+                {
                     sb.Append("\\u" + Convert.ToUInt32(c) + "?");
+                }
             }
+
             return sb.ToString();
         }
 
@@ -133,8 +178,11 @@ namespace Microsoft.Vault.Explorer.Common
                 var verInfo = FileVersionInfo.GetVersionInfo(filepath);
                 version = string.Format("{0}.{1}.{2}.{3}", verInfo.FileMajorPart, verInfo.FileMinorPart, verInfo.FileBuildPart, verInfo.FilePrivatePart);
             }
-            catch { }
-            return string.Format(string.Format("{0}{1}{2}", title, version, optionalPrefix));
+            catch
+            {
+            }
+
+            return string.Format("{0}{1}{2}", title, version, optionalPrefix);
         }
 
         public static string NewSecurePassword()
@@ -180,7 +228,7 @@ namespace Microsoft.Vault.Explorer.Common
                             using (RegistryKey myKey = myUninstallKey.OpenSubKey(subKeyName, true))
                             {
                                 object myValue = myKey.GetValue("DisplayName");
-                                if (myValue != null && myValue.ToString() == Utils.ProductName)
+                                if (myValue != null && myValue.ToString() == ProductName)
                                 {
                                     myKey.SetValue("DisplayIcon", Application.ExecutablePath);
                                     break;
@@ -189,7 +237,9 @@ namespace Microsoft.Vault.Explorer.Common
                         }
                     }
                 }
-                catch { }
+                catch
+                {
+                }
             }
         }
 
@@ -198,16 +248,16 @@ namespace Microsoft.Vault.Explorer.Common
             X509Store store = new X509Store(name, location);
             store.Open(OpenFlags.ReadOnly | OpenFlags.OpenExistingOnly);
             X509Certificate2Collection notExpiredAndSortedCerts = new X509Certificate2Collection(
-                (from cert in store.Certificates.Find(X509FindType.FindByTimeValid, DateTime.Now, false).Cast<X509Certificate2>()
-                 orderby string.IsNullOrEmpty(cert.FriendlyName) ? cert.GetNameInfo(X509NameType.SimpleName, false) : cert.FriendlyName descending
-                 select cert).ToArray());
-            X509Certificate2Collection selected = X509Certificate2UI.SelectFromCollection(notExpiredAndSortedCerts, Utils.AppName,
+                (from cert in store.Certificates.Find(X509FindType.FindByTimeValid, DateTime.Now, false)
+                    orderby string.IsNullOrEmpty(cert.FriendlyName) ? cert.GetNameInfo(X509NameType.SimpleName, false) : cert.FriendlyName descending
+                    select cert).ToArray());
+            X509Certificate2Collection selected = X509Certificate2UI.SelectFromCollection(notExpiredAndSortedCerts, AppName,
                 $"Select a certificate from the {location}\\{name} store that you would like to add to {vaultAlias}", X509SelectionFlag.SingleSelection, hwndParent);
-            return (1 == selected.Count) ? selected[0] : null;
+            return 1 == selected.Count ? selected[0] : null;
         }
 
         /// <summary>
-        /// Set specified hyperlink as HTML, Text formats and .URL file in the Clipboard
+        ///     Set specified hyperlink as HTML, Text formats and .URL file in the Clipboard
         /// </summary>
         /// <param name="link">Hyperlink to set</param>
         /// <param name="name">Name of the link</param>
@@ -247,7 +297,7 @@ namespace Microsoft.Vault.Explorer.Common
                 CreateNoWindow = true,
                 WindowStyle = ProcessWindowStyle.Hidden,
                 UseShellExecute = false,
-                LoadUserProfile = false
+                LoadUserProfile = false,
             };
             Process.Start(sInfo);
         }
@@ -259,7 +309,7 @@ namespace Microsoft.Vault.Explorer.Common
 
             // Fill in the text elements
             XmlNodeList stringElements = toastXml.GetElementsByTagName("text");
-            stringElements[0].AppendChild(toastXml.CreateTextNode(Utils.AppName));
+            stringElements[0].AppendChild(toastXml.CreateTextNode(AppName));
             stringElements[1].AppendChild(toastXml.CreateTextNode(body));
 
             // Absolute path to an image
@@ -269,7 +319,7 @@ namespace Microsoft.Vault.Explorer.Common
 
             // Create and show the toast
             ToastNotification toast = new ToastNotification(toastXml);
-            ToastNotificationManager.CreateToastNotifier(Utils.AppName).Show(toast);
+            ToastNotificationManager.CreateToastNotifier(AppName).Show(toast);
         }
     }
 }

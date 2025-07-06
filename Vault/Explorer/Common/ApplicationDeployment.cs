@@ -4,11 +4,11 @@ namespace Microsoft.Vault.Explorer.Common
 
     public class ApplicationDeployment
     {
-        private static ApplicationDeployment currentDeployment = null;
-        private static bool currentDeploymentInitialized = false;
+        private static ApplicationDeployment currentDeployment;
+        private static bool currentDeploymentInitialized;
 
-        private static bool isNetworkDeployed = false;
-        private static bool isNetworkDeployedInitialized = false;
+        private static bool isNetworkDeployed;
+        private static bool isNetworkDeployedInitialized;
 
         public static bool IsNetworkDeployed
         {
@@ -16,11 +16,11 @@ namespace Microsoft.Vault.Explorer.Common
             {
                 if (!isNetworkDeployedInitialized)
                 {
-                    bool.TryParse(Environment.GetEnvironmentVariable("ClickOnce_IsNetworkDeployed"), out ApplicationDeployment.isNetworkDeployed);
-                    ApplicationDeployment.isNetworkDeployedInitialized = true;
+                    bool.TryParse(Environment.GetEnvironmentVariable("ClickOnce_IsNetworkDeployed"), out isNetworkDeployed);
+                    isNetworkDeployedInitialized = true;
                 }
 
-                return ApplicationDeployment.isNetworkDeployed;
+                return isNetworkDeployed;
             }
         }
 
@@ -30,11 +30,11 @@ namespace Microsoft.Vault.Explorer.Common
             {
                 if (!currentDeploymentInitialized)
                 {
-                    ApplicationDeployment.currentDeployment = IsNetworkDeployed ? new ApplicationDeployment() : null;
-                    ApplicationDeployment.currentDeploymentInitialized = true;
+                    currentDeployment = IsNetworkDeployed ? new ApplicationDeployment() : null;
+                    currentDeploymentInitialized = true;
                 }
 
-                return ApplicationDeployment.currentDeployment;
+                return currentDeployment;
             }
         }
 
@@ -55,9 +55,10 @@ namespace Microsoft.Vault.Explorer.Common
                 return val;
             }
         }
+
         public string DataDirectory
         {
-            get { return Environment.GetEnvironmentVariable("ClickOnce_DataDirectory");  }
+            get { return Environment.GetEnvironmentVariable("ClickOnce_DataDirectory"); }
         }
 
         public bool IsFirstRun
@@ -77,12 +78,10 @@ namespace Microsoft.Vault.Explorer.Common
                 return value;
             }
         }
+
         public string UpdatedApplicationFullName
         {
-            get
-            {
-                return Environment.GetEnvironmentVariable("ClickOnce_UpdatedApplicationFullName");
-            }
+            get { return Environment.GetEnvironmentVariable("ClickOnce_UpdatedApplicationFullName"); }
         }
 
         public Version UpdatedVersion
@@ -107,7 +106,6 @@ namespace Microsoft.Vault.Explorer.Common
         {
             get
             {
-
                 Version.TryParse(Environment.GetEnvironmentVariable("ClickOnce_LauncherVersion"), out Version val);
                 return val;
             }

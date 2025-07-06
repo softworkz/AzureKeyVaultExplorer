@@ -19,7 +19,9 @@ namespace Microsoft.Vault.Explorer.Model.Files.Secrets
         public readonly byte[] Data;
 
         [JsonConstructor]
-        public KeyVaultFile() { }
+        public KeyVaultFile()
+        {
+        }
 
         protected KeyVaultFile(T obj)
         {
@@ -35,11 +37,11 @@ namespace Microsoft.Vault.Explorer.Model.Files.Secrets
         public string Serialize()
         {
             StringBuilder sb = new StringBuilder();
-            sb.AppendLine($"// --------------------------------------------------------------------------------------");
+            sb.AppendLine("// --------------------------------------------------------------------------------------");
             sb.AppendLine($"// {Utils.AppName} encrypted {typeof(T).Name}");
-            sb.AppendLine($"// Do not edit manually!!!");
-            sb.AppendLine($"// This file can be opened only by the user who saved the file");
-            sb.AppendLine($"// --------------------------------------------------------------------------------------");
+            sb.AppendLine("// Do not edit manually!!!");
+            sb.AppendLine("// This file can be opened only by the user who saved the file");
+            sb.AppendLine("// --------------------------------------------------------------------------------------");
             sb.AppendLine();
             sb.Append(JsonConvert.SerializeObject(this, Formatting.Indented));
             return sb.ToString();
