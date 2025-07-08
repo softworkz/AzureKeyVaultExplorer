@@ -13,6 +13,7 @@ namespace Microsoft.Vault.Explorer.Dialogs.Secrets
     using System.Threading.Tasks;
     using System.Windows.Forms;
     using Microsoft.Azure.KeyVault.Models;
+    using Microsoft.Vault.Explorer.Controls;
     using Microsoft.Vault.Explorer.Controls.MenuItems;
     using Microsoft.Vault.Explorer.Dialogs.Passwords;
     using Microsoft.Vault.Explorer.Model;
@@ -136,6 +137,14 @@ namespace Microsoft.Vault.Explorer.Dialogs.Secrets
             int i = 0;
             this.uxMenuVersions.Items.AddRange((from v in versions orderby v.Attributes.Created descending select new SecretVersion(i++, v)).ToArray());
             this.uxMenuVersions_ItemClicked(null, new ToolStripItemClickedEventArgs(this.uxMenuVersions.Items[0])); // Pass sender as NULL so _changed will be set to false
+        }
+
+        /// <summary>Raises the <see cref="E:System.Windows.Forms.Form.Shown" /> event.</summary>
+        /// <param name="e">A <see cref="T:System.EventArgs" /> that contains the event data.</param>
+        protected override void OnShown(EventArgs e)
+        {
+            base.OnShown(e);
+            this.uxPropertyGridSecret.SetLabelColumnWidth(250);
         }
 
         private static List<SecretKind> LoadSecretKinds(VaultAlias vaultAlias, out List<string> unknownSk)

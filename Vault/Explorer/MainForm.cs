@@ -15,6 +15,7 @@ namespace Microsoft.Vault.Explorer
     using Microsoft.Vault.Core;
     using Microsoft.Vault.Explorer.Common;
     using Microsoft.Vault.Explorer.Config;
+    using Microsoft.Vault.Explorer.Controls;
     using Microsoft.Vault.Explorer.Controls.Lists;
     using Microsoft.Vault.Explorer.Dialogs.Certificates;
     using Microsoft.Vault.Explorer.Dialogs.Secrets;
@@ -26,8 +27,8 @@ namespace Microsoft.Vault.Explorer
     using Microsoft.Vault.Explorer.Model.PropObjects;
     using Microsoft.Vault.Explorer.Properties;
     using Microsoft.Vault.Library;
-    using UISettings = Microsoft.Vault.Explorer.Properties.Settings;
     using Action = System.Action;
+    using UISettings = Microsoft.Vault.Explorer.Properties.Settings;
     using Utils = Microsoft.Vault.Explorer.Common.Utils;
 
     public partial class MainForm : Form, ISession
@@ -98,6 +99,14 @@ namespace Microsoft.Vault.Explorer
             this.SetCurrentVault();
             this._activationUri.PerformAction(this.CurrentVault);
             this.Close();
+        }
+
+        /// <summary>Raises the <see cref="E:System.Windows.Forms.Form.Shown" /> event.</summary>
+        /// <param name="e">A <see cref="T:System.EventArgs" /> that contains the event data.</param>
+        protected override void OnShown(EventArgs e)
+        {
+            base.OnShown(e);
+            this.uxPropertyGridSecret.SetLabelColumnWidth(250);
         }
 
         private void ApplySettings()
