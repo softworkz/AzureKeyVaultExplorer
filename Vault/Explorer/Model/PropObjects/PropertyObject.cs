@@ -28,6 +28,7 @@ namespace Microsoft.Vault.Explorer.Model.PropObjects
         protected void NotifyPropertyChanged(string info) => this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(info));
 
         protected ContentType _contentType;
+        protected string _version;
 
         public ContentType GetContentType() => this._contentType;
 

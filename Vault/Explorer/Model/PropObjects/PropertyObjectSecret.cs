@@ -6,6 +6,7 @@ namespace Microsoft.Vault.Explorer.Model.PropObjects
     using System;
     using System.Collections.Generic;
     using System.ComponentModel;
+    using System.ComponentModel.DataAnnotations;
     using System.IO;
     using System.Linq;
     using System.Security.Cryptography.X509Certificates;
@@ -46,10 +47,19 @@ namespace Microsoft.Vault.Explorer.Model.PropObjects
             }
         }
 
+        [Category("X")]
+        [DisplayName(@"Version")]
+        [Display(Order = 99)]
+        public string Version
+        {
+            get { return this._version; }
+        }
+
         public PropertyObjectSecret(SecretBundle secret, PropertyChangedEventHandler propertyChanged) :
             base(secret.SecretIdentifier, secret.Tags, secret.Attributes.Enabled, secret.Attributes.Expires, secret.Attributes.NotBefore, propertyChanged)
         {
             this._secret = secret;
+            this._version = secret.SecretIdentifier?.Version;
             this._contentType = ContentTypeEnumConverter.GetValue(secret.ContentType);
             this._value = this._contentType.FromRawValue(secret.Value);
             this._customTags = Utils.LoadFromJsonFile<CustomTags>(Settings.Default.CustomTagsJsonFileLocation, isOptional: true);
