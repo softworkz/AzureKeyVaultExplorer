@@ -209,13 +209,16 @@ namespace Microsoft.Vault.Explorer
         }
 
         // Adds and saves new user alias in app settings.
-        public void AddUserAccountName(string userAccountName)
+        public bool AddUserAccountName(string userAccountName)
         {
             if (!this.UserAccountNames.Contains(userAccountName))
             {
                 this[nameof(this.UserAccountNames)] = this.UserAccountNames + "\n" + userAccountName;
                 base.Save();
+                return true;
             }
+
+            return false;
         }
     }
 }
