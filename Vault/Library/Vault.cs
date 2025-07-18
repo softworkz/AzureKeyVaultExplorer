@@ -448,9 +448,7 @@ namespace Microsoft.Vault.Library
 
         /// <summary>
         ///     Gets a certificate with private and public keys. Keys are exportable.
-        ///     We are NOT using here
-        ///     <see cref="KeyVaultClient.GetCertificateWithPrivateKeyAsync(string, string, string, CancellationToken)" /> as this
-        ///     returns a certificate with non-exportable keys
+        ///     Returns a certificate with non-exportable keys
         /// </summary>
         /// <param name="certificateName">The name of the certificate in the given vault</param>
         /// <param name="certificateVersion">The version of the certificate (optional)</param>
@@ -459,8 +457,7 @@ namespace Microsoft.Vault.Library
         public async Task<X509Certificate2> GetCertificateWithExportableKeysAsync(string certificateName, string certificateVersion = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             SecretBundle s = await this.GetSecretAsync(certificateName, certificateVersion, cancellationToken);
-            var cert = new X509Certificate2();
-            cert.Import(Convert.FromBase64String(s.Value), string.Empty, X509KeyStorageFlags.Exportable);
+            var cert = new X509Certificate2(Convert.FromBase64String(s.Value), string.Empty, X509KeyStorageFlags.Exportable);
             return cert;
         }
 
