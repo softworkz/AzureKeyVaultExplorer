@@ -38,7 +38,7 @@ namespace Microsoft.Vault.Explorer.Model.Files.Secrets
         {
             StringBuilder sb = new StringBuilder();
             sb.AppendLine("// --------------------------------------------------------------------------------------");
-            sb.AppendLine($"// {Utils.AppName} encrypted {typeof(T).Name}");
+            sb.AppendLine($"// {Globals.AppName} encrypted {typeof(T).Name}");
             sb.AppendLine("// Do not edit manually!!!");
             sb.AppendLine("// This file can be opened only by the user who saved the file");
             sb.AppendLine("// --------------------------------------------------------------------------------------");

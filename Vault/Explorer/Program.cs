@@ -82,7 +82,7 @@ namespace Microsoft.Vault.Explorer
             {
                 // Define target directory
                 string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-                string configDir = Path.Combine(localAppData, "VaultExplorer", "Config");
+                string configDir = Path.Combine(localAppData, Globals.ProductName, "Config");
 
                 // Create directory if it doesn't exist
                 if (!Directory.Exists(configDir))
