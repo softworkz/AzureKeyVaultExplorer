@@ -5,7 +5,7 @@
 
 **[Click here to install the latest version (https://softworkz.github.io/AzureKeyVaultExplorer)](https://softworkz.github.io/AzureKeyVaultExplorer)**
 
-## NEW: ZERO-Config URL Activation
+### NEW in the latest Version: ZERO-Config URL Activation
 
 More Information: https://github.com/softworkz/AzureKeyVaultExplorer/releases/tag/v2025.0718.1519.37
 
