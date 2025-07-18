@@ -215,7 +215,6 @@ namespace Microsoft.Vault.Explorer
     ///     This class filters (listens to) all messages for the application and if
     ///     a relevant message (such as mouse or keyboard) is received then it resets the timer.
     /// </summary>
-    [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.UnmanagedCode)]
     public class LeaveIdleMessageFilter : IMessageFilter
     {
         private const int WM_NCLBUTTONDOWN = 0x00A1;
