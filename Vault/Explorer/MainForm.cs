@@ -77,28 +77,36 @@ namespace Microsoft.Vault.Explorer
 
         public MainForm(ActivationUri activationUri) : this()
         {
-            Guard.ArgumentNotNull(activationUri, nameof(activationUri));
-            this._activationUri = activationUri;
-            // ActivaionUri is Empty, nothing special to do
-            if (this._activationUri == ActivationUri.Empty)
+            try
             {
-                return;
-            }
+                Guard.ArgumentNotNull(activationUri, nameof(activationUri));
+                this._activationUri = activationUri;
+                // ActivaionUri is Empty, nothing special to do
+                if (this._activationUri == ActivationUri.Empty)
+                {
+                    return;
+                }
 
-            // Activation by vault://name
-            this.uxComboBoxVaultAlias_DropDown(this, EventArgs.Empty);
-            this.uxComboBoxVaultAlias.SelectedIndex = 0;
-            this.SetCurrentVaultAlias();
-            if (!string.IsNullOrEmpty(this._activationUri.VaultName) && string.IsNullOrEmpty(this._activationUri.ItemName))
+                // Activation by vault://name
+                this.uxComboBoxVaultAlias_DropDown(this, EventArgs.Empty);
+                this.uxComboBoxVaultAlias.SelectedIndex = 0;
+                this.SetCurrentVaultAlias();
+                if (!string.IsNullOrEmpty(this._activationUri.VaultName) && string.IsNullOrEmpty(this._activationUri.ItemName))
+                {
+                    this.uxMenuItemRefresh.PerformClick(); // Refresh list
+                    return;
+                }
+
+                // Activation by vault://name/collection/itemName
+                this.SetCurrentVault();
+                this._activationUri.PerformAction(this.CurrentVault);
+                this.Close();
+            }
+            catch (Exception ex)
             {
-                this.uxMenuItemRefresh.PerformClick(); // Refresh list
-                return;
+                MessageBox.Show($"{ex.Message}",
+                    "Error during Activation", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-
-            // Activation by vault://name/collection/itemName
-            this.SetCurrentVault();
-            this._activationUri.PerformAction(this.CurrentVault);
-            this.Close();
         }
 
         /// <summary>Raises the <see cref="E:System.Windows.Forms.Form.Shown" /> event.</summary>
