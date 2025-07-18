@@ -12,5 +12,6 @@
     <SignAssembly>True</SignAssembly>
     <AssemblyOriginatorKeyFile>key.snk</AssemblyOriginatorKeyFile>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <SelfContained>True</SelfContained>
   </PropertyGroup>
 </Project>
