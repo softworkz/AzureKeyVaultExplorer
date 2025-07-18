@@ -185,12 +185,22 @@ namespace Microsoft.Vault.Explorer.Dialogs.Subscriptions
                 this._currentAccountItem = new AccountItem("common");
                 await this.GetAuthenticationTokenAsync();
 
+                if (string.IsNullOrEmpty(this._currentAuthResult.Account?.Username))
+                {
+                    MessageBox.Show("Authentication did not return a user name. Please try again.", "Authentication Problem", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
                 // Get new user account and add it to default settings
-                string userAccountName = this._currentAuthResult.Account?.Username ?? "unknown@unknown.com";
+                string userAccountName = this._currentAuthResult.Account.Username;
                 string[] userLogin = userAccountName.Split('@');
                 this._currentAccountItem.UserAlias = userLogin[0];
                 this._currentAccountItem.DomainHint = userLogin[1];
-                Settings.Default.AddUserAccountName(userAccountName);
+                if (!Settings.Default.AddUserAccountName(userAccountName))
+                {
+                    MessageBox.Show($"The user name {userAccountName} already exists.", "Username exists", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
 
                 // Add the new account to the dropdown and select it
                 var newAccountItem = new AccountItem(this._currentAccountItem.DomainHint, this._currentAccountItem.UserAlias);
