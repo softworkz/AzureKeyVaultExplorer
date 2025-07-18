@@ -182,11 +182,10 @@ namespace Microsoft.Vault.Library
                     vas = accessType == VaultAccessTypeEnum.ReadOnly ? vat.ReadOnly : vat.ReadWrite;
 
                     // Order possible VaultAccess options by Order property
-                    IEnumerable<VaultAccess> vaSorted = from va in vas orderby va.Order select va;
-                    vas = vaSorted.ToArray();
+                    vas = vas.OrderBy(va => va.Order).ToArray();
 
                     // Get user alias for interactive authentication
-                    userAliasType = (from va in vaSorted where va is VaultAccessUserInteractive select (VaultAccessUserInteractive)va).FirstOrDefault()?.UserAliasType;
+                    userAliasType = (from va in vas where va is VaultAccessUserInteractive select (VaultAccessUserInteractive)va).FirstOrDefault()?.UserAliasType;
                 }
 
                 // Convert resource URL to MSAL scopes
