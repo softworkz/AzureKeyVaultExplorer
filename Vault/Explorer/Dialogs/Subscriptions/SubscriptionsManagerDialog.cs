@@ -28,7 +28,6 @@ namespace Microsoft.Vault.Explorer.Dialogs.Subscriptions
         private AuthenticationResult _currentAuthResult;
         private KeyVaultManagementClient _currentKeyVaultMgmtClient;
         private readonly HttpClient _httpClient;
-        private int _initialVaultCount = 0;
 
         public VaultAlias CurrentVaultAlias { get; private set; }
 

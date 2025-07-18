@@ -240,8 +240,6 @@ namespace Microsoft.Vault.Explorer
 
         private UxOperation NewUxOperation(params ToolStripItem[] controlsToToggle) => new UxOperation(this.CurrentVaultAlias, this.uxStatusLabel, null, null, controlsToToggle);
 
-        private void Invoke(Action action) => base.Invoke(action); // Small helper to avoid casting delegate to Action
-
         private void uxComboBoxVaultAlias_DropDown(object sender, EventArgs e)
         {
             object prevSelectedItem = this.uxComboBoxVaultAlias.SelectedItem;
