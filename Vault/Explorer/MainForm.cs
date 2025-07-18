@@ -356,7 +356,7 @@ namespace Microsoft.Vault.Explorer
         {
             this.CurrentVault = new Vault(Utils.FullPathToJsonFile(Settings.Default.VaultsJsonFileLocation), VaultAccessTypeEnum.ReadWrite, this.CurrentVaultAlias.VaultNames);
             // In case that subscription is chosen by the dialog, overwrite permissions taken from vaults.json
-            if (this.CurrentVaultAlias.UserAlias != null)
+            if (this.CurrentVaultAlias.UserAlias != null || this.CurrentVault.VaultsConfig.Count == 0)
             {
                 this.CurrentVault.VaultsConfig[this.CurrentVaultAlias.VaultNames[0]] = new VaultAccessType(
                     new VaultAccess[] { new VaultAccessUserInteractive(this.CurrentVaultAlias.DomainHint, this.CurrentVaultAlias.UserAlias) },
