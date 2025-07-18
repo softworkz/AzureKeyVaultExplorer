@@ -23,13 +23,6 @@ namespace Microsoft.Vault.Explorer.Dialogs.Subscriptions
         private const string ApiVersion = "api-version=2016-07-01";
         private const string ManagmentEndpoint = "https://management.azure.com/";
         private const string AddAccountText = "Add New Account";
-        private const string AddDomainHintText = "How to add new domain hint here...";
-
-        private const string AddDomainHintInstructions = @"To add new domain hint, just follow below steps:
-1) In the main window open Settings dialog
-2) Add domain hint line to 'Domain hints' property
-3) Click on 'OK' button to save and close Settings dialog
-4) Open Subscriptions Manager dialog";
 
         private AccountItem _currentAccountItem;
         private AuthenticationResult _currentAuthResult;
@@ -59,7 +52,6 @@ namespace Microsoft.Vault.Explorer.Dialogs.Subscriptions
             }
 
             this.uxComboBoxAccounts.Items.Add(AddAccountText);
-            this.uxComboBoxAccounts.Items.Add(AddDomainHintText);
 
             // Only auto-select if we have pre-configured accounts, otherwise let user choose
             if (hasPreConfiguredAccounts)
@@ -86,12 +78,6 @@ namespace Microsoft.Vault.Explorer.Dialogs.Subscriptions
                 case AddAccountText:
                     this.AddNewAccount();
                     break;
-
-                case AddDomainHintText:
-                    // Display instructions on how to add domain hint
-                    MessageBox.Show(AddDomainHintInstructions, Utils.AppName, MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    this.uxComboBoxAccounts.SelectedItem = null;
-                    return;
 
                 case AccountItem account:
                     // Authenticate into selected account
