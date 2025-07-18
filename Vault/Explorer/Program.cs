@@ -78,12 +78,6 @@ namespace Microsoft.Vault.Explorer
         {
             try
             {
-                // Only setup if using default location
-                if (Settings.Default.JsonConfigurationFilesRoot != @".\")
-                {
-                    return; // User has customized the location, don't interfere
-                }
-
                 // Define target directory
                 string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
                 string configDir = Path.Combine(localAppData, "VaultExplorer", "Config");
@@ -92,6 +86,16 @@ namespace Microsoft.Vault.Explorer
                 if (!Directory.Exists(configDir))
                 {
                     Directory.CreateDirectory(configDir);
+                }
+
+                // Only setup if using default location
+                var pathFromSettings = Settings.Default.JsonConfigurationFilesRoot;
+                if (!string.IsNullOrEmpty(pathFromSettings) && Directory.Exists(pathFromSettings))
+                {
+                    if (!pathFromSettings.Equals(configDir, StringComparison.OrdinalIgnoreCase))
+                    {
+                        return; // User has customized the location, don't interfere
+                    }
                 }
 
                 // List of configuration files to copy
