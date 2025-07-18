@@ -79,8 +79,8 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ClearClipboard\ClearClipboard.csproj" ReferenceOutputAssembly="false" OutputItemType="Content" CopyToPublishDirectory="Always" />
     <ProjectReference Include="..\Library\VaultLibrary.csproj" />
+    <ProjectReference Include="..\ClearClipboard\ClearClipboard.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="Properties\Settings.settings">
