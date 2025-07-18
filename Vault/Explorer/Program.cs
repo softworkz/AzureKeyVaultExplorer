@@ -38,6 +38,8 @@ namespace Microsoft.Vault.Explorer
 
             CheckUpdateSettings();
 
+            Globals.DefaultUserName = Settings.Default.UserAccountNamesList.FirstOrDefault() ?? Environment.UserName;
+
             // First run install steps
             Utils.ClickOnce_SetAddRemoveProgramsIcon();
             ActivationUri.RegisterVaultProtocol();

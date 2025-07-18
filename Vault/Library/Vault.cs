@@ -67,11 +67,11 @@ namespace Microsoft.Vault.Library
             Guard.ArgumentNotNull(vaultsConfig, nameof(vaultsConfig));
             Guard.ArgumentCollectionNotEmpty(vaultNames, nameof(vaultNames));
             this.VaultsConfig = vaultsConfig;
-            this.VaultNames = (from v in vaultNames where !string.IsNullOrEmpty(v) select v).ToArray();
+            this.VaultNames = vaultNames.Where(Extensions.IsNotEmpty).ToArray();
             switch (this.VaultNames.Length)
             {
                 case 1:
-                    this._keyVaultClients = new KeyVaultClientEx[1]
+                    this._keyVaultClients = new []
                     {
                         this.CreateKeyVaultClientEx(accessType, this.VaultNames[0]),
                     };
@@ -199,17 +199,15 @@ namespace Microsoft.Vault.Library
                     try
                     {
                         // If user alias type is different from environment, force login prompt, otherwise silently login
-                        var authResult = await va.AcquireTokenAsync(scopes, userAliasType == Environment.UserName ? Environment.UserName : "");
+                        var authResult = await va.AcquireTokenAsync(scopes, userAliasType);
 
-                        // Set authenticated user name based on auth result
-                        if (authResult.Account != null)
+                        if (authResult.Account == null)
                         {
-                            this.AuthenticatedUserName = authResult.Account.Username ?? $"{Environment.UserDomainName}\\{Environment.UserName}";
+                            // should never happen
+                            throw new VaultAccessException("The authentication result doesn't include account information");
                         }
-                        else
-                        {
-                            this.AuthenticatedUserName = $"{Environment.UserDomainName}\\{Environment.UserName}";
-                        }
+
+                        this.AuthenticatedUserName = authResult.Account.Username ?? userAliasType;
 
                         return authResult.AccessToken;
                     }

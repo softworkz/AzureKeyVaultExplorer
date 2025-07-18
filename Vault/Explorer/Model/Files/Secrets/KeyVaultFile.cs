@@ -25,7 +25,7 @@ namespace Microsoft.Vault.Explorer.Model.Files.Secrets
 
         protected KeyVaultFile(T obj)
         {
-            this.CreatedBy = $"{Environment.UserDomainName}\\{Environment.UserName}";
+            this.CreatedBy = Globals.DefaultUserName;
             this.CreationTime = DateTimeOffset.UtcNow;
             this.Data = ProtectedData.Protect(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(obj, Formatting.Indented)), null, DataProtectionScope.CurrentUser);
         }
